@@ -1,4 +1,4 @@
-interface ScriptFilterItem {
+export interface ScriptFilterItem {
   title: string;
   arg?: any;
   variable?: any;

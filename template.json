@@ -1,6 +1,7 @@
 {
-    "installed": {
-        "alfred-chrome-history": {
+    "installed": [
+        {
+            "bundleId": "alfred-chrome-history",
             "enabled": "",
             "id": "",
             "kind": "Productivity",
@@ -12,7 +13,7 @@
                     "type": "keyword",
                     "action": {
                         "type": "open",
-                        "script" : "https://google.com?q=${query}"
+                        "script": "https://google.com?q=${query}"
                     },
                     "command": "chs",
                     "subtitle": "some_subtitle"
@@ -23,7 +24,7 @@
                     "script": "src/chromeSearch.js ${query}",
                     "action": {
                         "type": "script",
-                        "script" : "src/openBroswer.js ${query}"
+                        "script": "src/openBroswer.js ${query}"
                     },
                     "command": "chh"
                 },
@@ -33,11 +34,11 @@
                     "script": "src/chromeSearch.js ${query}",
                     "action": {
                         "type": "open",
-                        "script" : "https://naver.com"
+                        "script": "https://naver.com"
                     },
                     "command": "chh"
                 }
             ]
         }
-    }
+    ]
 }
