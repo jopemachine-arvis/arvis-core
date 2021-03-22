@@ -1,0 +1,43 @@
+{
+    "installed": {
+        "alfred-chrome-history": {
+            "enabled": "",
+            "id": "",
+            "kind": "Productivity",
+            "version": "0.0.1",
+            "description": "",
+            "commands": [
+                {
+                    "id": "",
+                    "type": "keyword",
+                    "action": {
+                        "type": "open",
+                        "script" : "https://google.com?q=${query}"
+                    },
+                    "command": "chs",
+                    "subtitle": "some_subtitle"
+                },
+                {
+                    "id": "",
+                    "type": "script_filter",
+                    "script": "src/chromeSearch.js ${query}",
+                    "action": {
+                        "type": "script",
+                        "script" : "src/openBroswer.js ${query}"
+                    },
+                    "command": "chh"
+                },
+                {
+                    "id": "",
+                    "type": "script_filter",
+                    "script": "src/chromeSearch.js ${query}",
+                    "action": {
+                        "type": "open",
+                        "script" : "https://naver.com"
+                    },
+                    "command": "chh"
+                }
+            ]
+        }
+    }
+}

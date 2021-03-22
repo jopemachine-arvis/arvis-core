@@ -1,0 +1,19 @@
+{
+    "defaultSeverity": "error",
+    "extends": "tslint:latest",
+    "jsRules": {},
+    "rules": {
+        "semicolon": [
+            true, "always"
+        ],
+        "no-console": false,
+        "no-unused-expression": false,
+        "max-classes-per-file": false,
+        "no-var-requires": false,
+        "prefer-for-of": false,
+        "ban-types": false
+    },
+    "rulesDirectory": [
+        "src/"
+    ]
+}
