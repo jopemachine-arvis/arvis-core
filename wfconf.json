@@ -6,18 +6,18 @@
             "id": "",
             "type": "keyword",
             "action": {
-                "type": "open",
-                "script": "https://google.com?q=${query}"
+                "type": "script",
+                "script": "echo foo"
             },
             "command": "chs"
         },
         {
             "id": "",
             "type": "script_filter",
-            "script": "src/chromeSearch.js ${query}",
+            "script_filter": "src/chromeSearch.js ${query}",
             "action": {
                 "type": "script",
-                "script": "src/openBroswer.js ${query}"
+                "script": "echo foo"
             },
             "command": "chh"
         },
@@ -29,7 +29,7 @@
                 "type": "open",
                 "script": "https://naver.com"
             },
-            "command": "chh"
+            "command": "cha"
         }
     ]
 }
