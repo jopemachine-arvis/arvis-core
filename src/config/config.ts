@@ -1,4 +1,6 @@
 import Conf from 'conf';
+import _ from 'lodash';
+
 const schema = {
   installed: {
     type: "object",
@@ -43,6 +45,23 @@ const deleteWorkflow = (bundleId: string) => {
   const installedWorkflows = getInstalledWorkflows();
   installedWorkflows[bundleId] = undefined;
   conf.set('installed', installedWorkflows);
+  const commands = getCommands();
+  for (const command of Object.keys(commands)) {
+    const commandRecords = commands[command];
+
+    // tslint:disable-next-line: forin
+    for (const commandRecordIdx in commandRecords) {
+      // Delete all command which bundle id equals `bundleId`
+      if (commandRecords[commandRecordIdx].bundleId === bundleId) {
+        commandRecords.splice(commandRecordIdx, 1);
+      }
+      if (commandRecords.length === 0) {
+        delete commands[command];
+      }
+    }
+  }
+
+  conf.set('commands', commands);
 };
 
 export {
