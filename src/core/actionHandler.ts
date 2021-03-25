@@ -11,17 +11,15 @@ const handleModifiers = (nextActions, modifiers) => {
   return nextActions;
 };
 
-const handleAction = (command, queryArgs, modifiers) => {
+const handleAction = async (command, queryArgs, modifiers) => {
   const nextActions = handleModifiers(command.action, modifiers);
 
   switch (command.type.toLowerCase()) {
     // execute script
     case "script_filter":
     case "scriptfilter":
-      const scriptWork = handleScriptFilter(command, queryArgs);
       return {
         nextActions,
-        scriptWork,
       };
     // just execute next action
     case "keyword":
@@ -29,7 +27,7 @@ const handleAction = (command, queryArgs, modifiers) => {
         nextActions
       };
     case "open":
-      openFile(command.url);
+      await openFile(command.url);
       return {
       };
     case "clipboard":

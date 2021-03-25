@@ -1,5 +1,6 @@
 import { handleAction } from './actionHandler';
 import util from 'util';
+import { handleScriptFilter } from './scriptFilterChangeHandler';
 
 interface Work {
   type: string;
@@ -42,7 +43,7 @@ export class CommandManager {
     const command = item;
     const [first, ...querys] = inputStr.split(" ");
     const args = this.createArgs(querys);
-    const result = handleAction(command, args, modifier);
+    const result = await handleAction(command, args, modifier);
 
     if (result!.nextActions) {
       this.commandStk.push({
@@ -61,17 +62,16 @@ export class CommandManager {
   scriptFilterExcute(
     item: any,
     inputStr: string,
-    modifier: Modifiers
   ) {
     const command = item;
     const [first, ...querys] = inputStr.split(" ");
     const args = this.createArgs(querys);
 
-    const work: Promise<any> = handleAction(command, args, modifier)!.scriptWork!;
+    const scriptWork: Promise<any> = handleScriptFilter(command, args);
 
-    this.workPromise = work;
-    work.then(result => {
-      if (this.workPromise === work) {
+    this.workPromise = scriptWork;
+    scriptWork.then(result => {
+      if (this.workPromise === scriptWork) {
         const newItems = JSON.parse(result.stdout).items;
         this.onItemShouldBeUpdate && this.onItemShouldBeUpdate(newItems);
       }
