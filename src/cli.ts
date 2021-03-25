@@ -1,3 +1,4 @@
+import chalk from 'chalk';
 import {
   install,
   execute,
@@ -6,11 +7,16 @@ import {
   getWorkflowList,
   getCommandList,
 } from "./core";
+
+import initConfig from './config/initConfig';
 import helpManual from './config/helpStr';
 
 // cli main function
 const cliFunc = async (input, flags): Promise<string> => {
   switch (input[0]) {
+    case "init":
+      initConfig();
+      return chalk.cyan('Init config completed.');
     case "l":
     case "list":
       return getWorkflowList();
