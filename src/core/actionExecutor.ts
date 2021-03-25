@@ -1,6 +1,7 @@
 import execa from 'execa';
 import { getCommandList } from './commandList';
 import _ from 'lodash';
+import path from 'path';
 
 const findCommands = (command: string) => {
   const commands = getCommandList();
@@ -15,12 +16,16 @@ const findCommands = (command: string) => {
   return filtered;
 };
 
-const execute = async (command: string) => {
-  const target = findCommands(command)[0];
-  const script = target.action.script;
+const execute = async (bundleId: string, command: string) => {
+  const execPath = path.resolve(`./installed/${bundleId}`);
 
-  const [program, ...args] = script.split(' ');
-  const { stdout } = await execa(program, args);
+  const { stdout } = await execa.command(command, {
+    cwd: execPath,
+    env: {
+      // Setting for alfy compatibility
+      'alfred-workflow-cache': bundleId
+    },
+  });
   return stdout.toString();
 };
 

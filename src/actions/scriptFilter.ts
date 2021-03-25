@@ -10,9 +10,12 @@ const handleScriptArgs = (script: string, queryArgs) => {
 
 const handleScriptFilter = async (command, queryArgs) => {
   const script = command.script_filter;
-  const stdout = await execute(handleScriptArgs(script, queryArgs));
+  const stdout = await execute(
+    command.bundleId,
+    handleScriptArgs(script, queryArgs)
+  );
   return {
-    stdout
+    stdout,
   };
 };
 

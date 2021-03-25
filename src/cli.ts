@@ -22,7 +22,7 @@ const cliFunc = async (input, flags): Promise<string> => {
       return getWorkflowList();
     case "e":
     case "execute":
-      const pipedStr = await execute(input[1]);
+      const pipedStr = await execute('alfred-chrome-history', input[1]);
       return pipedStr;
     case "f":
     case "find":
