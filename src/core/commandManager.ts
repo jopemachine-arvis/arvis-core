@@ -14,13 +14,13 @@ interface Modifiers {
 
 export class CommandManager {
   commandStk: Work[];
-  workQue: any[];
+  workPromise: Promise<any> | null;
   onItemPressHandler?: () => void;
   onItemShouldBeUpdate?: (items: any) => void;
 
   constructor() {
     this.commandStk = [];
-    this.workQue = [];
+    this.workPromise = null;
   }
 
   private createArgs (querys) {
@@ -68,24 +68,13 @@ export class CommandManager {
     const args = this.createArgs(querys);
 
     const work: Promise<any> = handleAction(command, args, modifier)!.scriptWork!;
-    this.workQue.push(work);
 
+    this.workPromise = work;
     work.then(result => {
-      if (this.workQue[this.workQue.length - 1] === work) {
+      if (this.workPromise === work) {
         const newItems = JSON.parse(result.stdout).items;
         this.onItemShouldBeUpdate && this.onItemShouldBeUpdate(newItems);
       }
     });
-
-    // if (!this.workInProgress) this.workInProgress = newWork;
-
-    // if (util.inspect(this.workInProgress).includes('pending')) {
-    //   this.workInProgress = newWork;
-    // }
-
-    // this.workInProgress.then((result) => {
-    //   const newItems = JSON.parse(result.stdout).items;
-    //   this.onItemShouldBeUpdate && this.onItemShouldBeUpdate(newItems);
-    // });
   }
 }
