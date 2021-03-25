@@ -20,10 +20,6 @@ const cliFunc = async (input, flags): Promise<string> => {
     case "l":
     case "list":
       return getWorkflowList();
-    case "e":
-    case "execute":
-      const pipedStr = await execute('alfred-chrome-history', input[1]);
-      return pipedStr;
     case "f":
     case "find":
       return findCommands(input[1]);
