@@ -1,8 +1,9 @@
-import { execute, findCommands } from './actionExecutor';
+import { execute } from './actionExecutor';
+import { findCommands } from './commandFinder';
 import { install, unInstall } from "./workflowInstaller";
 import { getWorkflowList } from "./workflowList";
 import { getCommandList } from "./commandList";
-import { handleCommandExecute } from "./commandHandler";
+import { handleAction } from "./actionHandler";
 import { CommandManager } from "./commandManager";
 
 export {
@@ -13,5 +14,5 @@ export {
   unInstall,
   getWorkflowList,
   getCommandList,
-  handleCommandExecute
+  handleAction
 };

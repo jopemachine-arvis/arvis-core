@@ -11,7 +11,7 @@ const handleModifiers = (nextActions, modifiers) => {
   return nextActions;
 };
 
-const handleCommandExecute = async (command, queryArgs, modifiers) => {
+const handleAction = async (command, queryArgs, modifiers) => {
   const nextActions = handleModifiers(command.action, modifiers);
 
   switch (command.type.toLowerCase()) {
@@ -43,5 +43,5 @@ const handleCommandExecute = async (command, queryArgs, modifiers) => {
 };
 
 export {
-  handleCommandExecute
+  handleAction
 };

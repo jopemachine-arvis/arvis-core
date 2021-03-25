@@ -1,4 +1,4 @@
-import { handleCommandExecute } from './commandHandler';
+import { handleAction } from './actionHandler';
 
 interface Work {
   type: string;
@@ -20,7 +20,7 @@ export class CommandManager {
     this.commandStk = [];
   }
 
-  async commandExcuteHandler(
+  async commandExcute(
     item: any,
     inputStr: string,
     modifier: Modifiers
@@ -28,13 +28,14 @@ export class CommandManager {
     const command = item;
     const [first, ...querys] = inputStr.split(" ");
 
-    const args = { '\${query}': querys.join(" ") };
+    const args = { '\${query}': querys.join(" "), '$1': '' };
+
     // tslint:disable-next-line: forin
     for (const qIdx in querys) {
-      args[`$${qIdx + 1}`] = querys[qIdx];
+      args[`$${Number(qIdx) + 1}`] = querys[qIdx];
     }
 
-    const result = await handleCommandExecute(command, { args }, modifier);
+    const result = await handleAction(command, { args }, modifier);
 
     if (result!.stdout) {
       const newItems = JSON.parse(result!.stdout!).items;

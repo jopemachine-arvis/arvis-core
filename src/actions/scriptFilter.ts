@@ -2,8 +2,8 @@ import { execute } from "./scriptExecution";
 import { replaceAll } from '../utils';
 
 const handleScriptArgs = (script: string, queryArgs) => {
-  for (const key of Object.keys(queryArgs)) {
-    script = replaceAll(script, key, queryArgs[key]);
+  for (const key of Object.keys(queryArgs.args)) {
+    script = replaceAll(script, key, queryArgs.args[key]);
   }
   return script;
 };
