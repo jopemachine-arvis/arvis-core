@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { openFile, copyToClipboard } from "../actions";
+import { openFile, copyToClipboard, argsExtract } from "../actions";
 import { handleScriptArgs } from "./argsHandler";
 import { handleModifiers } from './modifierHandler';
 
@@ -37,6 +37,11 @@ const handleAction = (
         action = action as ClipboardAction;
         target = handleScriptArgs(action.text, queryArgs);
         copyToClipboard(target);
+        break;
+      case "args":
+        action = action as ArgsAction;
+        queryArgs = argsExtract(queryArgs, action.arg);
+        handleAction(action.action, queryArgs, modifiersInput);
         break;
     }
   });

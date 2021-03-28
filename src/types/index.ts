@@ -1,15 +1,16 @@
-import { OpenAction as _OpenAction } from './actions/openAction';
-import { ScriptAction as _ScriptAction } from './actions/scriptAction';
-import { ClipboardAction as _ClipboardAction } from './actions/clipboardAction';
-import { ScriptFilterAction as _ScriptFilterAction } from './actions/scriptFilterAction';
-import { KeywordAction as _KeywordAction } from './actions/keywordAction';
+import { OpenAction as _OpenAction } from "./actions/openAction";
+import { ScriptAction as _ScriptAction } from "./actions/scriptAction";
+import { ClipboardAction as _ClipboardAction } from "./actions/clipboardAction";
+import { ScriptFilterAction as _ScriptFilterAction } from "./actions/scriptFilterAction";
+import { KeywordAction as _KeywordAction } from "./actions/keywordAction";
+import { ArgsAction as _ArgsAction } from "./actions/argsAction";
 
-import { Keyword as _Keyword } from './inputs/keyword';
-import { ScriptFilter as _ScriptFilter } from './inputs/scriptFilter';
-import { Command as _Command } from './command';
-import { ScriptFilterItem as _ScriptFilterItem } from './scriptFilterItem';
-import { ModifierInput as _ModifierInput } from './modifierInput';
-import { WorkflowConfigFile as _WorkflowConfigFile } from './workflowConfig';
+import { Keyword as _Keyword } from "./inputs/keyword";
+import { ScriptFilter as _ScriptFilter } from "./inputs/scriptFilter";
+import { Command as _Command } from "./command";
+import { ScriptFilterItem as _ScriptFilterItem } from "./scriptFilterItem";
+import { ModifierInput as _ModifierInput } from "./modifierInput";
+import { WorkflowConfigFile as _WorkflowConfigFile } from "./workflowConfig";
 
 declare global {
   type OpenAction = _OpenAction;
@@ -17,7 +18,14 @@ declare global {
   type ClipboardAction = _ClipboardAction;
   type ScriptFilterAction = _ScriptFilterAction;
   type KeywordAction = _KeywordAction;
-  type Action = OpenAction | ScriptAction | ClipboardAction | ScriptFilterAction | KeywordAction;
+  type ArgsAction = _ArgsAction;
+  type Action =
+    | OpenAction
+    | ScriptAction
+    | ClipboardAction
+    | ScriptFilterAction
+    | KeywordAction
+    | _ArgsAction;
 
   type Keyword = _Keyword;
   type ScriptFilter = _ScriptFilter;

@@ -1,6 +1,7 @@
 import { execute } from "./scriptExecution";
 import { openFile } from "./openFiles";
 import { copyToClipboard } from "./clipboard";
+import { argsExtract } from "./argsExtract";
 // import { } from "./scriptFilter";
 
-export { copyToClipboard, execute, openFile };
+export { argsExtract, copyToClipboard, execute, openFile };
