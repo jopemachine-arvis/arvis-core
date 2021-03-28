@@ -6,18 +6,22 @@ import '../types';
 interface Work {
   type: string;
   input: string;
+  bundleId: string;
+  selectedArgs: object | null;
   command: Command;
 }
 
 export class CommandManager {
   commandStk: Work[];
   workPromise: Promise<any> | null;
+  handleAction: Function;
   onItemPressHandler?: () => void;
   onItemShouldBeUpdate?: (items: ScriptFilterItem[]) => void;
 
   constructor() {
     this.commandStk = [];
     this.workPromise = null;
+    this.handleAction = handleAction.bind(this);
   }
 
   async commandExcute(
@@ -26,7 +30,7 @@ export class CommandManager {
     modifier: ModifierInput
   ) {
     // If the stack is empty, the args becomes query, otherwise args becomes arg of items
-    let args;
+    let args: object;
 
     // If the stack is empty, the command becomes actions, otherwise the top action of the stack is 'actions'.
     let actions;
@@ -44,15 +48,18 @@ export class CommandManager {
       args = extractArgsFromScriptFilterItem(item);
     }
 
-    const result = handleAction(actions, args, modifier);
+    const result = this.handleAction(actions, args, modifier);
 
     if (result.nextAction) {
       this.commandStk.push({
         // assume:: type: 'script_filter'
-        type: (item as Command).type,
+        type: 'scriptfilter',
         input: inputStr,
         command: result!.nextAction,
+        bundleId: this.commandStk[this.commandStk.length - 1].bundleId,
+        selectedArgs: args,
       });
+      this.scriptFilterExcute('');
     } else {
       // clear command stack, and return to initial.
       this.commandStk.length = 0;
@@ -63,30 +70,43 @@ export class CommandManager {
 
   scriptFilterExcute(
     inputStr: string,
-    item?: Command,
+    commandOnStackIsEmpty?: Command,
   ) {
     // If Command stack is 0, you can enter the script filter without a return event.
     // To handle this, push this command to commandStk
     if (this.commandStk.length === 0) {
+      if (!commandOnStackIsEmpty) {
+        console.error('Error - item not be set');
+        return;
+      }
       this.commandStk.push({
         type: 'scriptfilter',
         input: inputStr,
-        command: item!,
+        command: commandOnStackIsEmpty,
+        bundleId: commandOnStackIsEmpty.bundleId!,
+        selectedArgs: null,
       });
     }
 
-    const command = this.commandStk[this.commandStk.length - 1].command;
-
+    const { bundleId, command, selectedArgs } = this.commandStk[this.commandStk.length - 1];
     const [first, ...querys] = inputStr.split(" ");
-    const args = extractArgs(querys);
-    const scriptWork: Promise<any> = handleScriptFilterChange(command, args);
+    // HACK:: Think about how to deal with the args.
+    const args = selectedArgs ? selectedArgs : extractArgs(querys);
+    const scriptWork: Promise<any> = handleScriptFilterChange(bundleId, command, args);
 
     this.workPromise = scriptWork;
     scriptWork.then(result => {
       if (this.workPromise === scriptWork) {
-        const newItems = JSON.parse(result.stdout).items;
+        const newItems = (JSON.parse(result.stdout) as ScriptFilterResult).items;
+        console.log('newItems', newItems);
+        // To do:: Implement variables, rerunInterval features here
         this.onItemShouldBeUpdate && this.onItemShouldBeUpdate(newItems);
+      } else {
+        const newItems = (JSON.parse(result.stdout) as ScriptFilterResult).items;
+        console.log('newItems, not uptodate', newItems);
       }
+    }).catch(err => {
+      console.error(err);
     });
   }
 }

@@ -2,6 +2,7 @@ import { OpenAction as _OpenAction } from "./actions/openAction";
 import { ScriptAction as _ScriptAction } from "./actions/scriptAction";
 import { ClipboardAction as _ClipboardAction } from "./actions/clipboardAction";
 import { ScriptFilterAction as _ScriptFilterAction } from "./actions/scriptFilterAction";
+import { ScriptFilterResult as _ScriptFilterResult } from "./scriptFilterResult";
 import { KeywordAction as _KeywordAction } from "./actions/keywordAction";
 import { ArgsAction as _ArgsAction } from "./actions/argsAction";
 
@@ -12,11 +13,13 @@ import { ScriptFilterItem as _ScriptFilterItem } from "./scriptFilterItem";
 import { ModifierInput as _ModifierInput } from "./modifierInput";
 import { WorkflowConfigFile as _WorkflowConfigFile } from "./workflowConfig";
 
+// Need to change below codes to import this code from the CUI and GUI code side
 declare global {
   type OpenAction = _OpenAction;
   type ScriptAction = _ScriptAction;
   type ClipboardAction = _ClipboardAction;
   type ScriptFilterAction = _ScriptFilterAction;
+  type ScriptFilterResult = _ScriptFilterResult;
   type KeywordAction = _KeywordAction;
   type ArgsAction = _ArgsAction;
   type Action =

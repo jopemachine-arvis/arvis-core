@@ -1,17 +1,19 @@
 import _ from "lodash";
 import { openFile, copyToClipboard, argsExtract } from "../actions";
 import { handleScriptArgs } from "./argsHandler";
+import { CommandManager } from "./commandManager";
 import { handleModifiers } from './modifierHandler';
 
 // The actions arrangement is taken as a factor to branch according to cond or modifiers.
-const handleAction = (
+function handleAction(
+  this: CommandManager,
   actions: Action[],
   queryArgs: object,
   modifiersInput: ModifierInput
-) => {
+) {
   actions = handleModifiers(actions, modifiersInput);
   let target;
-  let nextAction: any = null;
+  let nextAction: Action | null = null;
 
   // There can still be more than one action, such as simultaneously performing clipboard and script_filter.
   _.map(actions, (action) => {
@@ -21,12 +23,12 @@ const handleAction = (
       case "scriptfilter":
         action = action as ScriptFilterAction;
         target = handleScriptArgs(action.script_filter, queryArgs);
-        nextAction = action.action;
+        nextAction = action;
         break;
       // just execute next action
       case "keyword":
         action = action as KeywordAction;
-        nextAction = action.action;
+        nextAction = action;
         break;
       case "open":
         action = action as OpenAction;
@@ -41,14 +43,17 @@ const handleAction = (
       case "args":
         action = action as ArgsAction;
         queryArgs = argsExtract(queryArgs, action.arg);
-        handleAction(action.action, queryArgs, modifiersInput);
+        this.handleAction(action.action, queryArgs, modifiersInput);
         break;
     }
   });
 
+  // To do::
+  // Theoretically, nextAction may have more than one script filter, but the case is not considered yet..
+
   return {
     nextAction,
   };
-};
+}
 
 export { handleAction };
