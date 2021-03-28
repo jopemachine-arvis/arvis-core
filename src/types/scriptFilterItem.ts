@@ -8,8 +8,8 @@ export interface ScriptFilterItem {
   text?: {
     copy?: string;
     largetype?: string;
-  }
-  icon? :{
+  };
+  icon? : {
     path?: string;
-  }
+  };
 }

@@ -5,15 +5,15 @@ import '../types';
 
 interface Work {
   type: string;
-  command: string;
-  action: any;
+  input: string;
+  command: Command;
 }
 
 export class CommandManager {
   commandStk: Work[];
   workPromise: Promise<any> | null;
   onItemPressHandler?: () => void;
-  onItemShouldBeUpdate?: (items: any) => void;
+  onItemShouldBeUpdate?: (items: ScriptFilterItem[]) => void;
 
   constructor() {
     this.commandStk = [];
@@ -39,19 +39,19 @@ export class CommandManager {
     }
     else {
       const last = this.commandStk[this.commandStk.length - 1];
-      actions = last.action;
+      actions = last.command.action;
       item = item as ScriptFilterItem;
       args = extractArgsFromScriptFilterItem(item);
     }
 
-    const result = await handleAction(actions, args, modifier);
+    const result = handleAction(actions, args, modifier);
 
     if (result.nextAction) {
       this.commandStk.push({
         // assume:: type: 'script_filter'
         type: (item as Command).type,
-        command: inputStr,
-        action: result!.nextAction
+        input: inputStr,
+        command: result!.nextAction,
       });
     } else {
       // clear command stack, and return to initial.
@@ -62,20 +62,21 @@ export class CommandManager {
   }
 
   scriptFilterExcute(
-    item: Command,
     inputStr: string,
+    item?: Command,
   ) {
     // If Command stack is 0, you can enter the script filter without a return event.
     // To handle this, push this command to commandStk
     if (this.commandStk.length === 0) {
       this.commandStk.push({
         type: 'scriptfilter',
-        command: inputStr,
-        action: item.action
+        input: inputStr,
+        command: item!,
       });
     }
 
-    const command = item;
+    const command = this.commandStk[this.commandStk.length - 1].command;
+
     const [first, ...querys] = inputStr.split(" ");
     const args = extractArgs(querys);
     const scriptWork: Promise<any> = handleScriptFilterChange(command, args);

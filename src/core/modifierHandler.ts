@@ -1,7 +1,10 @@
 import _ from "lodash";
 import "../types";
 
-export const handleModifiers = (actions: Action[], modifiersInput: ModifierInput) => {
+export const handleModifiers = (
+  actions: Action[],
+  modifiersInput: ModifierInput
+) => {
   if (!modifiersInput) modifiersInput = { normal: true };
 
   const modifiers = _.filter(
