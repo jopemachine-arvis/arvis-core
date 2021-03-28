@@ -1,14 +1,15 @@
 import { execute } from "../actions/scriptExecution";
 import { handleScriptArgs } from './argsHandler';
+import "../types";
 
-const handleScriptFilter = (command, queryArgs: object) => {
-  const script = command.script_filter;
+const handleScriptFilterChange = (command: Command, queryArgs: object) => {
+  const script = command.script_filter!;
   return execute(
-    command.bundleId,
+    command.bundleId!,
     handleScriptArgs(script, queryArgs)
   );
 };
 
 export {
-  handleScriptFilter,
+  handleScriptFilterChange,
 };

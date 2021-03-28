@@ -1,7 +1,7 @@
 import { handleAction } from './actionHandler';
-import { handleScriptFilter } from './scriptFilterChangeHandler';
+import { handleScriptFilterChange } from './scriptFilterChangeHandler';
 import { createArgs } from './argsHandler';
-import '../types/global.d';
+import '../types';
 
 interface Work {
   type: string;
@@ -21,7 +21,7 @@ export class CommandManager {
   }
 
   async commandExcute(
-    item: any,
+    item: Command | ScriptFilterItem,
     inputStr: string,
     modifier: ModifierInput
   ) {
@@ -32,11 +32,13 @@ export class CommandManager {
     let actions;
 
     if (this.commandStk.length === 0) {
+      item = item as Command;
       actions = item;
       const [first, ...querys] = inputStr.split(" ");
       args = createArgs(querys);
     }
     else {
+      item = item as ScriptFilterItem;
       const last = this.commandStk[this.commandStk.length - 1];
       actions = last.action;
       args = {
@@ -50,7 +52,7 @@ export class CommandManager {
     if (result.nextAction) {
       this.commandStk.push({
         // assume:: type: 'script_filter'
-        type: item.type,
+        type: (item as Command).type,
         command: inputStr,
         action: result!.nextAction
       });
@@ -63,7 +65,7 @@ export class CommandManager {
   }
 
   scriptFilterExcute(
-    item: any,
+    item: Command,
     inputStr: string,
   ) {
     // If Command stack is 0, you can enter the script filter without a return event.
@@ -79,7 +81,7 @@ export class CommandManager {
     const command = item;
     const [first, ...querys] = inputStr.split(" ");
     const args = createArgs(querys);
-    const scriptWork: Promise<any> = handleScriptFilter(command, args);
+    const scriptWork: Promise<any> = handleScriptFilterChange(command, args);
 
     this.workPromise = scriptWork;
     scriptWork.then(result => {

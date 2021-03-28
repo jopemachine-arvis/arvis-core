@@ -1,4 +1,4 @@
-import './global.d';
+import '.';
 
 // Add more attributes if necessary
 export interface WorkflowConfigFile {

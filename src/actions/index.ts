@@ -1,6 +1,6 @@
 import { execute } from "./scriptExecution";
 import { openFile } from "./openFiles";
 import { copyToClipboard } from "./clipboard";
-import { handleScriptFilter } from "../core/scriptFilterChangeHandler";
+// import { } from "./scriptFilter";
 
-export { handleScriptFilter, copyToClipboard, execute, openFile };
+export { copyToClipboard, execute, openFile };
