@@ -1,7 +1,7 @@
 import _ from "lodash";
 import "../types";
 
-export const handleModifiers = (actions, modifiersInput: ModifierInput) => {
+export const handleModifiers = (actions: Action[], modifiersInput: ModifierInput) => {
   if (!modifiersInput) modifiersInput = { normal: true };
 
   const modifiers = _.filter(
@@ -13,7 +13,7 @@ export const handleModifiers = (actions, modifiersInput: ModifierInput) => {
     return _.filter(actions, (action) => {
       let included = true;
       for (const modifier of modifiers) {
-        if (!action.modifiers.includes(modifier)) {
+        if (action.modifiers && !action.modifiers.includes(modifier)) {
           included = false;
         }
       }

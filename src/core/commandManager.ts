@@ -1,6 +1,6 @@
 import { handleAction } from './actionHandler';
 import { handleScriptFilterChange } from './scriptFilterChangeHandler';
-import { createArgs } from './argsHandler';
+import { extractArgs, extractArgsFromScriptFilterItem } from './argsHandler';
 import '../types';
 
 interface Work {
@@ -35,16 +35,13 @@ export class CommandManager {
       item = item as Command;
       actions = item;
       const [first, ...querys] = inputStr.split(" ");
-      args = createArgs(querys);
+      args = extractArgs(querys);
     }
     else {
-      item = item as ScriptFilterItem;
       const last = this.commandStk[this.commandStk.length - 1];
       actions = last.action;
-      args = {
-        '{query}': item.arg,
-        '$1': item.arg
-      };
+      item = item as ScriptFilterItem;
+      args = extractArgsFromScriptFilterItem(item);
     }
 
     const result = await handleAction(actions, args, modifier);
@@ -80,7 +77,7 @@ export class CommandManager {
 
     const command = item;
     const [first, ...querys] = inputStr.split(" ");
-    const args = createArgs(querys);
+    const args = extractArgs(querys);
     const scriptWork: Promise<any> = handleScriptFilterChange(command, args);
 
     this.workPromise = scriptWork;

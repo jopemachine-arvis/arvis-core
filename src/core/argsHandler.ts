@@ -7,7 +7,7 @@ const handleScriptArgs = (str: string, queryArgs: object) => {
   return str;
 };
 
-const createArgs = (querys: string[]) => {
+const extractArgs = (querys: string[]) => {
   const args = { "{query}": querys.join(" "), $1: "" };
 
   // tslint:disable-next-line: forin
@@ -19,7 +19,15 @@ const createArgs = (querys: string[]) => {
   return args;
 };
 
+const extractArgsFromScriptFilterItem = (item: ScriptFilterItem) => {
+  return {
+    '{query}': item.arg,
+    '$1': item.arg
+  };
+};
+
 export {
-  createArgs,
+  extractArgs,
+  extractArgsFromScriptFilterItem,
   handleScriptArgs
 };
