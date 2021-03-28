@@ -1,14 +1,15 @@
+import './global.d';
+
 export interface Command {
-  name: string;
-  id: string;
-
   // default value is 'name'
-  title?: string;
+  title: string;
   subtitle: string;
-
+ 
+  modifiers?: string;
   script_filter?: string;
+  running_subtext?: string;
+  withspace: boolean;
 
   type: Keyword | ScriptFilter;
-
-  action: ScriptAction | OpenAction;
+  action: (ScriptAction | OpenAction)[];
 }

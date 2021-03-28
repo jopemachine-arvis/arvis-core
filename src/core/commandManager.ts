@@ -1,16 +1,12 @@
 import { handleAction } from './actionHandler';
-import util from 'util';
 import { handleScriptFilter } from './scriptFilterChangeHandler';
+import { createArgs } from './argsHandler';
+import '../types/global.d';
 
 interface Work {
   type: string;
   command: string;
-}
-
-interface Modifiers {
-  ctrl: boolean;
-  cmd: boolean;
-  shift: boolean;
+  action: any;
 }
 
 export class CommandManager {
@@ -24,32 +20,39 @@ export class CommandManager {
     this.workPromise = null;
   }
 
-  private createArgs (querys) {
-    const args = { '\${query}': querys.join(" "), '$1': '' };
-
-    // tslint:disable-next-line: forin
-    for (const qIdx in querys) {
-      args[`$${Number(qIdx) + 1}`] = querys[qIdx];
-    }
-
-    return args;
-  }
-
   async commandExcute(
     item: any,
     inputStr: string,
-    modifier: Modifiers
+    modifier: ModifierInput
   ) {
-    const command = item;
-    const [first, ...querys] = inputStr.split(" ");
-    const args = this.createArgs(querys);
-    const result = await handleAction(command, args, modifier);
+    // If the stack is empty, the args becomes query, otherwise args becomes arg of items
+    let args;
 
-    if (result!.nextActions) {
+    // If the stack is empty, the command becomes actions, otherwise the top action of the stack is 'actions'.
+    let actions;
+
+    if (this.commandStk.length === 0) {
+      actions = item;
+      const [first, ...querys] = inputStr.split(" ");
+      args = createArgs(querys);
+    }
+    else {
+      const last = this.commandStk[this.commandStk.length - 1];
+      actions = last.action;
+      args = {
+        '{query}': item.arg,
+        '$1': item.arg
+      };
+    }
+
+    const result = await handleAction(actions, args, modifier);
+
+    if (result.nextAction) {
       this.commandStk.push({
-        // could be script filter
-        type: command.type,
+        // assume:: type: 'script_filter'
+        type: item.type,
         command: inputStr,
+        action: result!.nextAction
       });
     } else {
       // clear command stack, and return to initial.
@@ -63,10 +66,19 @@ export class CommandManager {
     item: any,
     inputStr: string,
   ) {
+    // If Command stack is 0, you can enter the script filter without a return event.
+    // To handle this, push this command to commandStk
+    if (this.commandStk.length === 0) {
+      this.commandStk.push({
+        type: 'scriptfilter',
+        command: inputStr,
+        action: item.action
+      });
+    }
+
     const command = item;
     const [first, ...querys] = inputStr.split(" ");
-    const args = this.createArgs(querys);
-
+    const args = createArgs(querys);
     const scriptWork: Promise<any> = handleScriptFilter(command, args);
 
     this.workPromise = scriptWork;

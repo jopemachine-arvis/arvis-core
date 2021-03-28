@@ -1,4 +1,4 @@
-import { execute } from './actionExecutor';
+import { execute } from './scriptExecutor';
 import { findCommands } from './commandFinder';
 import { install, unInstall } from "./workflowInstaller";
 import { getWorkflowList } from "./workflowList";

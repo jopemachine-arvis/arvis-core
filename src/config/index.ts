@@ -7,7 +7,7 @@ import {
   setWorkflow,
 } from "./config";
 import constant from "./constant";
-import helpStr from "./helpStr";
+import getHelpStr from "./getHelpStr";
 import initConfig from "./initConfig";
 
 export {
@@ -18,6 +18,6 @@ export {
   getWorkflow,
   getInstalledWorkflows,
   setWorkflow,
-  helpStr,
+  getHelpStr,
   initConfig,
 };

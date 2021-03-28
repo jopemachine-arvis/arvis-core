@@ -4,6 +4,7 @@ import { Keyword as _Keyword } from './inputs/keyword.d';
 import { ScriptFilter as _ScriptFilter } from './inputs/scriptFilter.d';
 import { Command as _Command } from './command.d';
 import { ScriptFilterItem as _ScriptFilterItem } from './scriptFilterItem.d';
+import { ModifierInput as _ModifierInput } from './modifierInput.d';
 
 declare global {
   type OpenAction = _OpenAction;
@@ -12,4 +13,7 @@ declare global {
   type ScriptFilter = _ScriptFilter;
   type Command = _Command;
   type ScriptFilterItem = _ScriptFilterItem;
+  type ModifierInput = _ModifierInput;
 }
+
+export default global;

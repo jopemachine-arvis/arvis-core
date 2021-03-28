@@ -1,7 +1,6 @@
 import chalk from 'chalk';
 import {
   install,
-  execute,
   findCommands,
   unInstall,
   getWorkflowList,
@@ -9,7 +8,7 @@ import {
 } from "./core";
 
 import initConfig from './config/initConfig';
-import helpManual from './config/helpStr';
+import helpManual from './config/getHelpStr';
 
 // cli main function
 const cliFunc = async (input, flags): Promise<string> => {

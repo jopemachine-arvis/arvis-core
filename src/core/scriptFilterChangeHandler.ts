@@ -1,14 +1,7 @@
 import { execute } from "../actions/scriptExecution";
-import { replaceAll } from '../utils';
+import { handleScriptArgs } from './argsHandler';
 
-const handleScriptArgs = (script: string, queryArgs) => {
-  for (const key of Object.keys(queryArgs)) {
-    script = replaceAll(script, key, queryArgs[key]);
-  }
-  return script;
-};
-
-const handleScriptFilter = (command, queryArgs) => {
+const handleScriptFilter = (command, queryArgs: object) => {
   const script = command.script_filter;
   return execute(
     command.bundleId,
