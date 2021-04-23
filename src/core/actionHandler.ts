@@ -18,14 +18,14 @@ function handleAction(
   // There can still be more than one action, such as simultaneously performing clipboard and script_filter.
   _.map(actions, (action) => {
     switch (action.type.toLowerCase()) {
-      // execute script
+      // Execute script of script filter
       case "script_filter":
       case "scriptfilter":
         action = action as ScriptFilterAction;
         target = handleScriptArgs(action.script_filter, queryArgs);
         nextAction = action;
         break;
-      // just execute next action
+      // Just execute next action
       case "keyword":
         action = action as KeywordAction;
         nextAction = action;
@@ -40,6 +40,7 @@ function handleAction(
         target = handleScriptArgs(action.text, queryArgs);
         copyToClipboard(target);
         break;
+      // Give args and execute the action right away
       case "args":
         action = action as ArgsAction;
         queryArgs = argsExtract(queryArgs, action.arg);

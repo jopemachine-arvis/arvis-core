@@ -24,17 +24,28 @@ export class CommandManager {
     this.handleAction = handleAction.bind(this);
   }
 
+  workIsPending = () => {
+    return (
+      this.commandStk.length >= 1 &&
+      this.commandStk[this.commandStk.length - 1].workCompleted === false
+    );
+  }
+
+  scriptFilterCompleteEventHandler = (result: any) => {
+    this.commandStk[this.commandStk.length - 1].workCompleted = true;
+
+    const newItems = (JSON.parse(result.stdout) as ScriptFilterResult).items;
+    // To do:: Implement variables, rerunInterval features here
+    this.onItemShouldBeUpdate && this.onItemShouldBeUpdate(newItems);
+  }
+
   async commandExcute(
     item: Command | ScriptFilterItem,
     inputStr: string,
     modifier: ModifierInput
   ) {
     // Ignore this exeution if previous work is pending.
-    if (
-      this.commandStk.length >= 1 &&
-      this.commandStk[this.commandStk.length - 1].workCompleted === false
-    ) {
-      console.log("cancel execution");
+    if (this.workIsPending()) {
       return;
     }
 
@@ -49,8 +60,7 @@ export class CommandManager {
       actions = item;
       const [first, ...querys] = inputStr.split(" ");
       args = extractArgs(querys);
-    }
-    else {
+    } else {
       const last = this.commandStk[this.commandStk.length - 1];
       actions = last.command.action;
       item = item as ScriptFilterItem;
@@ -62,7 +72,7 @@ export class CommandManager {
     if (result.nextAction) {
       this.commandStk.push({
         // assume:: type: 'script_filter'
-        type: 'scriptfilter',
+        type: "scriptfilter",
         input: inputStr,
         command: result!.nextAction,
         bundleId: this.commandStk[this.commandStk.length - 1].bundleId,
@@ -70,10 +80,11 @@ export class CommandManager {
         workPromise: null,
         workCompleted: false,
       });
-      this.scriptFilterExcute('');
+      this.scriptFilterExcute("");
     } else {
       // clear command stack, and return to initial.
       this.commandStk.length = 0;
+      this.onItemShouldBeUpdate && this.onItemShouldBeUpdate([]);
     }
 
     this.onItemPressHandler && this.onItemPressHandler();
@@ -82,17 +93,16 @@ export class CommandManager {
   scriptFilterExcute(
     inputStr: string,
     // command object should be given when stack is empty
-    commandOnStackIsEmpty?: Command,
+    commandOnStackIsEmpty?: Command
   ) {
     // If Command stack is 0, you can enter the script filter without a return event.
     // To handle this, push this command to commandStk
     if (this.commandStk.length === 0) {
       if (!commandOnStackIsEmpty) {
-        console.error('Error - item not be set');
-        return;
+        throw new Error("Error - command should be given when stack is empty");
       }
       this.commandStk.push({
-        type: 'scriptfilter',
+        type: "scriptfilter",
         // user input string
         input: inputStr,
         command: commandOnStackIsEmpty,
@@ -103,26 +113,30 @@ export class CommandManager {
       });
     }
 
-    const { bundleId, command, selectedArgs } = this.commandStk[this.commandStk.length - 1];
+    const { bundleId, command, selectedArgs } = this.commandStk[
+      this.commandStk.length - 1
+    ];
     const [first, ...querys] = inputStr.split(" ");
     // HACK:: Think about how to deal with the args.
     const args = selectedArgs ? selectedArgs : extractArgs(querys);
-    const scriptWork: Promise<any> = handleScriptFilterChange(bundleId, command, args);
+    const scriptWork: Promise<any> = handleScriptFilterChange(
+      bundleId,
+      command,
+      args
+    );
 
     this.commandStk[this.commandStk.length - 1].workPromise = scriptWork;
 
-    scriptWork.then(result => {
-      if (this.commandStk[this.commandStk.length - 1].workPromise === scriptWork) {
-        this.commandStk[this.commandStk.length - 1].workCompleted = true;
-
-        const newItems = (JSON.parse(result.stdout) as ScriptFilterResult).items;
-        // To do:: Implement variables, rerunInterval features here
-        this.onItemShouldBeUpdate && this.onItemShouldBeUpdate(newItems);
-      } else {
-        console.log('Error: newItems not updated, stdout:\n', result.stdout);
-      }
-    }).catch(err => {
-      console.error('Error occured in script work!\n', err);
-    });
+    scriptWork
+      .then((result) => {
+        if (
+          this.commandStk[this.commandStk.length - 1].workPromise === scriptWork
+        ) {
+          this.scriptFilterCompleteEventHandler(result);
+        }
+      })
+      .catch((err) => {
+        console.error("Error occured in script work!\n", err);
+      });
   }
 }
