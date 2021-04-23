@@ -5,12 +5,15 @@ import path from 'path';
 const execute = (bundleId: string, command: string) => {
   const execPath = path.resolve(`.${path.sep}installed${path.sep}${bundleId}`);
 
+  // If it doesn't finish within the timeout time, an error is considered to have occurred.
+  // Timeout time to should be changed.
   return execa.command(command, {
     cwd: execPath,
     env: {
-      // Setting for alfy compatibility
+      // Setting for 'alfy' compatibility
       'alfred_workflow_cache': bundleId
     },
+    timeout: 3000,
   });
 };
 

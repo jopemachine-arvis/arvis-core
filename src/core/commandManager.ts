@@ -9,18 +9,17 @@ interface Work {
   bundleId: string;
   selectedArgs: object | null;
   command: Command;
+  workPromise?: Promise<any> | null;
 }
 
 export class CommandManager {
   commandStk: Work[];
-  workPromise: Promise<any> | null;
   handleAction: Function;
   onItemPressHandler?: () => void;
   onItemShouldBeUpdate?: (items: ScriptFilterItem[]) => void;
 
   constructor() {
     this.commandStk = [];
-    this.workPromise = null;
     this.handleAction = handleAction.bind(this);
   }
 
@@ -58,6 +57,7 @@ export class CommandManager {
         command: result!.nextAction,
         bundleId: this.commandStk[this.commandStk.length - 1].bundleId,
         selectedArgs: args,
+        workPromise: null,
       });
       this.scriptFilterExcute('');
     } else {
@@ -85,6 +85,7 @@ export class CommandManager {
         command: commandOnStackIsEmpty,
         bundleId: commandOnStackIsEmpty.bundleId!,
         selectedArgs: null,
+        workPromise: null,
       });
     }
 
@@ -94,9 +95,10 @@ export class CommandManager {
     const args = selectedArgs ? selectedArgs : extractArgs(querys);
     const scriptWork: Promise<any> = handleScriptFilterChange(bundleId, command, args);
 
-    this.workPromise = scriptWork;
+    this.commandStk[this.commandStk.length - 1].workPromise = scriptWork;
+
     scriptWork.then(result => {
-      if (this.workPromise === scriptWork) {
+      if (this.commandStk[this.commandStk.length - 1].workPromise === scriptWork) {
         const newItems = (JSON.parse(result.stdout) as ScriptFilterResult).items;
         console.log('newItems', newItems);
         // To do:: Implement variables, rerunInterval features here
@@ -106,7 +108,7 @@ export class CommandManager {
         console.log('newItems, not uptodate', newItems);
       }
     }).catch(err => {
-      console.error(err);
+      console.error('Error occured in script work!\n', err);
     });
   }
 }
