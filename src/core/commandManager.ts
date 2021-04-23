@@ -10,6 +10,7 @@ interface Work {
   selectedArgs: object | null;
   command: Command;
   workPromise?: Promise<any> | null;
+  workCompleted?: boolean;
 }
 
 export class CommandManager {
@@ -28,6 +29,15 @@ export class CommandManager {
     inputStr: string,
     modifier: ModifierInput
   ) {
+    // Ignore this exeution if previous work is pending.
+    if (
+      this.commandStk.length >= 1 &&
+      this.commandStk[this.commandStk.length - 1].workCompleted === false
+    ) {
+      console.log("cancel execution");
+      return;
+    }
+
     // If the stack is empty, the args becomes query, otherwise args becomes arg of items
     let args: object;
 
@@ -58,6 +68,7 @@ export class CommandManager {
         bundleId: this.commandStk[this.commandStk.length - 1].bundleId,
         selectedArgs: args,
         workPromise: null,
+        workCompleted: false,
       });
       this.scriptFilterExcute('');
     } else {
@@ -70,6 +81,7 @@ export class CommandManager {
 
   scriptFilterExcute(
     inputStr: string,
+    // command object should be given when stack is empty
     commandOnStackIsEmpty?: Command,
   ) {
     // If Command stack is 0, you can enter the script filter without a return event.
@@ -81,11 +93,13 @@ export class CommandManager {
       }
       this.commandStk.push({
         type: 'scriptfilter',
+        // user input string
         input: inputStr,
         command: commandOnStackIsEmpty,
         bundleId: commandOnStackIsEmpty.bundleId!,
         selectedArgs: null,
         workPromise: null,
+        workCompleted: false,
       });
     }
 
@@ -99,13 +113,13 @@ export class CommandManager {
 
     scriptWork.then(result => {
       if (this.commandStk[this.commandStk.length - 1].workPromise === scriptWork) {
+        this.commandStk[this.commandStk.length - 1].workCompleted = true;
+
         const newItems = (JSON.parse(result.stdout) as ScriptFilterResult).items;
-        console.log('newItems', newItems);
         // To do:: Implement variables, rerunInterval features here
         this.onItemShouldBeUpdate && this.onItemShouldBeUpdate(newItems);
       } else {
-        const newItems = (JSON.parse(result.stdout) as ScriptFilterResult).items;
-        console.log('newItems, not uptodate', newItems);
+        console.log('Error: newItems not updated, stdout:\n', result.stdout);
       }
     }).catch(err => {
       console.error('Error occured in script work!\n', err);
