@@ -10,6 +10,8 @@ import {
 import initConfig from './config/initConfig';
 import helpManual from './config/getHelpStr';
 
+import { StoreType } from './types/storeType';
+
 // cli main function
 const cliFunc = async (input, flags): Promise<string> => {
   switch (input[0]) {
@@ -18,20 +20,20 @@ const cliFunc = async (input, flags): Promise<string> => {
       return chalk.cyan('Init config completed.');
     case "l":
     case "list":
-      return getWorkflowList();
+      return getWorkflowList(StoreType.CUI);
     case "f":
     case "find":
-      return findCommands(input[1]);
+      return findCommands(StoreType.CUI, input[1]);
     case "i":
     case "install":
-      await install(input[1]);
+      await install(StoreType.CUI, input[1]);
       break;
     case "c":
     case "commands":
-      return getCommandList();
+      return getCommandList(StoreType.CUI);
     case "un":
     case "uninstall":
-      await unInstall(input[1]);
+      await unInstall(StoreType.CUI, input[1]);
       break;
   }
 

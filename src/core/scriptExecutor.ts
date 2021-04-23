@@ -6,7 +6,7 @@ import { workflowInstallPath } from '../config/path';
 
 const execute = (bundleId: string, command: string) => {
   const execPath = path.resolve(
-    `${workflowInstallPath}installed${path.sep}${bundleId}`
+    `${workflowInstallPath}${path.sep}installed${path.sep}${bundleId}`
   );
 
   // If it doesn't finish within the timeout time, an error is considered to have occurred.

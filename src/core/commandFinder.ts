@@ -1,7 +1,8 @@
 import { getCommandList } from "./commandList";
+import { StoreType} from '../types/storeType';
 
-const findCommands = (command: string) => {
-  const commands = getCommandList();
+const findCommands = async (storeType: StoreType, command: string) => {
+  const commands = await getCommandList(storeType);
 
   const filtered = [] as any;
   for (const item of Object.keys(commands)) {

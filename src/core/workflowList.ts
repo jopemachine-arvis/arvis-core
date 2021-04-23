@@ -1,7 +1,9 @@
-import { getInstalledWorkflows } from '../config/config';
+import { createStore } from '../config/config';
+import { StoreType } from '../types/storeType';
 
-const getWorkflowList = () => {
-  return getInstalledWorkflows();
+const getWorkflowList = async (storeType: StoreType) => {
+  const store = await createStore(storeType);
+  return store.getInstalledWorkflows();
 };
 
 export {

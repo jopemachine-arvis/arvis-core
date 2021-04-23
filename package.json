@@ -8,7 +8,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
     "start": "npm run build && dist/cli.js",
-    "local-install": "npm i -g ./"
+    "local-install": "npm i -g ./",
+    "rebuild": "rm -rf node_modules && npm i && npm run build"
   },
   "repository": {
     "type": "git",
@@ -32,8 +33,9 @@
   "dependencies": {
     "chalk": "^4.1.0",
     "clipboardy": "^2.3.0",
-    "conf": "^9.0.2",
+    "conf": "^10.0.1",
     "download-git-repo": "^3.0.2",
+    "electron-store": "^8.0.0",
     "env-paths": "^2.2.1",
     "execa": "^5.0.0",
     "fs-extra": "^9.1.0",

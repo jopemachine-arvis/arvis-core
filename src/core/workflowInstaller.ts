@@ -1,16 +1,19 @@
 import * as fse from 'fs-extra';
-import { deleteWorkflow, setWorkflow } from '../config/config';
+import { createStore } from '../config/config';
 import gitDownload from 'download-git-repo';
 import path from 'path';
 import chalk from 'chalk';
 import { validateUrl } from '../utils';
 import { workflowInstallPath } from '../config/path';
+import { StoreType } from '../types/storeType';
 
-const installByJson = async (wfConfFilePath: string) => {
+const installByJson = async (storeType: StoreType, wfConfFilePath: string) => {
+  const store = await createStore(storeType);
+
   try {
     const wfConfig = await fse.readJson(wfConfFilePath);
     wfConfig.enabled = wfConfig.enabled ?? true;
-    setWorkflow(wfConfig);
+    store.setWorkflow(wfConfig);
 
     let normalizedPath = path.resolve(path.normalize(wfConfFilePath));
 
@@ -30,7 +33,9 @@ const installByJson = async (wfConfFilePath: string) => {
   }
 };
 
-const installByGit = async (giturl: string) => {
+const installByGit = async (storeType: StoreType, giturl: string) => {
+  const store = await createStore(storeType);
+
   // To do : assumedName을 겹치지 않는 랜덤 이름으로 변경
   // 일단 이 이름으로 가정하고 폴더를 clone한 후 wfConf 파일을 읽고 bundleId를 가져와서 그 이름으로 바꾸자..
   const assumedName = giturl.split(path.sep).pop();
@@ -44,24 +49,26 @@ const installByGit = async (giturl: string) => {
 
   try {
     const wfConfig = await fse.readJson(`${savedPath}${path.sep}wfconf.json`);
-    setWorkflow(wfConfig);
+    store.setWorkflow(wfConfig);
   } catch (fileNotExistErr) {
     console.error("wfConfig file not exists.");
     throw new Error(fileNotExistErr);
   }
 };
 
-const install = (arg: string) => {
+const install = (storeType: StoreType, arg: string) => {
   if (arg.includes('.json')) {
-    installByJson(arg);
+    installByJson(storeType, arg);
   } else if (validateUrl(arg)) {
-    installByGit(arg);
+    installByGit(storeType, arg);
   } else {
     console.log(`'${arg}' is not valid`);
   }
 };
 
-const unInstall = async (bundleIdOrWfConfPath: string) => {
+const unInstall = async (storeType: StoreType, bundleIdOrWfConfPath: string) => {
+  const store = await createStore(storeType);
+
   try {
     let bundleId = bundleIdOrWfConfPath;
     if (bundleIdOrWfConfPath.includes('.json')) {
@@ -69,7 +76,7 @@ const unInstall = async (bundleIdOrWfConfPath: string) => {
       bundleId = wfConfig.bundleId;
     }
 
-    deleteWorkflow(bundleId);
+    store.deleteWorkflow(bundleId);
 
     const installedDir = `${workflowInstallPath}${path.sep}installed${path.sep}${bundleId}`;
 
