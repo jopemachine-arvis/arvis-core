@@ -4,6 +4,7 @@ import gitDownload from 'download-git-repo';
 import path from 'path';
 import chalk from 'chalk';
 import { validateUrl } from '../utils';
+import { workflowInstallPath } from '../config/path';
 
 const installByJson = async (wfConfFilePath: string) => {
   try {
@@ -19,9 +20,10 @@ const installByJson = async (wfConfFilePath: string) => {
       normalizedPath = arr.slice(0, arr.length - 1).join(path.sep);
     }
 
-    const savedPath = `.${path.sep}installed${path.sep}${wfConfig.bundleId}`;
+    const savedPath = `${workflowInstallPath}${path.sep}installed${path.sep}${wfConfig.bundleId}`;
 
-    fse.mkdirSync(savedPath, { recursive: true });
+    await fse.mkdir(savedPath, { recursive: true });
+    // TO DO:: 같은 이름의 폴더가 있으면 에러남.
     fse.copy(normalizedPath, savedPath, { recursive: true });
   } catch (e) {
     throw new Error(e);
@@ -32,7 +34,8 @@ const installByGit = async (giturl: string) => {
   // To do : assumedName을 겹치지 않는 랜덤 이름으로 변경
   // 일단 이 이름으로 가정하고 폴더를 clone한 후 wfConf 파일을 읽고 bundleId를 가져와서 그 이름으로 바꾸자..
   const assumedName = giturl.split(path.sep).pop();
-  const savedPath = `.${path.sep}installed${path.sep}${assumedName}`;
+  const savedPath = `${workflowInstallPath}${path.sep}installed${path.sep}${assumedName}`;
+
   fse.mkdirSync(savedPath, { recursive: true });
 
   gitDownload(`direct:${giturl}`, savedPath, { clone: true }, (err) => {
@@ -40,9 +43,7 @@ const installByGit = async (giturl: string) => {
   });
 
   try {
-    const wfConfig = await fse.readJson(
-      `.${path.sep}installed${path.sep}${assumedName}${path.sep}wfconf.json`
-    );
+    const wfConfig = await fse.readJson(`${savedPath}${path.sep}wfconf.json`);
     setWorkflow(wfConfig);
   } catch (fileNotExistErr) {
     console.error("wfConfig file not exists.");
@@ -70,7 +71,8 @@ const unInstall = async (bundleIdOrWfConfPath: string) => {
 
     deleteWorkflow(bundleId);
 
-    const installedDir = `.${path.sep}installed${path.sep}${bundleId}`;
+    const installedDir = `${workflowInstallPath}${path.sep}installed${path.sep}${bundleId}`;
+
     if (await fse.pathExists(installedDir)) {
       fse.remove(installedDir);
     } else {
