@@ -14,14 +14,20 @@ interface Work {
 }
 
 export class CommandManager {
-  commandStk: Work[];
+  private commandStk: Work[];
   handleAction: Function;
+
   onItemPressHandler?: () => void;
   onItemShouldBeUpdate?: (items: ScriptFilterItem[]) => void;
 
   constructor() {
     this.commandStk = [];
     this.handleAction = handleAction.bind(this);
+  }
+
+  // If commandStk is empty, look for command.
+  hasEmptyCommandStk = () => {
+    return this.commandStk.length === 0;
   }
 
   workIsPending = () => {

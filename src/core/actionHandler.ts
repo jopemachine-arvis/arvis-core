@@ -30,11 +30,13 @@ function handleAction(
         action = action as KeywordAction;
         nextAction = action;
         break;
+      // Open specific program
       case "open":
         action = action as OpenAction;
         target = handleScriptArgs(action.url, queryArgs);
         openFile(target);
         break;
+      // Copy text to clipboard
       case "clipboard":
         action = action as ClipboardAction;
         target = handleScriptArgs(action.text, queryArgs);
