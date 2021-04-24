@@ -25,8 +25,13 @@ const installByJson = async (storeType: StoreType, wfConfFilePath: string) => {
 
     const savedPath = `${workflowInstallPath}${path.sep}installed${path.sep}${wfConfig.bundleId}`;
 
+    // If a folder with the same name exists, overwrite it.
+    if (fse.existsSync(savedPath)) {
+      await fse.rmdir(savedPath);
+    }
+
     await fse.mkdir(savedPath, { recursive: true });
-    // TO DO:: 같은 이름의 폴더가 있으면 에러남.
+
     fse.copy(normalizedPath, savedPath, { recursive: true });
   } catch (e) {
     throw new Error(e);
@@ -56,17 +61,17 @@ const installByGit = async (storeType: StoreType, giturl: string) => {
   }
 };
 
-const install = (storeType: StoreType, arg: string) => {
-  if (arg.includes('.json')) {
-    installByJson(storeType, arg);
+const install = async (storeType: StoreType, arg: string): Promise<void> => {
+  if (arg.includes(".json")) {
+    await installByJson(storeType, arg);
   } else if (validateUrl(arg)) {
-    installByGit(storeType, arg);
+    await installByGit(storeType, arg);
   } else {
     console.log(`'${arg}' is not valid`);
   }
 };
 
-const unInstall = async (storeType: StoreType, bundleIdOrWfConfPath: string) => {
+const unInstall = async (storeType: StoreType, bundleIdOrWfConfPath: string): Promise<void>  => {
   const store = await createStore(storeType);
 
   try {
