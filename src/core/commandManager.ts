@@ -25,6 +25,10 @@ export class CommandManager {
     this.handleAction = handleAction.bind(this);
   }
 
+  clearCommandStack = () => {
+    this.commandStk.length = 0;
+  }
+
   // If commandStk is empty, look for command.
   hasEmptyCommandStk = () => {
     return this.commandStk.length === 0;
@@ -61,7 +65,7 @@ export class CommandManager {
     // If the stack is empty, the command becomes actions, otherwise the top action of the stack is 'actions'.
     let actions;
 
-    if (this.commandStk.length === 0) {
+    if (this.hasEmptyCommandStk()) {
       item = item as Command;
       actions = item;
       const [first, ...querys] = inputStr.split(" ");
@@ -77,7 +81,8 @@ export class CommandManager {
 
     if (result.nextAction) {
       this.commandStk.push({
-        // assume:: type: 'script_filter'
+        // assume:: type should be 'script_filter'
+        // To do:: Other types could be added later.
         type: "scriptfilter",
         input: inputStr,
         command: result!.nextAction,
@@ -89,7 +94,7 @@ export class CommandManager {
       this.scriptFilterExcute("");
     } else {
       // clear command stack, and return to initial.
-      this.commandStk.length = 0;
+      this.clearCommandStack();
       this.onItemShouldBeUpdate && this.onItemShouldBeUpdate([]);
     }
 
@@ -103,7 +108,7 @@ export class CommandManager {
   ) {
     // If Command stack is 0, you can enter the script filter without a return event.
     // To handle this, push this command to commandStk
-    if (this.commandStk.length === 0) {
+    if (this.hasEmptyCommandStk()) {
       if (!commandOnStackIsEmpty) {
         throw new Error("Error - command should be given when stack is empty");
       }

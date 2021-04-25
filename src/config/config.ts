@@ -16,13 +16,13 @@ const createStore = async (storeType: StoreType) => {
 
   let store;
   if (storeType === StoreType.Electron) {
-    const ElectronStore = await import('electron-store');
-    store = new ElectronStore.default({ schema });
+    const ElectronStore = await import("electron-store");
+    store = new ElectronStore.default({ schema, name: "core" });
   } else if (storeType === StoreType.CUI) {
-    const CuiStore = await import('conf');
-    store = new CuiStore.default({ schema });
+    const CuiStore = await import("conf");
+    store = new CuiStore.default({ schema, configName: "core" });
   } else {
-    throw new Error('conf store type not correct');
+    throw new Error("conf store type not correct");
   }
 
   const Functions = {
