@@ -1,5 +1,5 @@
 import { getCommandList } from "./commandList";
-import { StoreType} from '../types/storeType';
+import { StoreType } from '../types/storeType';
 
 const findCommands = async (storeType: StoreType, command: string) => {
   const commands = await getCommandList(storeType);
