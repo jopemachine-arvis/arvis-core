@@ -1,7 +1,7 @@
-import clipboardy from "clipboardy";
+const clipboardy = require('clipboardy');
 
 const copyToClipboard = (str: string) => {
-  clipboardy.writeSync(str);
+  clipboardy.write(str);
 };
 
 export { copyToClipboard };

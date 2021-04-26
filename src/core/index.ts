@@ -6,6 +6,8 @@ import { getCommandList } from "./commandList";
 import { handleAction } from "./actionHandler";
 import { CommandManager } from "./commandManager";
 
+import * as path from '../config/path';
+
 export {
   CommandManager,
   execute,
@@ -14,5 +16,6 @@ export {
   unInstall,
   getWorkflowList,
   getCommandList,
-  handleAction
+  handleAction,
+  path
 };

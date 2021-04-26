@@ -12,4 +12,5 @@ export interface ScriptFilterItem {
   icon? : {
     path?: string;
   };
+  bundleId?: string;
 }

@@ -9,6 +9,8 @@ interface Work {
   bundleId: string;
   selectedArgs: object | null;
   command: Command;
+
+  // Used in only type is 'scriptfilter'
   workPromise?: Promise<any> | null;
   workCompleted?: boolean;
 }
@@ -25,6 +27,10 @@ export class CommandManager {
     this.handleAction = handleAction.bind(this);
   }
 
+  getTopCommand = () => {
+    return this.commandStk[this.commandStk.length - 1];
+  }
+
   clearCommandStack = () => {
     this.commandStk.length = 0;
   }
@@ -37,16 +43,22 @@ export class CommandManager {
   workIsPending = () => {
     return (
       this.commandStk.length >= 1 &&
-      this.commandStk[this.commandStk.length - 1].workCompleted === false
+      this.getTopCommand().workCompleted === false
     );
   }
 
   scriptFilterCompleteEventHandler = (result: any) => {
     this.commandStk[this.commandStk.length - 1].workCompleted = true;
 
-    const newItems = (JSON.parse(result.stdout) as ScriptFilterResult).items;
+    const { items, rerunInterval, variables } = JSON.parse(result.stdout) as ScriptFilterResult;
+
+    // Append bundleId
+    items.map((item: ScriptFilterItem) => {
+      item.bundleId = this.getTopCommand().bundleId;
+    });
+
     // To do:: Implement variables, rerunInterval features here
-    this.onItemShouldBeUpdate && this.onItemShouldBeUpdate(newItems);
+    this.onItemShouldBeUpdate && this.onItemShouldBeUpdate(items);
   }
 
   async commandExcute(
@@ -71,7 +83,7 @@ export class CommandManager {
       const [first, ...querys] = inputStr.split(" ");
       args = extractArgs(querys);
     } else {
-      const last = this.commandStk[this.commandStk.length - 1];
+      const last = this.getTopCommand();
       actions = last.command.action;
       item = item as ScriptFilterItem;
       args = extractArgsFromScriptFilterItem(item);
@@ -124,9 +136,7 @@ export class CommandManager {
       });
     }
 
-    const { bundleId, command, selectedArgs } = this.commandStk[
-      this.commandStk.length - 1
-    ];
+    const { bundleId, command, selectedArgs } = this.getTopCommand();
     const [first, ...querys] = inputStr.split(" ");
     // HACK:: Think about how to deal with the args.
     const args = selectedArgs ? selectedArgs : extractArgs(querys);
@@ -141,13 +151,17 @@ export class CommandManager {
     scriptWork
       .then((result) => {
         if (
-          this.commandStk[this.commandStk.length - 1].workPromise === scriptWork
+          this.getTopCommand().workPromise === scriptWork
         ) {
           this.scriptFilterCompleteEventHandler(result);
         }
       })
       .catch((err) => {
-        console.error("Error occured in script work!\n", err);
+        if (this.hasEmptyCommandStk()) {
+          // When the command has been canceled.
+        } else {
+          throw new Error("Error occured in script work!\n" + err);
+        }
       });
   }
 }
