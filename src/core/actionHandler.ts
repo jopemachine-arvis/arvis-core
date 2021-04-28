@@ -22,7 +22,7 @@ function handleAction(
       case "script_filter":
       case "scriptfilter":
         action = action as ScriptFilterAction;
-        target = handleScriptArgs(action.script_filter, queryArgs);
+        target = handleScriptArgs({ str: action.script_filter, queryArgs });
         nextAction = action;
         break;
       // Just execute next action
@@ -30,33 +30,37 @@ function handleAction(
         action = action as KeywordAction;
         nextAction = action;
         break;
-      // Open specific program
+      // Open specific program, url..
       case "open":
         action = action as OpenAction;
-        target = handleScriptArgs(action.url, queryArgs);
+        target = handleScriptArgs({ str: action.url, queryArgs });
         openFile(target);
         break;
       // Copy text to clipboard
       case "clipboard":
         action = action as ClipboardAction;
-        target = handleScriptArgs(action.text, queryArgs);
+        target = handleScriptArgs({ str: action.text, queryArgs });
         copyToClipboard(target);
         break;
-      // Give args and execute the action right away
+      // Extract query from args, vars and execute the action.
       case "args":
         action = action as ArgsAction;
         queryArgs = argsExtract(queryArgs, action.arg);
 
-        this.printDebuggingInfo && console.log('Args to select', queryArgs);
+        this.printDebuggingInfo && console.log("Args to select", queryArgs);
         this.handleAction(action.action, queryArgs, modifiersInput);
         break;
       // Run 'cond' as eval to determine if true.
       // And run 'then' actions if cond is true, else run 'else' actions.
       case "cond":
         action = action as CondAction;
-        target = handleScriptArgs(action.if.cond, queryArgs);
+        target = handleScriptArgs({
+          str: action.if.cond,
+          queryArgs,
+          appendQuotes: true,
+        });
 
-        this.printDebuggingInfo && console.log('condition script: ', target);
+        this.printDebuggingInfo && console.log("condition script: ", target);
         const conditionalAction =
           // tslint:disable-next-line: no-eval
           eval(target) === true ? action.if.action.then : action.if.action.else;

@@ -13,7 +13,7 @@ const handleScriptFilterChange = (
     return escapeBraket(str);
   }).join(' ');
 
-  return execute(bundleId, handleScriptArgs(script, queryArgs));
+  return execute(bundleId, handleScriptArgs({ str: script, queryArgs }));
 };
 
 export {

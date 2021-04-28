@@ -1,8 +1,18 @@
 import { escapeBraket, replaceAll } from '../utils';
 
-const handleScriptArgs = (str: string, queryArgs: object) => {
+const handleScriptArgs = ({
+  str,
+  queryArgs,
+  appendQuotes,
+}: {
+  str: string;
+  queryArgs: object;
+  appendQuotes?: boolean;
+}) => {
   for (const key of Object.keys(queryArgs)) {
-    str = replaceAll(str, key, queryArgs[key]);
+    const newStr =
+      appendQuotes === true ? `"${queryArgs[key]}"` : queryArgs[key];
+    str = replaceAll(str, key, newStr);
   }
   return str;
 };
@@ -34,7 +44,7 @@ const extractArgsFromScriptFilterItem = (item: ScriptFilterItem, vars: any) => {
 
   // tslint:disable-next-line: forin
   for (const variable in vars) {
-    args[`{var:${variable}}`] = `"${vars[variable]}"`;
+    args[`{var:${variable}}`] = `${vars[variable]}`;
   }
 
   // Print 'args' to debugging console
