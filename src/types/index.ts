@@ -5,6 +5,7 @@ import { ScriptFilterAction as _ScriptFilterAction } from "./actions/scriptFilte
 import { ScriptFilterResult as _ScriptFilterResult } from "./scriptFilterResult";
 import { KeywordAction as _KeywordAction } from "./actions/keywordAction";
 import { ArgsAction as _ArgsAction } from "./actions/argsAction";
+import { CondAction as _CondAction } from "./actions/condAction";
 
 import { Keyword as _Keyword } from "./inputs/keyword";
 import { ScriptFilter as _ScriptFilter } from "./inputs/scriptFilter";
@@ -22,13 +23,15 @@ declare global {
   type ScriptFilterResult = _ScriptFilterResult;
   type KeywordAction = _KeywordAction;
   type ArgsAction = _ArgsAction;
+  type CondAction = _CondAction;
   type Action =
     | OpenAction
     | ScriptAction
     | ClipboardAction
     | ScriptFilterAction
     | KeywordAction
-    | _ArgsAction;
+    | ArgsAction
+    | CondAction;
 
   type Keyword = _Keyword;
   type ScriptFilter = _ScriptFilter;

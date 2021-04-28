@@ -64,6 +64,9 @@ const installByGit = async (storeType: StoreType, giturl: string) => {
 const install = async (storeType: StoreType, arg: string): Promise<void> => {
   if (arg.includes(".json")) {
     await installByJson(storeType, arg);
+  } else if (arg.includes(".plist")) {
+    // Need to convert alfred's info.plist to json first
+    await installByJson(storeType, '');
   } else if (validateUrl(arg)) {
     await installByGit(storeType, arg);
   } else {

@@ -19,16 +19,28 @@ const extractArgs = (querys: string[]) => {
     args[`$${Number(qIdx) + 1}`] = querys[qIdx];
   }
 
+  // Print 'args' to debugging console
+  console.log('Args:', args);
+
   return args;
 };
 
-const extractArgsFromScriptFilterItem = (item: ScriptFilterItem) => {
-  item.arg = escapeBraket(item.arg);
+const extractArgsFromScriptFilterItem = (item: ScriptFilterItem, vars: any) => {
+  let args = {};
+  if (item.arg) {
+    item.arg = escapeBraket(item.arg);
+    args = { "{query}": item.arg, $1: item.arg };
+  }
 
-  return {
-    "{query}": item.arg,
-    $1: item.arg,
-  };
+  // tslint:disable-next-line: forin
+  for (const variable in vars) {
+    args[`{var:${variable}}`] = `"${vars[variable]}"`;
+  }
+
+  // Print 'args' to debugging console
+  console.log('Args:', args);
+
+  return args;
 };
 
 export {

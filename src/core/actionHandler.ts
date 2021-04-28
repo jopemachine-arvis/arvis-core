@@ -46,7 +46,22 @@ function handleAction(
       case "args":
         action = action as ArgsAction;
         queryArgs = argsExtract(queryArgs, action.arg);
+
+        this.printDebuggingInfo && console.log('Args to select', queryArgs);
         this.handleAction(action.action, queryArgs, modifiersInput);
+        break;
+      // Run 'cond' as eval to determine if true.
+      // And run 'then' actions if cond is true, else run 'else' actions.
+      case "cond":
+        action = action as CondAction;
+        target = handleScriptArgs(action.if.cond, queryArgs);
+
+        this.printDebuggingInfo && console.log('condition script: ', target);
+        const conditionalAction =
+          // tslint:disable-next-line: no-eval
+          eval(target) === true ? action.if.action.then : action.if.action.else;
+
+        this.handleAction(conditionalAction, queryArgs, modifiersInput);
         break;
     }
   });

@@ -1,7 +1,7 @@
 export interface ScriptFilterItem {
   title: string;
   arg?: any;
-  variable?: any;
+  variables?: any;
   valid?: boolean;
   subtitle?: string;
   autocomplete?: string;
