@@ -7,7 +7,7 @@ interface Work {
   type: string;
   input: string;
   bundleId: string;
-  selectedArgs: object | null;
+  args: object | null;
   command: Command;
 
   // Used in only type is 'scriptfilter'
@@ -108,21 +108,27 @@ export class CommandManager {
       args = extractArgsFromScriptFilterItem(item, vars);
     }
 
-    const result = this.handleAction(actions, args, modifier);
+    const actionResult = this.handleAction({
+      actions,
+      queryArgs: args,
+      modifiersInput: modifier,
+    });
 
-    if (result.nextAction) {
+    if (actionResult.nextAction) {
       this.commandStk.push({
-        // assume:: type should be 'script_filter'
-        // To do:: Other types could be added later.
-        type: "scriptfilter",
+        type: actionResult.nextAction.type,
         input: inputStr,
-        command: result!.nextAction,
+        command: actionResult.nextAction,
         bundleId: this.getTopCommand().bundleId,
-        selectedArgs: args,
+        args: actionResult.args,
         workPromise: null,
         workCompleted: false,
       });
-      this.scriptFilterExcute("");
+
+      // To do:: Other types could be added later.
+      if (actionResult.nextAction.type === 'scriptfilter') {
+        this.scriptFilterExcute(inputStr);
+      }
     } else {
       // clear command stack, and return to initial.
       this.clearCommandStack();
@@ -149,20 +155,22 @@ export class CommandManager {
         input: inputStr,
         command: commandOnStackIsEmpty,
         bundleId: commandOnStackIsEmpty.bundleId!,
-        selectedArgs: null,
+        args: null,
         workPromise: null,
         workCompleted: false,
       });
     }
 
-    const { bundleId, command, selectedArgs } = this.getTopCommand();
+    const { bundleId, command, args } = this.getTopCommand();
     const [first, ...querys] = inputStr.split(" ");
     // HACK:: Think about how to deal with the args.
-    const args = selectedArgs ? selectedArgs : extractArgs(querys);
+
+    const extractedArgs = args ? args : extractArgs(querys);
+
     const scriptWork: Promise<any> = handleScriptFilterChange(
       bundleId,
       command,
-      args
+      extractedArgs
     );
 
     this.commandStk[this.commandStk.length - 1].workPromise = scriptWork;

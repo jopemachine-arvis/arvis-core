@@ -8,12 +8,15 @@ const handleScriptFilterChange = (
   command: Command,
   queryArgs: object
 ) => {
-
   const script = command.script_filter!.split(' ').map((str: string) => {
     return escapeBraket(str);
   }).join(' ');
 
-  return execute(bundleId, handleScriptArgs({ str: script, queryArgs }));
+  const scriptStr = handleScriptArgs({ str: script, queryArgs });
+
+  console.log(`Script to execute.. '${scriptStr}'`);
+
+  return execute(bundleId, scriptStr);
 };
 
 export {
