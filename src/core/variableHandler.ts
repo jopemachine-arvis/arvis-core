@@ -1,7 +1,0 @@
-const variableExtract = () => {
-
-}
-
-export {
-  variableExtract
-};

@@ -9,33 +9,27 @@ import { StoreType } from '../types/storeType';
 
 const installByJson = async (storeType: StoreType, wfConfFilePath: string) => {
   const store = await createStore(storeType);
+  const wfConfig = await fse.readJson(wfConfFilePath);
 
-  try {
-    const wfConfig = await fse.readJson(wfConfFilePath);
-    wfConfig.enabled = wfConfig.enabled ?? true;
-    store.setWorkflow(wfConfig);
+  wfConfFilePath = path.resolve(path.normalize(wfConfFilePath));
 
-    let normalizedPath = path.resolve(path.normalize(wfConfFilePath));
+  const arr = wfConfFilePath.split(path.sep);
+  const wfConfDirPath = arr.slice(0, arr.length - 1).join(path.sep);
 
-    // To do : Refactor this
-    if (fse.lstatSync(normalizedPath).isFile()) {
-      const arr = normalizedPath.split(path.sep);
-      normalizedPath = arr.slice(0, arr.length - 1).join(path.sep);
-    }
+  const destinationPath = `${workflowInstallPath}${path.sep}installed${path.sep}${wfConfig.bundleId}`;
 
-    const savedPath = `${workflowInstallPath}${path.sep}installed${path.sep}${wfConfig.bundleId}`;
-
-    // If a folder with the same name exists, overwrite it.
-    if (fse.existsSync(savedPath)) {
-      await fse.rmdir(savedPath);
-    }
-
-    await fse.mkdir(savedPath, { recursive: true });
-
-    fse.copy(normalizedPath, savedPath, { recursive: true });
-  } catch (e) {
-    throw new Error(e);
+  if (fse.existsSync(destinationPath)) {
+    await fse.remove(destinationPath);
   }
+
+  await fse.copy(wfConfDirPath, destinationPath, {
+    recursive: true,
+    overwrite: true,
+    preserveTimestamps: false,
+  });
+
+  wfConfig.enabled = wfConfig.enabled ?? true;
+  store.setWorkflow(wfConfig);
 };
 
 const installByGit = async (storeType: StoreType, giturl: string) => {
@@ -66,7 +60,7 @@ const install = async (storeType: StoreType, arg: string): Promise<void> => {
     await installByJson(storeType, arg);
   } else if (arg.includes(".plist")) {
     // Need to convert alfred's info.plist to json first
-    await installByJson(storeType, '');
+    await installByJson(storeType, "");
   } else if (validateUrl(arg)) {
     await installByGit(storeType, arg);
   } else {
@@ -74,25 +68,35 @@ const install = async (storeType: StoreType, arg: string): Promise<void> => {
   }
 };
 
-const unInstall = async (storeType: StoreType, bundleIdOrWfConfPath: string): Promise<void>  => {
+const unInstall = async ({
+  storeType,
+  bundleId,
+  wfConfigFilePath,
+}: {
+  storeType: StoreType;
+  bundleId?: string;
+  wfConfigFilePath?: string;
+}): Promise<void> => {
   const store = await createStore(storeType);
 
+  if (!bundleId && !wfConfigFilePath) {
+    throw new Error('Either bundleId or wfConfigFilePath should be set.');
+  }
+
   try {
-    let bundleId = bundleIdOrWfConfPath;
-    if (bundleIdOrWfConfPath.includes('.json')) {
-      const wfConfig = await fse.readJson(bundleIdOrWfConfPath);
+    if (wfConfigFilePath) {
+      const wfConfig = await fse.readJson(wfConfigFilePath);
       bundleId = wfConfig.bundleId;
     }
-
-    store.deleteWorkflow(bundleId);
 
     const installedDir = `${workflowInstallPath}${path.sep}installed${path.sep}${bundleId}`;
 
     if (await fse.pathExists(installedDir)) {
-      fse.remove(installedDir);
-    } else {
-      throw new Error(chalk.red(`${installedDir} not exist,`));
+      await fse.remove(installedDir);
     }
+
+    store.deleteWorkflow(bundleId!);
+
   } catch (e) {
     throw new Error(e);
   }

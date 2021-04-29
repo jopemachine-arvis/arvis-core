@@ -33,7 +33,14 @@ const cliFunc = async (input, flags): Promise<string> => {
       return getCommandList(StoreType.CUI);
     case "un":
     case "uninstall":
-      await unInstall(StoreType.CUI, input[1]);
+      let bundleId: string | undefined;
+      let wfConfigFilePath: string | undefined;
+      if (input[1].endsWith(".json")) {
+        bundleId = input[1];
+      } else {
+        wfConfigFilePath = input[1];
+      }
+      await unInstall({ storeType: StoreType.CUI, bundleId, wfConfigFilePath });
       break;
   }
 
