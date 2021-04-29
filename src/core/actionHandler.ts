@@ -1,5 +1,10 @@
 import _ from "lodash";
-import { openFile, copyToClipboard, argsExtract } from "../actions";
+import {
+  openFile,
+  copyToClipboard,
+  argsExtract,
+  customActions,
+} from "../actions";
 import { handleScriptArgs } from "./argsHandler";
 import { CommandManager } from "./commandManager";
 import { handleModifiers } from "./modifierHandler";
@@ -24,6 +29,12 @@ function handleAction(
 
   // There can still be more than one action, such as simultaneously performing clipboard and script_filter.
   _.map(actions, (action) => {
+
+    if (customActions[action.type]) {
+      customActions[action.type](action);
+      return;
+    }
+
     switch (action.type.toLowerCase()) {
       // Execute script of script filter
       case "script_filter":
@@ -40,27 +51,28 @@ function handleAction(
       // Open specific program, url..
       case "open":
         action = action as OpenAction;
-        target = handleScriptArgs({ str: action.url, queryArgs });
-        this.printDebuggingInfo && console.log("Open target: ", target);
+        target = handleScriptArgs({ str: action.target, queryArgs });
+        this.printDebuggingInfo && console.log("[open] target: ", target);
 
         openFile(target);
         break;
-      // Alarm
-      case "alarm":
+      // Notification
+      case "notification":
+        // Not implemented
         break;
       // Copy text to clipboard
       case "clipboard":
         action = action as ClipboardAction;
         target = handleScriptArgs({ str: action.text, queryArgs });
         copyToClipboard(target);
-        this.printDebuggingInfo && console.log("Copy target: ", target);
+        this.printDebuggingInfo && console.log("[clipboard] target: ", target);
 
         break;
       // Extract query from args, vars and execute the action.
       case "args":
         action = action as ArgsAction;
         queryArgs = argsExtract(queryArgs, action.arg);
-        this.printDebuggingInfo && console.log("Args to select: ", queryArgs);
+        this.printDebuggingInfo && console.log("[args] to select: ", queryArgs);
 
         nextAction = this.handleAction({
           actions: action.action,
@@ -78,16 +90,23 @@ function handleAction(
           appendQuotes: true,
         });
 
-        this.printDebuggingInfo && console.log("Condition script: ", target);
-        const conditionalAction =
-          // tslint:disable-next-line: no-eval
-          eval(target) === true ? action.if.action.then : action.if.action.else;
+        this.printDebuggingInfo && console.log("[cond] script: ", target);
 
-        nextAction = this.handleAction({
-          actions: conditionalAction,
-          queryArgs,
-          modifiersInput
-        }).nextAction;
+        try {
+          const conditionalAction =
+            // tslint:disable-next-line: no-eval
+            eval(target) === true
+              ? action.if.action.then
+              : action.if.action.else;
+
+          nextAction = this.handleAction({
+            actions: conditionalAction,
+            queryArgs,
+            modifiersInput,
+          }).nextAction;
+        } catch (err) {
+          throw new Error(`Condition is not valid, condition: ${target}`);
+        }
         break;
     }
   });

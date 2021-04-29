@@ -8,6 +8,8 @@ import { CommandManager } from "./commandManager";
 
 import * as path from '../config/path';
 
+import { registerCustomAction } from '../actions';
+
 export {
   CommandManager,
   execute,
@@ -17,5 +19,6 @@ export {
   getWorkflowList,
   getCommandList,
   handleAction,
-  path
+  path,
+  registerCustomAction
 };

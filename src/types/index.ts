@@ -1,6 +1,7 @@
 import { OpenAction as _OpenAction } from "./actions/openAction";
 import { ScriptAction as _ScriptAction } from "./actions/scriptAction";
 import { ClipboardAction as _ClipboardAction } from "./actions/clipboardAction";
+import { NotificationAction as _NotificationAction } from "./actions/notificationAction";
 import { ScriptFilterAction as _ScriptFilterAction } from "./actions/scriptFilterAction";
 import { ScriptFilterResult as _ScriptFilterResult } from "./scriptFilterResult";
 import { KeywordAction as _KeywordAction } from "./actions/keywordAction";
@@ -20,6 +21,8 @@ declare global {
   type ScriptAction = _ScriptAction;
   type ClipboardAction = _ClipboardAction;
   type ScriptFilterAction = _ScriptFilterAction;
+  // NotificationAction is already declared in lib.dom.d.ts(882, 11)
+  type NotiAction = _NotificationAction;
   type ScriptFilterResult = _ScriptFilterResult;
   type KeywordAction = _KeywordAction;
   type ArgsAction = _ArgsAction;
@@ -31,7 +34,8 @@ declare global {
     | ScriptFilterAction
     | KeywordAction
     | ArgsAction
-    | CondAction;
+    | CondAction
+    | NotiAction;
 
   type Keyword = _Keyword;
   type ScriptFilter = _ScriptFilter;
