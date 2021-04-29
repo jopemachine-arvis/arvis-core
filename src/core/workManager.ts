@@ -1,7 +1,8 @@
-import { handleAction } from './actionHandler';
-import { handleScriptFilterChange } from './scriptFilterChangeHandler';
-import { extractArgs, extractArgsFromScriptFilterItem } from './argsHandler';
-import '../types';
+import { handleAction } from "./actionHandler";
+import { handleScriptFilterChange } from "./scriptFilterChangeHandler";
+import { extractArgs, extractArgsFromScriptFilterItem } from "./argsHandler";
+
+import "../types";
 
 interface Work {
   type: string;
@@ -16,12 +17,12 @@ interface Work {
   rerunInterval?: number;
 }
 
-type CommandManagerProp = {
+type WorkManagerProp = {
   printDebuggingInfo?: boolean;
 };
 
-export class CommandManager {
-  private commandStk: Work[];
+export class WorkManager {
+  private workStk: Work[];
   private globalVariables?: any;
   printDebuggingInfo?: boolean;
   handleAction: Function;
@@ -29,29 +30,29 @@ export class CommandManager {
   onItemPressHandler?: () => void;
   onItemShouldBeUpdate?: (items: ScriptFilterItem[]) => void;
 
-  constructor(props: CommandManagerProp) {
-    this.commandStk = [];
+  constructor(props: WorkManagerProp) {
+    this.workStk = [];
     this.globalVariables = {};
     this.handleAction = handleAction.bind(this);
     this.printDebuggingInfo = props.printDebuggingInfo;
   }
 
   getTopCommand = () => {
-    return this.commandStk[this.commandStk.length - 1];
+    return this.workStk[this.workStk.length - 1];
   }
 
   clearCommandStack = () => {
-    this.commandStk.length = 0;
+    this.workStk.length = 0;
   }
 
-  // If commandStk is empty, look for command.
-  hasEmptyCommandStk = () => {
-    return this.commandStk.length === 0;
+  // If workStk is empty, look for command.
+  hasEmptyWorkStk = () => {
+    return this.workStk.length === 0;
   }
 
   workIsPending = () => {
     return (
-      this.commandStk.length >= 1 &&
+      this.workStk.length >= 1 &&
       this.getTopCommand().workCompleted === false
     );
   }
@@ -60,13 +61,14 @@ export class CommandManager {
     const stdout = JSON.parse(result.stdout) as ScriptFilterResult;
 
     // Print to debugging window
-    this.printDebuggingInfo && console.log('Script filter result: ', stdout);
+    this.printDebuggingInfo &&
+      console.log(`'${this.getTopCommand().bundleId}' prints.. : `, stdout);
 
     const { items, rerunInterval, variables } = stdout;
 
     this.globalVariables = { ...variables, ...this.globalVariables };
-    this.commandStk[this.commandStk.length - 1].rerunInterval = rerunInterval;
-    this.commandStk[this.commandStk.length - 1].workCompleted = true;
+    this.workStk[this.workStk.length - 1].rerunInterval = rerunInterval;
+    this.workStk[this.workStk.length - 1].workCompleted = true;
 
     // Append bundleId
     items.map((item: ScriptFilterItem) => {
@@ -80,6 +82,7 @@ export class CommandManager {
     this.onItemShouldBeUpdate && this.onItemShouldBeUpdate(items);
   }
 
+  // Handler for enter event
   async commandExcute(
     item: Command | ScriptFilterItem,
     inputStr: string,
@@ -96,11 +99,21 @@ export class CommandManager {
     // If the stack is empty, the command becomes actions, otherwise the top action of the stack is 'actions'.
     let actions;
 
-    if (this.hasEmptyCommandStk()) {
+    if (this.hasEmptyWorkStk()) {
       item = item as Command;
-      actions = item;
+      actions = [item];
       const [first, ...querys] = inputStr.split(" ");
       args = extractArgs(querys);
+
+      // keyword, scriptfilter, or other starting node
+      this.workStk.push({
+        type: (item as Command).type,
+        input: inputStr,
+        command: item as Command,
+        bundleId: (item as Command).bundleId!,
+        args
+      });
+
     } else {
       actions = this.getTopCommand().command.action;
       item = item as ScriptFilterItem;
@@ -115,7 +128,7 @@ export class CommandManager {
     });
 
     if (actionResult.nextAction) {
-      this.commandStk.push({
+      this.workStk.push({
         type: actionResult.nextAction.type,
         input: inputStr,
         command: actionResult.nextAction,
@@ -126,7 +139,7 @@ export class CommandManager {
       });
 
       // To do:: Other types could be added later.
-      if (actionResult.nextAction.type === 'scriptfilter') {
+      if (actionResult.nextAction.type === "scriptfilter") {
         this.scriptFilterExcute(inputStr);
       }
     } else {
@@ -141,20 +154,20 @@ export class CommandManager {
   async scriptFilterExcute(
     inputStr: string,
     // command object should be given when stack is empty
-    commandOnStackIsEmpty?: Command
+    commandWhenStackIsEmpty?: Command
   ): Promise<any> {
     // If Command stack is empty, you can enter the script filter without a return event.
     // To handle this, push this command to commandStk
-    if (this.hasEmptyCommandStk()) {
-      if (!commandOnStackIsEmpty) {
+    if (this.hasEmptyWorkStk()) {
+      if (!commandWhenStackIsEmpty) {
         throw new Error("Error - command should be given when stack is empty");
       }
-      this.commandStk.push({
+      this.workStk.push({
         type: "scriptfilter",
         // user input string
         input: inputStr,
-        command: commandOnStackIsEmpty,
-        bundleId: commandOnStackIsEmpty.bundleId!,
+        command: commandWhenStackIsEmpty,
+        bundleId: commandWhenStackIsEmpty.bundleId!,
         args: null,
         workPromise: null,
         workCompleted: false,
@@ -163,7 +176,6 @@ export class CommandManager {
 
     const { bundleId, command, args } = this.getTopCommand();
     const [first, ...querys] = inputStr.split(" ");
-    // HACK:: Think about how to deal with the args.
 
     const extractedArgs = args ? args : extractArgs(querys);
 
@@ -173,7 +185,7 @@ export class CommandManager {
       extractedArgs
     );
 
-    this.commandStk[this.commandStk.length - 1].workPromise = scriptWork;
+    this.workStk[this.workStk.length - 1].workPromise = scriptWork;
 
     return scriptWork
       .then((result) => {
@@ -182,13 +194,13 @@ export class CommandManager {
           if (this.getTopCommand().rerunInterval) {
             // Run recursive every rerunInterval
             setTimeout(() => {
-              this.scriptFilterExcute(inputStr, commandOnStackIsEmpty);
+              this.scriptFilterExcute(inputStr);
             }, this.getTopCommand().rerunInterval);
           }
         }
       })
       .catch((err) => {
-        if (this.hasEmptyCommandStk()) {
+        if (this.hasEmptyWorkStk()) {
           // When the command has been canceled.
           console.log("Command has been canceled.\n", err);
         } else {

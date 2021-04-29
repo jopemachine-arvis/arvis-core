@@ -4,14 +4,14 @@ import { install, unInstall } from "./workflowInstaller";
 import { getWorkflowList } from "./workflowList";
 import { getCommandList } from "./commandList";
 import { handleAction } from "./actionHandler";
-import { CommandManager } from "./commandManager";
+import { WorkManager } from "./workManager";
 
 import * as path from '../config/path';
 
 import { registerCustomAction } from '../actions';
 
 export {
-  CommandManager,
+  WorkManager,
   execute,
   findCommands,
   install,

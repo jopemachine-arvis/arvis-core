@@ -6,12 +6,13 @@ import {
   customActions,
 } from "../actions";
 import { handleScriptArgs } from "./argsHandler";
-import { CommandManager } from "./commandManager";
+import { WorkManager } from "./workManager";
 import { handleModifiers } from "./modifierHandler";
+import { execute } from './scriptExecutor';
 
 // The actions arrangement is taken as a factor to branch according to cond or modifiers.
 function handleAction(
-  this: CommandManager,
+  this: WorkManager,
   {
     actions,
     queryArgs,
@@ -36,8 +37,12 @@ function handleAction(
     }
 
     switch (action.type.toLowerCase()) {
-      // Execute script of script filter
-      case "script_filter":
+      case "script":
+        action = action as ScriptAction;
+        target = action.script;
+        this.printDebuggingInfo && console.log("[script] ", target);
+        execute(this.getTopCommand().bundleId, target);
+        break;
       case "scriptfilter":
         action = action as ScriptFilterAction;
         target = handleScriptArgs({ str: action.script_filter, queryArgs });
@@ -46,13 +51,17 @@ function handleAction(
       // Just execute next action
       case "keyword":
         action = action as KeywordAction;
-        nextAction = action;
+        nextAction = this.handleAction({
+          actions: action.action,
+          queryArgs,
+          modifiersInput,
+        }).nextAction;
         break;
       // Open specific program, url..
       case "open":
         action = action as OpenAction;
         target = handleScriptArgs({ str: action.target, queryArgs });
-        this.printDebuggingInfo && console.log("[open] target: ", target);
+        this.printDebuggingInfo && console.log("[open] ", target);
 
         openFile(target);
         break;
@@ -65,14 +74,14 @@ function handleAction(
         action = action as ClipboardAction;
         target = handleScriptArgs({ str: action.text, queryArgs });
         copyToClipboard(target);
-        this.printDebuggingInfo && console.log("[clipboard] target: ", target);
+        this.printDebuggingInfo && console.log("[clipboard] ", target);
 
         break;
       // Extract query from args, vars and execute the action.
       case "args":
         action = action as ArgsAction;
         queryArgs = argsExtract(queryArgs, action.arg);
-        this.printDebuggingInfo && console.log("[args] to select: ", queryArgs);
+        this.printDebuggingInfo && console.log("[args] ", queryArgs);
 
         nextAction = this.handleAction({
           actions: action.action,
