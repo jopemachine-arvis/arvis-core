@@ -1,7 +1,6 @@
 import { handleAction } from "./actionHandler";
-import { handleScriptFilterChange } from "./scriptFilterChangeHandler";
 import { extractArgs, extractArgsFromScriptFilterItem } from "./argsHandler";
-
+import { scriptFilterExcute } from '../actions/scriptFilter';
 import "../types";
 
 interface Work {
@@ -22,8 +21,8 @@ type WorkManagerProp = {
 };
 
 export class WorkManager {
-  private workStk: Work[];
-  private globalVariables?: any;
+  workStk: Work[];
+  globalVariables?: any;
   printDebuggingInfo?: boolean;
   handleAction: Function;
 
@@ -55,31 +54,6 @@ export class WorkManager {
       this.workStk.length >= 1 &&
       this.getTopCommand().workCompleted === false
     );
-  }
-
-  scriptFilterCompleteEventHandler = (result: any) => {
-    const stdout = JSON.parse(result.stdout) as ScriptFilterResult;
-
-    // Print to debugging window
-    this.printDebuggingInfo &&
-      console.log(`'${this.getTopCommand().bundleId}' prints.. : `, stdout);
-
-    const { items, rerunInterval, variables } = stdout;
-
-    this.globalVariables = { ...variables, ...this.globalVariables };
-    this.workStk[this.workStk.length - 1].rerunInterval = rerunInterval;
-    this.workStk[this.workStk.length - 1].workCompleted = true;
-
-    // Append bundleId
-    items.map((item: ScriptFilterItem) => {
-      item.bundleId = this.getTopCommand().bundleId;
-    });
-
-    if (!this.onItemShouldBeUpdate) {
-      console.error("onItemShouldBeUpdate is not set!!");
-    }
-
-    this.onItemShouldBeUpdate && this.onItemShouldBeUpdate(items);
   }
 
   // Handler for enter event
@@ -140,7 +114,7 @@ export class WorkManager {
 
       // To do:: Other types could be added later.
       if (actionResult.nextAction.type === "scriptfilter") {
-        this.scriptFilterExcute(inputStr);
+        scriptFilterExcute(this, inputStr);
       }
     } else {
       // clear command stack, and return to initial.
@@ -149,64 +123,5 @@ export class WorkManager {
     }
 
     this.onItemPressHandler && this.onItemPressHandler();
-  }
-
-  async scriptFilterExcute(
-    inputStr: string,
-    // command object should be given when stack is empty
-    commandWhenStackIsEmpty?: Command
-  ): Promise<any> {
-    // If Command stack is empty, you can enter the script filter without a return event.
-    // To handle this, push this command to commandStk
-    if (this.hasEmptyWorkStk()) {
-      if (!commandWhenStackIsEmpty) {
-        throw new Error("Error - command should be given when stack is empty");
-      }
-      this.workStk.push({
-        type: "scriptfilter",
-        // user input string
-        input: inputStr,
-        command: commandWhenStackIsEmpty,
-        bundleId: commandWhenStackIsEmpty.bundleId!,
-        args: null,
-        workPromise: null,
-        workCompleted: false,
-      });
-    }
-
-    const { bundleId, command, args } = this.getTopCommand();
-    const [first, ...querys] = inputStr.split(" ");
-
-    const extractedArgs = args ? args : extractArgs(querys);
-
-    const scriptWork: Promise<any> = handleScriptFilterChange(
-      bundleId,
-      command,
-      extractedArgs
-    );
-
-    this.workStk[this.workStk.length - 1].workPromise = scriptWork;
-
-    return scriptWork
-      .then((result) => {
-        if (this.getTopCommand().workPromise === scriptWork) {
-          this.scriptFilterCompleteEventHandler(result);
-          if (this.getTopCommand().rerunInterval) {
-            // Run recursive every rerunInterval
-            setTimeout(() => {
-              this.scriptFilterExcute(inputStr);
-            }, this.getTopCommand().rerunInterval);
-          }
-        }
-      })
-      .catch((err) => {
-        if (this.hasEmptyWorkStk()) {
-          // When the command has been canceled.
-          console.log("Command has been canceled.\n", err);
-        } else {
-          // Unexpected Error
-          throw new Error(err);
-        }
-      });
   }
 }

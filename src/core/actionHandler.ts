@@ -4,11 +4,13 @@ import {
   copyToClipboard,
   argsExtract,
   customActions,
+  scriptFilterExcute
 } from "../actions";
-import { handleScriptArgs } from "./argsHandler";
+import { extractArgs, handleScriptArgs } from "./argsHandler";
 import { WorkManager } from "./workManager";
 import { handleModifiers } from "./modifierHandler";
 import { execute } from './scriptExecutor';
+import chalk from 'chalk';
 
 // The actions arrangement is taken as a factor to branch according to cond or modifiers.
 function handleAction(
@@ -23,10 +25,15 @@ function handleAction(
     modifiersInput: ModifierInput;
   }
 ) {
+
   actions = handleModifiers(actions, modifiersInput);
 
   let target;
   let nextAction: Action | null = null;
+
+  const log = (color: Function, type: string, text: string) => {
+    this.printDebuggingInfo && console.log(color(`[${type}] `), text);
+  };
 
   // There can still be more than one action, such as simultaneously performing clipboard and script_filter.
   _.map(actions, (action) => {
@@ -36,32 +43,38 @@ function handleAction(
       return;
     }
 
-    switch (action.type.toLowerCase()) {
+    const type = action.type.toLowerCase();
+    switch (type) {
       case "script":
         action = action as ScriptAction;
         target = action.script;
-        this.printDebuggingInfo && console.log("[script] ", target);
+        log(chalk.yellowBright, type, target);
         execute(this.getTopCommand().bundleId, target);
         break;
+      // Scriptfilter cannot be processed here because it could be ran in a way other than 'Enter' event
       case "scriptfilter":
         action = action as ScriptFilterAction;
-        target = handleScriptArgs({ str: action.script_filter, queryArgs });
+        target = action.script_filter;
         nextAction = action;
+        log(chalk.bgRedBright, type, target);
         break;
       // Just execute next action
       case "keyword":
         action = action as KeywordAction;
+        target = action.command;
+
         nextAction = this.handleAction({
           actions: action.action,
           queryArgs,
           modifiersInput,
         }).nextAction;
+        log(chalk.blackBright, type, target);
         break;
       // Open specific program, url..
       case "open":
         action = action as OpenAction;
         target = handleScriptArgs({ str: action.target, queryArgs });
-        this.printDebuggingInfo && console.log("[open] ", target);
+        log(chalk.blueBright, type, target);
 
         openFile(target);
         break;
@@ -74,14 +87,14 @@ function handleAction(
         action = action as ClipboardAction;
         target = handleScriptArgs({ str: action.text, queryArgs });
         copyToClipboard(target);
-        this.printDebuggingInfo && console.log("[clipboard] ", target);
+        log(chalk.greenBright, type, target);
 
         break;
       // Extract query from args, vars and execute the action.
       case "args":
         action = action as ArgsAction;
         queryArgs = argsExtract(queryArgs, action.arg);
-        this.printDebuggingInfo && console.log("[args] ", queryArgs);
+        log(chalk.cyanBright, type, target);
 
         nextAction = this.handleAction({
           actions: action.action,
@@ -99,7 +112,7 @@ function handleAction(
           appendQuotes: true,
         });
 
-        this.printDebuggingInfo && console.log("[cond] script: ", target);
+        log(chalk.magentaBright, type, target);
 
         try {
           const conditionalAction =
