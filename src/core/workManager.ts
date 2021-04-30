@@ -1,7 +1,7 @@
-import { handleAction } from "./actionHandler";
-import { extractArgs, extractArgsFromScriptFilterItem } from "./argsHandler";
 import { scriptFilterExcute } from '../actions/scriptFilter';
-import "../types";
+import '../types';
+import { handleAction } from './actionHandler';
+import { extractArgs, extractArgsFromScriptFilterItem } from './argsHandler';
 
 interface Work {
   type: string;
@@ -37,11 +37,11 @@ export class WorkManager {
     this.printDebuggingInfo = props.printDebuggingInfo;
   }
 
-  getTopCommand = () => {
+  getTopWork = () => {
     return this.workStk[this.workStk.length - 1];
   }
 
-  clearCommandStack = () => {
+  clearWorkStack = () => {
     this.workStk.length = 0;
   }
 
@@ -52,19 +52,24 @@ export class WorkManager {
 
   workIsPending = () => {
     return (
-      this.workStk.length >= 1 &&
-      this.getTopCommand().workCompleted === false
+      this.workStk.length >= 1 && this.getTopWork().workCompleted === false
     );
   }
 
-  prepareActions = ({ item, inputStr }) => {
+  prepareActions = ({
+    item,
+    inputStr,
+  }: {
+    item: Command | ScriptFilterItem;
+    inputStr: string;
+  }) => {
     let actions;
     let args;
 
     if (this.hasEmptyWorkStk()) {
       item = item as Command;
       actions = [item];
-      const [first, ...querys] = inputStr.split(" ");
+      const [first, ...querys] = inputStr.split(' ');
       args = extractArgs(querys);
 
       // keyword, scriptfilter, or other starting node
@@ -73,11 +78,10 @@ export class WorkManager {
         input: inputStr,
         command: item as Command,
         bundleId: (item as Command).bundleId!,
-        args
+        args,
       });
-
     } else {
-      actions = this.getTopCommand().command.action;
+      actions = this.getTopWork().command.action;
       item = item as ScriptFilterItem;
       const vars = { ...item.variables, ...this.globalVariables! };
       args = extractArgsFromScriptFilterItem(item, vars);
@@ -122,13 +126,13 @@ export class WorkManager {
             type: nextAction.type,
             input: inputStr,
             command: nextAction,
-            bundleId: this.getTopCommand().bundleId,
+            bundleId: this.getTopWork().bundleId,
             args: actionResult.args,
             workPromise: null,
             workCompleted: false,
           });
 
-          if (nextAction.type === "scriptfilter") {
+          if (nextAction.type === 'scriptfilter') {
             scriptFilterExcute(this, inputStr);
             this.onItemPressHandler && this.onItemPressHandler();
             return;
@@ -137,7 +141,7 @@ export class WorkManager {
       }
     }
 
-    this.clearCommandStack();
+    this.clearWorkStack();
     this.onItemShouldBeUpdate && this.onItemShouldBeUpdate([]);
     this.onItemPressHandler && this.onItemPressHandler();
     this.onWorkEndHandler && this.onWorkEndHandler();

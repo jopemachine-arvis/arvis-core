@@ -1,5 +1,5 @@
 export interface NotificationAction {
-  type: "notification";
+  type: 'notification';
   title: string;
   text: string;
   modifiers?: string;

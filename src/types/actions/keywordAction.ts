@@ -1,5 +1,5 @@
 export interface KeywordAction {
-  type: "keyword";
+  type: 'keyword';
   command: string;
   action: Action[];
   modifiers?: string;

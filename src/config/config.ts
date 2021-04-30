@@ -3,35 +3,34 @@ import { StoreType } from '../types/storeType';
 
 const schema = {
   installed: {
-    type: "object",
+    type: 'object',
     default: {},
   },
   commands: {
-    type: "object",
+    type: 'object',
     default: {},
   },
 } as const;
 
 const createStore = async (storeType: StoreType) => {
-
   let store;
   if (storeType === StoreType.Electron) {
-    const ElectronStore = await import("electron-store");
-    store = new ElectronStore.default({ schema, name: "common" });
+    const ElectronStore = await import('electron-store');
+    store = new ElectronStore.default({ schema, name: 'common' });
   } else if (storeType === StoreType.CUI) {
-    const CuiStore = await import("conf");
-    store = new CuiStore.default({ schema, configName: "common" });
+    const CuiStore = await import('conf');
+    store = new CuiStore.default({ schema, configName: 'common' });
   } else {
-    throw new Error("conf store type not correct");
+    throw new Error('conf store type not correct');
   }
 
   const Functions = {
     getInstalledWorkflows: () => {
-      return store.get("installed") as any;
+      return store.get('installed') as any;
     },
 
     getCommands: () => {
-      return store.get("commands") as any;
+      return store.get('commands') as any;
     },
 
     getWorkflow: (bundleId: string) => {
@@ -41,7 +40,7 @@ const createStore = async (storeType: StoreType) => {
     setWorkflow: (workflow: any) => {
       const installedWorkflows = Functions.getInstalledWorkflows();
       installedWorkflows[workflow.bundleId] = workflow;
-      store.set("installed", installedWorkflows);
+      store.set('installed', installedWorkflows);
       const commands = Functions.getCommands();
       for (const commandObj of workflow.commands) {
         commandObj.bundleId = workflow.bundleId;
@@ -50,13 +49,13 @@ const createStore = async (storeType: StoreType) => {
           ? [...existing, commandObj]
           : [commandObj];
       }
-      store.set("commands", commands);
+      store.set('commands', commands);
     },
 
     deleteWorkflow: (bundleId: string) => {
       const installedWorkflows = Functions.getInstalledWorkflows();
       delete installedWorkflows[bundleId];
-      store.set("installed", installedWorkflows);
+      store.set('installed', installedWorkflows);
       const allCommands = Functions.getCommands();
       for (const command of Object.keys(allCommands)) {
         // Command bar corresponding to that command
@@ -77,13 +76,11 @@ const createStore = async (storeType: StoreType) => {
           allCommands[command] = commands;
         }
       }
-      store.set("commands", allCommands);
+      store.set('commands', allCommands);
     },
   };
 
   return Functions;
 };
 
-export {
-  createStore
-};
+export { createStore };

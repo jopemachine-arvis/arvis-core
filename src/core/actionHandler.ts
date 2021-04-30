@@ -1,16 +1,16 @@
-import _ from "lodash";
-import {
-  openFile,
-  copyToClipboard,
-  argsExtract,
-  customActions,
-} from "../actions";
-import { handleScriptArgs } from "./argsHandler";
-import { WorkManager } from "./workManager";
-import { handleModifiers } from "./modifierHandler";
-import { execute } from './scriptExecutor';
 import chalk from 'chalk';
-import { escapeBraket } from "../utils";
+import _ from 'lodash';
+import {
+  argsExtract,
+  copyToClipboard,
+  customActions,
+  openFile,
+} from '../actions';
+import { escapeBraket } from '../utils';
+import { handleScriptArgs } from './argsHandler';
+import { handleModifiers } from './modifierHandler';
+import { execute } from './scriptExecutor';
+import { WorkManager } from './workManager';
 
 // The actions arrangement is taken as a factor to branch according to cond or modifiers.
 function handleAction(
@@ -35,13 +35,12 @@ function handleAction(
     this.printDebuggingInfo && console.log(color(`[${type}] `), text);
   };
 
-  // There can still be more than one action, such as simultaneously performing clipboard and script_filter.
   _.map(actions, (action) => {
     const type = action.type.toLowerCase();
     let logColor;
 
     // tslint:disable-next-line: no-string-literal
-    nextActions = action["action"];
+    nextActions = action['action'];
 
     if (customActions[action.type]) {
       customActions[action.type](action);
@@ -50,16 +49,16 @@ function handleAction(
 
     try {
       switch (type) {
-        case "script":
+        case 'script':
           action = action as ScriptAction;
           logColor = chalk.yellowBright;
           target = action.script;
-          execute(this.getTopCommand().bundleId, target);
+          execute(this.getTopWork().bundleId, target);
           break;
 
         // Scriptfilter cannot be processed here because it could be ran in a way other than 'Enter' event
         // Because the action is not processed here, so it passes action as nextAction, not action.action
-        case "scriptfilter":
+        case 'scriptfilter':
           action = action as ScriptFilterAction;
           logColor = chalk.redBright;
           target = action.script_filter;
@@ -67,7 +66,7 @@ function handleAction(
           break;
 
         // Just execute next action
-        case "keyword":
+        case 'keyword':
           action = action as KeywordAction;
           target = action.command;
           logColor = chalk.blackBright;
@@ -80,7 +79,7 @@ function handleAction(
           break;
 
         // Open specific program, url..
-        case "open":
+        case 'open':
           action = action as OpenAction;
           logColor = chalk.blueBright;
           target = handleScriptArgs({ str: action.target, queryArgs });
@@ -89,13 +88,13 @@ function handleAction(
           break;
 
         // Notification (Not implemented on here)
-        case "notification":
+        case 'notification':
           action = action as NotiAction;
           log(chalk.whiteBright, type, action.title);
           break;
 
         // Copy text to clipboard
-        case "clipboard":
+        case 'clipboard':
           action = action as ClipboardAction;
           logColor = chalk.greenBright;
           target = handleScriptArgs({ str: action.text, queryArgs });
@@ -103,12 +102,13 @@ function handleAction(
           break;
 
         // Extract query from args, vars and execute the action.
-        case "args":
+        case 'args':
           action = action as ArgsAction;
           logColor = chalk.blue;
 
           const argToExtract = escapeBraket(action.arg).trim();
           queryArgs = argsExtract(queryArgs, argToExtract);
+          target = queryArgs;
 
           nextActions = this.handleAction({
             actions: nextActions,
@@ -119,7 +119,7 @@ function handleAction(
 
         // Run 'cond' as eval to determine if true.
         // And run 'then' actions if cond is true, else run 'else' actions.
-        case "cond":
+        case 'cond':
           action = action as CondAction;
           logColor = chalk.magentaBright;
           target = handleScriptArgs({

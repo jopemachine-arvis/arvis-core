@@ -1,5 +1,5 @@
-import _ from "lodash";
-import "../types";
+import _ from 'lodash';
+import '../types';
 
 export const handleModifiers = (
   actions: Action[],

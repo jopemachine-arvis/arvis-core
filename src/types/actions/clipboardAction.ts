@@ -1,5 +1,5 @@
 export interface ClipboardAction {
-  type: "clipboard";
+  type: 'clipboard';
   text: string;
   modifiers?: string;
   action?: Action[];

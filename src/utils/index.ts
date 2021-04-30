@@ -1,4 +1,4 @@
-import { replaceAll, validateUrl, escapeBraket } from './string';
+import { escapeBraket, replaceAll, validateUrl } from './string';
 export {
   replaceAll,
   escapeBraket,

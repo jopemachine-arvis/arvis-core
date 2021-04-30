@@ -1,7 +1,7 @@
 import '../../types';
 
 export interface ArgsAction {
-  type: "args";
+  type: 'args';
   arg: string;
   action: Action[];
   modifiers?: string;

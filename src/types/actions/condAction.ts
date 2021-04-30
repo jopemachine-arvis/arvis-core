@@ -2,7 +2,7 @@ import '..';
 import { If } from './if';
 
 export interface CondAction {
-  type: "cond";
+  type: 'cond';
   if: If;
   modifiers?: string;
 }

@@ -1,5 +1,5 @@
 export interface ScriptAction {
-  type: "script";
+  type: 'script';
   script: string;
   modifiers?: string;
   action?: Action[];

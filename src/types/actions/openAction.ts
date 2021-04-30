@@ -1,5 +1,5 @@
 export interface OpenAction {
-  type: "open";
+  type: 'open';
   // local file path or url
   target: string;
   modifiers?: string;

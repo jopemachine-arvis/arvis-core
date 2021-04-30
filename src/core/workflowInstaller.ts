@@ -1,11 +1,11 @@
-import * as fse from 'fs-extra';
-import { createStore } from '../config/config';
-import gitDownload from 'download-git-repo';
-import path from 'path';
 import chalk from 'chalk';
-import { validateUrl } from '../utils';
+import gitDownload from 'download-git-repo';
+import * as fse from 'fs-extra';
+import path from 'path';
+import { createStore } from '../config/config';
 import { workflowInstallPath } from '../config/path';
 import { StoreType } from '../types/storeType';
+import { validateUrl } from '../utils';
 
 const installByJson = async (storeType: StoreType, wfConfFilePath: string) => {
   const store = await createStore(storeType);

@@ -7,8 +7,8 @@ import {
   getCommandList,
 } from "./core";
 
-import initConfig from './config/initConfig';
 import helpManual from './config/getHelpStr';
+import initConfig from './config/initConfig';
 
 import { StoreType } from './types/storeType';
 

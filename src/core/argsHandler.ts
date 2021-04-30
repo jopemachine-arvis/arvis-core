@@ -19,7 +19,7 @@ const handleScriptArgs = ({
 
 const extractArgs = (querys: string[]) => {
   // To do:: In some cases, the single quotes below may need to be escape.
-  const args = { "{query}": querys.join(" "), $1: "" };
+  const args = { '{query}': querys.join(' '), $1: '' };
 
   // tslint:disable-next-line: forin
   for (const qIdx in querys) {
@@ -39,7 +39,7 @@ const extractArgsFromScriptFilterItem = (item: ScriptFilterItem, vars: any) => {
   let args = {};
   if (item.arg) {
     item.arg = escapeBraket(item.arg);
-    args = { "{query}": item.arg, $1: item.arg };
+    args = { '{query}': item.arg, $1: item.arg };
   }
 
   // tslint:disable-next-line: forin
@@ -53,8 +53,4 @@ const extractArgsFromScriptFilterItem = (item: ScriptFilterItem, vars: any) => {
   return args;
 };
 
-export {
-  extractArgs,
-  extractArgsFromScriptFilterItem,
-  handleScriptArgs
-};
+export { extractArgs, extractArgsFromScriptFilterItem, handleScriptArgs };

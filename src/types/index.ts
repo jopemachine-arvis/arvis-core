@@ -1,19 +1,19 @@
-import { OpenAction as _OpenAction } from "./actions/openAction";
-import { ScriptAction as _ScriptAction } from "./actions/scriptAction";
-import { ClipboardAction as _ClipboardAction } from "./actions/clipboardAction";
-import { NotificationAction as _NotificationAction } from "./actions/notificationAction";
-import { ScriptFilterAction as _ScriptFilterAction } from "./actions/scriptFilterAction";
-import { ScriptFilterResult as _ScriptFilterResult } from "./scriptFilterResult";
-import { KeywordAction as _KeywordAction } from "./actions/keywordAction";
-import { ArgsAction as _ArgsAction } from "./actions/argsAction";
-import { CondAction as _CondAction } from "./actions/condAction";
+import { ArgsAction as _ArgsAction } from './actions/argsAction';
+import { ClipboardAction as _ClipboardAction } from './actions/clipboardAction';
+import { CondAction as _CondAction } from './actions/condAction';
+import { KeywordAction as _KeywordAction } from './actions/keywordAction';
+import { NotificationAction as _NotificationAction } from './actions/notificationAction';
+import { OpenAction as _OpenAction } from './actions/openAction';
+import { ScriptAction as _ScriptAction } from './actions/scriptAction';
+import { ScriptFilterAction as _ScriptFilterAction } from './actions/scriptFilterAction';
+import { ScriptFilterResult as _ScriptFilterResult } from './scriptFilterResult';
 
-import { Keyword as _Keyword } from "./inputs/keyword";
-import { ScriptFilter as _ScriptFilter } from "./inputs/scriptFilter";
-import { Command as _Command } from "./command";
-import { ScriptFilterItem as _ScriptFilterItem } from "./scriptFilterItem";
-import { ModifierInput as _ModifierInput } from "./modifierInput";
-import { WorkflowConfigFile as _WorkflowConfigFile } from "./workflowConfig";
+import { Command as _Command } from './command';
+import { Keyword as _Keyword } from './inputs/keyword';
+import { ScriptFilter as _ScriptFilter } from './inputs/scriptFilter';
+import { ModifierInput as _ModifierInput } from './modifierInput';
+import { ScriptFilterItem as _ScriptFilterItem } from './scriptFilterItem';
+import { WorkflowConfigFile as _WorkflowConfigFile } from './workflowConfig';
 
 // Need to change below codes to import this code from the CUI and GUI code side
 declare global {

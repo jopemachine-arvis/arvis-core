@@ -1,1 +1,1 @@
-export type Keyword = "keyword";
+export type Keyword = 'keyword';

@@ -1,1 +1,1 @@
-export type ScriptFilter = "script_filter" | "scriptfilter";
+export type ScriptFilter = 'script_filter' | 'scriptfilter';

@@ -11,7 +11,7 @@ function scriptFilterCompleteEventHandler(
   // Print to debugging window
   workManager.printDebuggingInfo &&
     console.log(
-      `'${workManager.getTopCommand().bundleId}' prints.. : \n`,
+      `'${workManager.getTopWork().bundleId}' prints.. : \n`,
       stdout
     );
 
@@ -21,14 +21,16 @@ function scriptFilterCompleteEventHandler(
     ...variables,
     ...workManager.globalVariables,
   };
+
   workManager.workStk[
     workManager.workStk.length - 1
   ].rerunInterval = rerunInterval;
+
   workManager.workStk[workManager.workStk.length - 1].workCompleted = true;
 
   // Append bundleId
   items.map((item: ScriptFilterItem) => {
-    item.bundleId = workManager.getTopCommand().bundleId;
+    item.bundleId = workManager.getTopWork().bundleId;
   });
 
   if (!workManager.onItemShouldBeUpdate) {
@@ -62,7 +64,7 @@ async function scriptFilterExcute(
     });
   }
 
-  const { bundleId, command, args } = workManager.getTopCommand();
+  const { bundleId, command, args } = workManager.getTopWork();
   const [first, ...querys] = inputStr.split(" ");
 
   const extractedArgs = args ? args : extractArgs(querys);
@@ -77,20 +79,21 @@ async function scriptFilterExcute(
 
   return scriptWork
     .then((result) => {
-      if (workManager.getTopCommand().workPromise === scriptWork) {
+      if (workManager.getTopWork().workPromise === scriptWork) {
         scriptFilterCompleteEventHandler(workManager, result);
-        if (workManager.getTopCommand().rerunInterval) {
+        if (workManager.getTopWork().rerunInterval) {
           // Run recursive every rerunInterval
           setTimeout(() => {
             scriptFilterExcute(workManager, inputStr);
-          }, workManager.getTopCommand().rerunInterval);
+          }, workManager.getTopWork().rerunInterval);
         }
       }
     })
     .catch((err) => {
       if (workManager.hasEmptyWorkStk()) {
         // When the command has been canceled.
-        console.log("Command has been canceled.\n", err);
+        workManager.printDebuggingInfo &&
+          console.log("Command has been canceled.\n", err);
       } else {
         // Unexpected Error
         throw new Error(err);
