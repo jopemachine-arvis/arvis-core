@@ -11,7 +11,7 @@ const handleScriptArgs = ({
 }) => {
   for (const key of Object.keys(queryArgs)) {
     const newStr =
-      appendQuotes === true ? `"${queryArgs[key]}"` : queryArgs[key];
+      appendQuotes === true ? `"${queryArgs[key].trim()}"` : queryArgs[key];
     str = replaceAll(str, key, newStr);
   }
   return str;

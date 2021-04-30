@@ -15,7 +15,7 @@ function scriptFilterCompleteEventHandler(
       stdout
     );
 
-  const { items, rerunInterval, variables } = stdout;
+  const { items, rerun: rerunInterval, variables } = stdout;
 
   workManager.globalVariables = {
     ...variables,

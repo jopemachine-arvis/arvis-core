@@ -17,7 +17,7 @@ const execute = (bundleId: string, scriptStr: string) => {
       // Environment variable setting for 'alfy' compatibility
       'alfred_workflow_cache': bundleId
     },
-    timeout: 3000,
+    // timeout: 3000,
   });
 };
 
