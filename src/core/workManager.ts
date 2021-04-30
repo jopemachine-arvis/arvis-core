@@ -28,6 +28,7 @@ export class WorkManager {
 
   onItemPressHandler?: () => void;
   onItemShouldBeUpdate?: (items: ScriptFilterItem[]) => void;
+  onWorkEndHandler?: () => void;
 
   constructor(props: WorkManagerProp) {
     this.workStk = [];
@@ -120,6 +121,7 @@ export class WorkManager {
       // clear command stack, and return to initial.
       this.clearCommandStack();
       this.onItemShouldBeUpdate && this.onItemShouldBeUpdate([]);
+      this.onWorkEndHandler && this.onWorkEndHandler();
     }
 
     this.onItemPressHandler && this.onItemPressHandler();
