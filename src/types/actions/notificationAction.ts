@@ -3,4 +3,5 @@ export interface NotificationAction {
   title: string;
   text: string;
   modifiers?: string;
+  action?: Action[];
 }

@@ -3,4 +3,5 @@ export interface OpenAction {
   // local file path or url
   target: string;
   modifiers?: string;
+  action?: Action[];
 }

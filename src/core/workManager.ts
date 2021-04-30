@@ -57,22 +57,9 @@ export class WorkManager {
     );
   }
 
-  // Handler for enter event
-  async commandExcute(
-    item: Command | ScriptFilterItem,
-    inputStr: string,
-    modifier: ModifierInput
-  ) {
-    // Ignore this exeution if previous work is pending.
-    if (this.workIsPending()) {
-      return;
-    }
-
-    // If the stack is empty, the args becomes query, otherwise args becomes arg of items
-    let args: object;
-
-    // If the stack is empty, the command becomes actions, otherwise the top action of the stack is 'actions'.
+  prepareActions = ({ item, inputStr }) => {
     let actions;
+    let args;
 
     if (this.hasEmptyWorkStk()) {
       item = item as Command;
@@ -96,34 +83,63 @@ export class WorkManager {
       args = extractArgsFromScriptFilterItem(item, vars);
     }
 
-    const actionResult = this.handleAction({
+    return {
+      args,
       actions,
-      queryArgs: args,
-      modifiersInput: modifier,
-    });
+    };
+  }
 
-    if (actionResult.nextAction) {
-      this.workStk.push({
-        type: actionResult.nextAction.type,
-        input: inputStr,
-        command: actionResult.nextAction,
-        bundleId: this.getTopCommand().bundleId,
-        args: actionResult.args,
-        workPromise: null,
-        workCompleted: false,
-      });
-
-      // To do:: Other types could be added later.
-      if (actionResult.nextAction.type === "scriptfilter") {
-        scriptFilterExcute(this, inputStr);
-      }
-    } else {
-      // clear command stack, and return to initial.
-      this.clearCommandStack();
-      this.onItemShouldBeUpdate && this.onItemShouldBeUpdate([]);
-      this.onWorkEndHandler && this.onWorkEndHandler();
+  // Handler for enter event
+  async commandExcute(
+    item: Command | ScriptFilterItem,
+    inputStr: string,
+    modifier: ModifierInput
+  ) {
+    // Ignore this exeution if previous work is pending.
+    if (this.workIsPending()) {
+      return;
     }
 
+    // If workStk is empty, the args becomes query, otherwise args becomes arg of items
+    // If workStk is empty, the actions becomes command, otherwise the top action of the stack is 'actions'.
+    const { args, actions } = this.prepareActions({ item, inputStr });
+
+    let actionResult;
+    let targetActions = actions;
+
+    while (targetActions && targetActions.length > 0) {
+      actionResult = this.handleAction({
+        actions: targetActions,
+        queryArgs: args,
+        modifiersInput: modifier,
+      });
+
+      targetActions = actionResult.nextActions;
+
+      if (targetActions && targetActions.length > 0) {
+        for (const nextAction of targetActions) {
+          this.workStk.push({
+            type: nextAction.type,
+            input: inputStr,
+            command: nextAction,
+            bundleId: this.getTopCommand().bundleId,
+            args: actionResult.args,
+            workPromise: null,
+            workCompleted: false,
+          });
+
+          if (nextAction.type === "scriptfilter") {
+            scriptFilterExcute(this, inputStr);
+            this.onItemPressHandler && this.onItemPressHandler();
+            return;
+          }
+        }
+      }
+    }
+
+    this.clearCommandStack();
+    this.onItemShouldBeUpdate && this.onItemShouldBeUpdate([]);
     this.onItemPressHandler && this.onItemPressHandler();
+    this.onWorkEndHandler && this.onWorkEndHandler();
   }
 }
