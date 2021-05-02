@@ -31,8 +31,11 @@ function handleAction(
   let nextActions: Action[] | undefined = [];
 
   const log = (color: Function, type: string, text: string) => {
-    if (!color || !type || !text) return;
-    this.printDebuggingInfo && console.log(color(`[${type}] `), text);
+    if (!color || !type || !text) {
+      console.error(`Error: [${type}] is not properly set up.`);
+      return;
+    }
+    this.printActionType && console.log(color(`[${type}] `), text);
   };
 
   _.map(actions, (action) => {

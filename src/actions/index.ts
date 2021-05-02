@@ -1,10 +1,10 @@
-import { execute } from "./scriptExecution";
-import { openFile } from "./openFiles";
-import { copyToClipboard } from "./clipboard";
-import { argsExtract } from "./argsExtract";
-import { notify } from "./notify";
-import { customActions, registerCustomAction } from "./registerCustomAction";
-import { scriptFilterExcute } from "./scriptFilter";
+import { argsExtract } from './argsExtract';
+import { copyToClipboard } from './clipboard';
+import { notify } from './notify';
+import { openFile } from './openFiles';
+import { customActions, registerCustomAction } from './registerCustomAction';
+import { execute } from './scriptExecution';
+import { scriptFilterExcute } from './scriptFilter';
 
 export {
   customActions,

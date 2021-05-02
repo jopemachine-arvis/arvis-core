@@ -12,7 +12,17 @@ const execute = (bundleId: string, scriptStr: string) => {
   // If it doesn't finish within the timeout time, an error is considered to have occurred.
   // Timeout time to should be changed.
   return execa.command(scriptStr, {
+    cleanup: true,
+    preferLocal: false,
     cwd: execPath,
+    buffer: true,
+    extendEnv: true,
+    serialization: 'json',
+    shell: false,
+    encoding: 'utf8',
+    maxBuffer: 100000000,
+    killSignal: 'SIGTERM',
+    windowsHide: true,
     env: {
       // Environment variable setting for 'alfy' compatibility
       'alfred_workflow_cache': bundleId

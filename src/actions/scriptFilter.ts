@@ -1,6 +1,7 @@
-import { extractArgs } from "../core/argsHandler";
-import { WorkManager } from "../core";
-import { handleScriptFilterChange } from "../core/scriptFilterChangeHandler";
+import execa from 'execa';
+import { WorkManager } from '../core';
+import { extractArgs } from '../core/argsHandler';
+import { handleScriptFilterChange } from '../core/scriptFilterChangeHandler';
 
 function scriptFilterCompleteEventHandler(
   workManager: WorkManager,
@@ -9,11 +10,8 @@ function scriptFilterCompleteEventHandler(
   const stdout = JSON.parse(result.stdout) as ScriptFilterResult;
 
   // Print to debugging window
-  workManager.printDebuggingInfo &&
-    console.log(
-      `'${workManager.getTopWork().bundleId}' prints.. : \n`,
-      stdout
-    );
+  workManager.printWorkflowOutput &&
+    console.log(`'${workManager.getTopWork().bundleId}' prints.. : \n`, stdout);
 
   const { items, rerun: rerunInterval, variables } = stdout;
 
@@ -34,7 +32,7 @@ function scriptFilterCompleteEventHandler(
   });
 
   if (!workManager.onItemShouldBeUpdate) {
-    console.error("onItemShouldBeUpdate is not set!!");
+    console.error('onItemShouldBeUpdate is not set!!');
   }
 
   workManager.onItemShouldBeUpdate && workManager.onItemShouldBeUpdate(items);
@@ -45,41 +43,52 @@ async function scriptFilterExcute(
   inputStr: string,
   // command object should be given when stack is empty
   commandWhenStackIsEmpty?: Command
-): Promise<any> {
-  // If Command stack is empty, you can enter the script filter without a return event.
-  // To handle this, push this command to commandStk
-  if (workManager.hasEmptyWorkStk()) {
+): Promise<void> {
+  // If WorkStk is empty, users can enter the script filter without a return event.
+  // To handle this, push this command to WorkStk
+  const haveNoCommandInfo = workManager.hasEmptyWorkStk();
+
+  if (haveNoCommandInfo) {
     if (!commandWhenStackIsEmpty) {
-      throw new Error("Error - command should be given when stack is empty");
+      throw new Error('Error - command should be given when stack is empty');
     }
-    workManager.workStk.push({
-      type: "scriptfilter",
+    workManager.pushWork({
+      type: 'scriptfilter',
       // user input string
       input: inputStr,
       command: commandWhenStackIsEmpty,
       bundleId: commandWhenStackIsEmpty.bundleId!,
       args: null,
-      workPromise: null,
+      workProcess: null,
       workCompleted: false,
     });
+  } else {
+    const newScriptFilterNeedsToExecuted =
+      workManager.getTopWork().type === 'scriptfilter' &&
+      workManager.getTopWork().workProcess &&
+      !workManager.getTopWork().workCompleted;
+
+    if (newScriptFilterNeedsToExecuted) {
+      workManager.getTopWork().workProcess!.cancel();
+    }
   }
 
   const { bundleId, command, args } = workManager.getTopWork();
-  const [first, ...querys] = inputStr.split(" ");
+  const [_first, ...querys] = inputStr.split(' ');
 
   const extractedArgs = args ? args : extractArgs(querys);
 
-  const scriptWork: Promise<any> = handleScriptFilterChange(
+  const scriptWork: execa.ExecaChildProcess = handleScriptFilterChange(
     bundleId,
     command,
     extractedArgs
   );
 
-  workManager.workStk[workManager.workStk.length - 1].workPromise = scriptWork;
+  workManager.workStk[workManager.workStk.length - 1].workProcess = scriptWork;
 
-  return scriptWork
+  scriptWork
     .then((result) => {
-      if (workManager.getTopWork().workPromise === scriptWork) {
+      if (workManager.getTopWork().workProcess === scriptWork) {
         scriptFilterCompleteEventHandler(workManager, result);
         if (workManager.getTopWork().rerunInterval) {
           // Run recursive every rerunInterval
@@ -90,13 +99,14 @@ async function scriptFilterExcute(
       }
     })
     .catch((err) => {
-      if (workManager.hasEmptyWorkStk()) {
-        // When the command has been canceled.
-        workManager.printDebuggingInfo &&
-          console.log("Command has been canceled.\n", err);
+      if (
+        err.message.includes('Command was canceled') ||
+        workManager.hasEmptyWorkStk()
+      ) {
+        console.log('Command was canceled.');
       } else {
-        // Unexpected Error
-        throw new Error(err);
+        console.error(`Workflow Error\n${err}`);
+        workManager.handleWorkflowError(err);
       }
     });
 }
