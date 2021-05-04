@@ -1,6 +1,7 @@
+import _ from 'lodash';
 import { escapeBraket, replaceAll } from '../utils';
 
-const handleScriptArgs = ({
+const applyArgsToScript = ({
   str,
   queryArgs,
   appendQuotes,
@@ -17,7 +18,32 @@ const handleScriptArgs = ({
   return str;
 };
 
-const extractArgs = (querys: string[]) => {
+// Get args from script in correct order
+const getAppliedArgsFromScript = (scriptStr: string, args: any) => {
+  const strArr: string[] = scriptStr.split(' ');
+  const argsArr: string[] = new Array(strArr.length);
+  argsArr.fill('');
+
+  for (const arg of Object.keys(args)) {
+    // 따옴표 때문에 아래 같은 케이스에서 안 잡히는 경우가 많다. 따옴표 처리 어떻게 할 것인지 명확히 정할 것.
+    // args에 작은 따옴표로 감싸진 경우, 큰 따옴표로 감싸진 경우 다 넣어버릴까?
+    if (strArr.includes(`'${arg}'`)) {
+      const order = strArr.indexOf(`'${arg}'`);
+      argsArr[order] = args[arg];
+    }
+  }
+
+  return _.reduce(
+    argsArr,
+    (ret, inputArg, idx) => {
+      if (inputArg === '') return '';
+      return inputArg;
+    },
+    ''
+  );
+};
+
+const extractArgsFromQuery = (querys: string[]) => {
   // To do:: In some cases, the single quotes below may need to be escape.
   const args = { '{query}': querys.join(' '), $1: '' };
 
@@ -53,4 +79,9 @@ const extractArgsFromScriptFilterItem = (item: ScriptFilterItem, vars: any) => {
   return args;
 };
 
-export { extractArgs, extractArgsFromScriptFilterItem, handleScriptArgs };
+export {
+  extractArgsFromQuery,
+  extractArgsFromScriptFilterItem,
+  applyArgsToScript,
+  getAppliedArgsFromScript,
+};

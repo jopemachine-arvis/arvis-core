@@ -1,7 +1,7 @@
 import { execute } from '../actions/scriptExecution';
 import '../types';
 import { escapeBraket } from '../utils';
-import { handleScriptArgs } from './argsHandler';
+import { applyArgsToScript } from './argsHandler';
 
 const handleScriptFilterChange = (
   bundleId: string,
@@ -15,7 +15,7 @@ const handleScriptFilterChange = (
     })
     .join(' ');
 
-  const scriptStr = handleScriptArgs({ str: script, queryArgs });
+  const scriptStr = applyArgsToScript({ str: script, queryArgs });
 
   console.log(`[scriptfilter: execute] '${scriptStr}'`);
 

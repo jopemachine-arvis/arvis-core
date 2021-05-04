@@ -7,7 +7,7 @@ import {
   openFile,
 } from '../actions';
 import { escapeBraket } from '../utils';
-import { handleScriptArgs } from './argsHandler';
+import { applyArgsToScript } from './argsHandler';
 import { handleModifiers } from './modifierHandler';
 import { execute } from './scriptExecutor';
 import { WorkManager } from './workManager';
@@ -85,7 +85,7 @@ function handleAction(
         case 'open':
           action = action as OpenAction;
           logColor = chalk.blueBright;
-          target = handleScriptArgs({ str: action.target, queryArgs });
+          target = applyArgsToScript({ str: action.target, queryArgs });
 
           openFile(target);
           break;
@@ -100,7 +100,7 @@ function handleAction(
         case 'clipboard':
           action = action as ClipboardAction;
           logColor = chalk.greenBright;
-          target = handleScriptArgs({ str: action.text, queryArgs });
+          target = applyArgsToScript({ str: action.text, queryArgs });
           copyToClipboard(target);
           break;
 
@@ -125,7 +125,7 @@ function handleAction(
         case 'cond':
           action = action as CondAction;
           logColor = chalk.magentaBright;
-          target = handleScriptArgs({
+          target = applyArgsToScript({
             str: action.if.cond,
             queryArgs,
             appendQuotes: true,

@@ -1,6 +1,6 @@
 import execa from 'execa';
 import { WorkManager } from '../core';
-import { extractArgs } from '../core/argsHandler';
+import { extractArgsFromQuery } from '../core/argsHandler';
 import { handleScriptFilterChange } from '../core/scriptFilterChangeHandler';
 
 function scriptFilterCompleteEventHandler(
@@ -9,7 +9,6 @@ function scriptFilterCompleteEventHandler(
 ) {
   const stdout = JSON.parse(result.stdout) as ScriptFilterResult;
 
-  // Print to debugging window
   workManager.printWorkflowOutput &&
     console.log(`'${workManager.getTopWork().bundleId}' prints.. : \n`, stdout);
 
@@ -26,7 +25,7 @@ function scriptFilterCompleteEventHandler(
 
   workManager.workStk[workManager.workStk.length - 1].workCompleted = true;
 
-  // Append bundleId
+  // Append bundleId to each ScriptFilterItem.
   items.map((item: ScriptFilterItem) => {
     item.bundleId = workManager.getTopWork().bundleId;
   });
@@ -74,10 +73,16 @@ async function scriptFilterExcute(
   }
 
   const { bundleId, command, args } = workManager.getTopWork();
-  const [_first, ...querys] = inputStr.split(' ');
 
-  const extractedArgs = args ? args : extractArgs(querys);
+  const inputStrArr = inputStr.split(' ');
 
+  // If the ScriptFilters are nested, the first string element is query.
+  // Otherwise, the first string element is command.
+  const querys = workManager.hasNestedScriptFilter()
+    ? inputStrArr
+    : inputStrArr.slice(1, inputStrArr.length);
+
+  const extractedArgs = extractArgsFromQuery(querys);
   const scriptWork: execa.ExecaChildProcess = handleScriptFilterChange(
     bundleId,
     command,

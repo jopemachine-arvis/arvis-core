@@ -4,7 +4,11 @@ import { scriptFilterExcute } from '../actions/scriptFilter';
 import '../types';
 import extractJson from '../utils/extractJson';
 import { handleAction } from './actionHandler';
-import { extractArgs, extractArgsFromScriptFilterItem } from './argsHandler';
+import {
+  extractArgsFromQuery,
+  extractArgsFromScriptFilterItem,
+  getAppliedArgsFromScript,
+} from './argsHandler';
 
 interface Work {
   type: string;
@@ -89,16 +93,16 @@ export class WorkManager {
           subtitle: err.message,
           text: {
             copy: err.message,
-            largetype: err.message
-          }
-        }
+            largetype: err.message,
+          },
+        },
       ]);
     }
   }
 
   handleWorkflowError = (err: any) => {
     const possibleJsons = extractJson(err.toString());
-    const errors = possibleJsons.filter(item => item.items);
+    const errors = possibleJsons.filter((item) => item.items);
 
     const errorItems = _.reduce(
       errors,
@@ -110,6 +114,36 @@ export class WorkManager {
     );
 
     this.setErrorItem(err, errorItems);
+  }
+
+  setRunningText({
+    itemArr,
+    index,
+    runningSubText,
+  }: {
+    itemArr: any[];
+    index: number;
+    runningSubText: string;
+  }) {
+    if (!this.onItemShouldBeUpdate) {
+      console.error('onItemShouldBeUpdate is not set.');
+      return;
+    }
+
+    const swap = itemArr;
+    swap[index] = {
+      ...itemArr[index],
+      subtitle: runningSubText,
+    };
+
+    this.onItemShouldBeUpdate(swap);
+  }
+
+  hasNestedScriptFilter = () => {
+    return (
+      this.workStk.filter((work: Work) => work.type === 'scriptfilter')
+        .length >= 2
+    );
   }
 
   prepareActions = ({
@@ -126,7 +160,7 @@ export class WorkManager {
       item = item as Command;
       actions = [item];
       const [first, ...querys] = inputStr.split(' ');
-      args = extractArgs(querys);
+      args = extractArgsFromQuery(querys);
 
       // keyword, scriptfilter, or other starting node
       this.pushWork({
@@ -149,26 +183,13 @@ export class WorkManager {
     };
   }
 
-  applyArgs = (scriptStr: string, args: any) => {
-    const strArr: string[] = scriptStr.split(' ');
-    const argsArr: string[] = new Array(strArr.length);
-    argsArr.fill('');
-
-    for (const arg of Object.keys(args)) {
-      // 따옴표 때문에 아래 같은 케이스에서 안 잡히는 경우가 많다. 따옴표 처리 어떻게 할 것인지 명확히 정할 것.
-      // args에 작은 따옴표로 감싸진 경우, 큰 따옴표로 감싸진 경우 다 넣어버릴까?
-      if (strArr.includes(`'${arg}'`)) {
-        const order = strArr.indexOf(`'${arg}'`);
-        argsArr[order] = args[arg];
-      }
+  getNextActionsInput = (nextAction: Action, args) => {
+    if (nextAction.type === 'scriptfilter') {
+      return getAppliedArgsFromScript(nextAction.script_filter, args);
     }
-
-    return _.reduce(argsArr, (ret, inputArg, idx) => {
-      if (inputArg === '') return '';
-      return inputArg;
-    }, '');
+    console.error(`Unsupported type, '${nextAction.type}'`);
+    return 'Unsupported type error';
   }
-
 
   debugWorkStk = () => {
     if (!this.printWorkStack) return;
@@ -209,9 +230,14 @@ export class WorkManager {
 
       if (targetActions && targetActions.length > 0) {
         for (const nextAction of targetActions) {
+          const newInput = this.getNextActionsInput(
+            nextAction,
+            actionResult.args
+          );
+
           this.pushWork({
             type: nextAction.type,
-            input: inputStr,
+            input: newInput,
             command: nextAction,
             bundleId: this.getTopWork().bundleId,
             args: actionResult.args,
@@ -220,12 +246,7 @@ export class WorkManager {
           });
 
           if (nextAction.type === 'scriptfilter') {
-            const newInput = this.applyArgs(
-              nextAction.script_filter,
-              actionResult.args
-            );
-
-            scriptFilterExcute(this, inputStr + ' ' + newInput);
+            scriptFilterExcute(this, newInput);
 
             this.onItemPressHandler && this.onItemPressHandler();
             this.onInputShouldBeUpdate &&
