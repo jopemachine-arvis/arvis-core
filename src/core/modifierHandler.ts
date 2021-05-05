@@ -5,23 +5,24 @@ export const handleModifiers = (
   actions: Action[],
   modifiersInput: ModifierInput
 ) => {
-  if (!modifiersInput) modifiersInput = { normal: true };
+  // Only one modifier can be accepted for now
+  // Expand this function to handle modifiers array if needed
 
-  const modifiers = _.filter(
+  // let pressedModifiers: string[] = _.filter(
+  //   Object.keys(modifiersInput),
+  //   (modifier) => modifiersInput[modifier] === true
+  // );
+
+  let pressedModifier: string = _.filter(
     Object.keys(modifiersInput),
     (modifier) => modifiersInput[modifier] === true
-  );
+  )[0];
+
+  if (!pressedModifier) pressedModifier = 'normal';
 
   if (actions) {
-    return _.filter(actions, (action) => {
-      let included = true;
-      for (const modifier of modifiers) {
-        if (action.modifiers && !action.modifiers.includes(modifier)) {
-          included = false;
-        }
-      }
-      return included;
-    });
+    return _.filter(actions, (action) => action.modifiers === pressedModifier);
   }
+
   return actions;
 };

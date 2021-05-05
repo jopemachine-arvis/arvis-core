@@ -1,4 +1,4 @@
-import execa from 'execa';
+import execa, { ExecaError } from 'execa';
 import { WorkManager } from '../core';
 import { extractArgsFromQuery } from '../core/argsHandler';
 import { handleScriptFilterChange } from '../core/scriptFilterChangeHandler';
@@ -35,6 +35,17 @@ function scriptFilterCompleteEventHandler(
   }
 
   workManager.onItemShouldBeUpdate && workManager.onItemShouldBeUpdate(items);
+}
+
+function scriptErrorHandler (err: ExecaError, workManager: WorkManager) {
+  if (err.timedOut) {
+    console.error(`Script timeout!\n'${err}`);
+  } else if (err.isCanceled) {
+    console.log('Command was canceled.');
+  } else {
+    console.error(`${err}`);
+    workManager.handleWorkflowError(err);
+  }
 }
 
 async function scriptFilterExcute(
@@ -107,17 +118,7 @@ async function scriptFilterExcute(
         }
       }
     })
-    .catch((err) => {
-      if (
-        err.message.includes('Command was canceled') ||
-        workManager.hasEmptyWorkStk()
-      ) {
-        console.log('Command was canceled.');
-      } else {
-        console.error(`Workflow Error\n${err}`);
-        workManager.handleWorkflowError(err);
-      }
-    });
+    .catch((err: ExecaError) => scriptErrorHandler(err, workManager));
 }
 
 export { scriptFilterExcute };

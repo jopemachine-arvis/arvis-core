@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import execa from 'execa';
+import execa, { ExecaError } from 'execa';
 import _ from 'lodash';
 import {
   argsExtract,
@@ -67,8 +67,14 @@ function handleAction(
                 console.log(`# Script prints..\n\n ${result.all}`);
               }
             })
-            .catch((err) => {
-              console.error(`Script Error\n${err}`);
+            .catch((err: ExecaError) => {
+              if (err.timedOut) {
+                console.error(`Script timeout!`);
+              } else if (err.isCanceled) {
+                console.error(`Script canceled`);
+              } else {
+                console.error(`Script Error\n${err}`);
+              }
             });
           break;
 
