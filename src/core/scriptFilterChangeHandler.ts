@@ -22,7 +22,7 @@ const handleScriptFilterChange = (
 
   const scriptStr = applyArgsToScript({ str: script, queryArgs });
 
-  console.log(`# Scriptfilter script: '${scriptStr}'`);
+  console.log('[ScriptfilterScript]', scriptStr);
 
   return execute(bundleId, scriptStr, options);
 };

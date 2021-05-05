@@ -56,7 +56,7 @@ const extractArgsFromQuery = (querys: string[]) => {
   }
 
   // Print 'args' to debugging console
-  console.log('Args:', args);
+  console.log('[Args]', args);
 
   return args;
 };
@@ -74,7 +74,7 @@ const extractArgsFromScriptFilterItem = (item: ScriptFilterItem, vars: any) => {
   }
 
   // Print 'args' to debugging console
-  console.log('Args:', args);
+  console.log('[Args]', args);
 
   return args;
 };

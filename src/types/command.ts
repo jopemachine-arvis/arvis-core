@@ -1,7 +1,6 @@
 import '.';
 
 export interface Command {
-  // default value is 'name'
   title: string;
   subtitle: string;
   bundleId?: string;

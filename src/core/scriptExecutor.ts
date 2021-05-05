@@ -31,6 +31,9 @@ const execute = (
     alfred_workflow_cache: bundleId,
   };
 
+  // 100MB
+  const maxBuffer = 100000000;
+
   // If it doesn't finish within the timeout time, an error is considered to have occurred.
   // Timeout time to should be changed.
   return execa.command(scriptStr, {
@@ -42,7 +45,7 @@ const execute = (
     env,
     extendEnv: true,
     killSignal: 'SIGTERM',
-    maxBuffer: 100000000,
+    maxBuffer,
     preferLocal: false,
     serialization: 'json',
     shell: false,

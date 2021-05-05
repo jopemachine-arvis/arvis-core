@@ -18,7 +18,7 @@ export default function extractJSON(str: string) {
         const res = JSON.parse(candidate);
         jsons.push(res);
       } catch (e) {
-        console.log('...failed');
+        // console.log('...failed');
       }
       firstClose = str.substr(0, firstClose).lastIndexOf('}');
     } while (firstClose > firstOpen);

@@ -13,6 +13,16 @@ import { handleModifiers } from './modifierHandler';
 import { execute } from './scriptExecutor';
 import { WorkManager } from './workManager';
 
+const scriptErrorHandler = (err: ExecaError) => {
+  if (err.timedOut) {
+    console.error(`Script timeout!`);
+  } else if (err.isCanceled) {
+    console.error(`Script canceled`);
+  } else {
+    console.error(`Script Error\n${err}`);
+  }
+};
+
 // The actions arrangement is taken as a factor to branch according to cond or modifiers.
 function handleAction(
   this: WorkManager,
@@ -64,18 +74,10 @@ function handleAction(
           scriptWork
             .then((result: execa.ExecaReturnValue<string>) => {
               if (this.printWorkflowOutput) {
-                console.log(`# Script prints..\n\n ${result.all}`);
+                console.log(`[ScriptOutput]\n\n ${result.all}`);
               }
             })
-            .catch((err: ExecaError) => {
-              if (err.timedOut) {
-                console.error(`Script timeout!`);
-              } else if (err.isCanceled) {
-                console.error(`Script canceled`);
-              } else {
-                console.error(`Script Error\n${err}`);
-              }
-            });
+            .catch(scriptErrorHandler);
           break;
 
         // Scriptfilter cannot be processed here because it could be ran in a way other than 'Enter' event
@@ -164,13 +166,12 @@ function handleAction(
           break;
       }
     } catch (e) {
-      throw new Error(`[${type}] occured error!\n, target: ${target}`);
+      throw new Error(`[Action: ${type}] occured error!\n, target: ${target}`);
     }
 
     log(logColor, type, target);
   });
 
-  // To do::
   // Theoretically, nextAction may have more than one script filter, but the case is not considered yet..
 
   return {

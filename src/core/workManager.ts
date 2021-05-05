@@ -161,8 +161,9 @@ export class WorkManager {
     if (this.hasEmptyWorkStk()) {
       item = item as Command;
       actions = [item];
-      const [first, ...querys] = inputStr.split(' ');
-      args = extractArgsFromQuery(querys);
+
+      const [_commandTitle, queryStr] = inputStr.split(item.title);
+      args = extractArgsFromQuery(queryStr.trim().split(' '));
 
       // keyword, scriptfilter, or other starting node
       this.pushWork({

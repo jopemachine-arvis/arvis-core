@@ -10,7 +10,7 @@ function scriptFilterCompleteEventHandler(
   const stdout = JSON.parse(result.stdout) as ScriptFilterResult;
 
   workManager.printWorkflowOutput &&
-    console.log(`'${workManager.getTopWork().bundleId}' prints.. : \n`, stdout);
+    console.log('[ScriptfilterResult]', stdout);
 
   const { items, rerun: rerunInterval, variables } = stdout;
 
@@ -41,7 +41,7 @@ function scriptErrorHandler (err: ExecaError, workManager: WorkManager) {
   if (err.timedOut) {
     console.error(`Script timeout!\n'${err}`);
   } else if (err.isCanceled) {
-    console.log('Command was canceled.');
+    // console.log('Command was canceled.');
   } else {
     console.error(`${err}`);
     workManager.handleWorkflowError(err);
