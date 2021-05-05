@@ -5,7 +5,7 @@ import { handleScriptFilterChange } from '../core/scriptFilterChangeHandler';
 
 function scriptFilterCompleteEventHandler(
   workManager: WorkManager,
-  result: any
+  result: execa.ExecaReturnValue<string>
 ) {
   const stdout = JSON.parse(result.stdout) as ScriptFilterResult;
 
@@ -72,13 +72,17 @@ async function scriptFilterExcute(
     }
   }
 
+  if (workManager.rerunTimer) {
+    clearInterval(workManager.rerunTimer);
+  }
+
   const { bundleId, command, args } = workManager.getTopWork();
 
   const inputStrArr = inputStr.split(' ');
 
   // If the ScriptFilters are nested, the first string element is query.
   // Otherwise, the first string element is command.
-  const querys = workManager.hasNestedScriptFilter()
+  const querys = workManager.hasNestedScriptFilters()
     ? inputStrArr
     : inputStrArr.slice(1, inputStrArr.length);
 
@@ -97,7 +101,7 @@ async function scriptFilterExcute(
         scriptFilterCompleteEventHandler(workManager, result);
         if (workManager.getTopWork().rerunInterval) {
           // Run recursive every rerunInterval
-          setTimeout(() => {
+          workManager.rerunTimer = setTimeout(() => {
             scriptFilterExcute(workManager, inputStr);
           }, workManager.getTopWork().rerunInterval);
         }

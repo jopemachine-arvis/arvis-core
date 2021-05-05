@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import execa from 'execa';
 import _ from 'lodash';
 import {
   argsExtract,
@@ -56,7 +57,19 @@ function handleAction(
           action = action as ScriptAction;
           logColor = chalk.yellowBright;
           target = action.script;
-          execute(this.getTopWork().bundleId, target);
+          const scriptWork = execute(this.getTopWork().bundleId, target, {
+            all: true,
+          });
+
+          scriptWork
+            .then((result: execa.ExecaReturnValue<string>) => {
+              if (this.printWorkflowOutput) {
+                console.log(`# Script prints..\n\n ${result.all}`);
+              }
+            })
+            .catch((err) => {
+              console.error(`Script Error\n${err}`);
+            });
           break;
 
         // Scriptfilter cannot be processed here because it could be ran in a way other than 'Enter' event

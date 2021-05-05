@@ -33,7 +33,9 @@ export class WorkManager {
   workStk: Work[];
   handleAction: Function;
   globalVariables?: object;
+  rerunTimer?: NodeJS.Timeout;
 
+  // For debugging
   printActionType?: boolean;
   printWorkStack?: boolean;
   printWorkflowOutput?: boolean;
@@ -139,7 +141,7 @@ export class WorkManager {
     this.onItemShouldBeUpdate(swap);
   }
 
-  hasNestedScriptFilter = () => {
+  hasNestedScriptFilters = () => {
     return (
       this.workStk.filter((work: Work) => work.type === 'scriptfilter')
         .length >= 2

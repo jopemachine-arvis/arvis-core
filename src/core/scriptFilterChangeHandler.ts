@@ -3,10 +3,15 @@ import '../types';
 import { escapeBraket } from '../utils';
 import { applyArgsToScript } from './argsHandler';
 
+type ScriptFilterChangeHandlerOption = {
+  timeout?: number;
+};
+
 const handleScriptFilterChange = (
   bundleId: string,
   command: Command,
-  queryArgs: object
+  queryArgs: object,
+  options?: ScriptFilterChangeHandlerOption,
 ) => {
   const script = command
     .script_filter!.split(' ')
@@ -17,9 +22,9 @@ const handleScriptFilterChange = (
 
   const scriptStr = applyArgsToScript({ str: script, queryArgs });
 
-  console.log(`[scriptfilter: execute] '${scriptStr}'`);
+  console.log(`# Scriptfilter script: '${scriptStr}'`);
 
-  return execute(bundleId, scriptStr);
+  return execute(bundleId, scriptStr, options);
 };
 
 export { handleScriptFilterChange };
