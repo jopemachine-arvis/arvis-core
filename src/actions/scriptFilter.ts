@@ -4,9 +4,9 @@ import { extractArgsFromQuery } from '../core/argsHandler';
 import { handleScriptFilterChange } from '../core/scriptFilterChangeHandler';
 
 function scriptFilterCompleteEventHandler(
-  workManager: WorkManager,
   result: execa.ExecaReturnValue<string>
 ) {
+  const workManager = WorkManager.getInstance();
   const stdout = JSON.parse(result.stdout) as ScriptFilterResult;
 
   workManager.printWorkflowOutput &&
@@ -49,13 +49,13 @@ function scriptErrorHandler (err: ExecaError, workManager: WorkManager) {
 }
 
 async function scriptFilterExcute(
-  workManager: WorkManager,
   inputStr: string,
   // command object should be given when stack is empty
   commandWhenStackIsEmpty?: Command
 ): Promise<void> {
   // If WorkStk is empty, users can enter the script filter without a return event.
   // To handle this, push this command to WorkStk
+  const workManager = WorkManager.getInstance();
   const haveNoCommandInfo = workManager.hasEmptyWorkStk();
 
   if (haveNoCommandInfo) {
@@ -109,11 +109,11 @@ async function scriptFilterExcute(
   scriptWork
     .then((result) => {
       if (workManager.getTopWork().workProcess === scriptWork) {
-        scriptFilterCompleteEventHandler(workManager, result);
+        scriptFilterCompleteEventHandler(result);
         if (workManager.getTopWork().rerunInterval) {
           // Run recursive every rerunInterval
           workManager.rerunTimer = setTimeout(() => {
-            scriptFilterExcute(workManager, inputStr);
+            scriptFilterExcute(inputStr);
           }, workManager.getTopWork().rerunInterval);
         }
       }

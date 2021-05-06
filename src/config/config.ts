@@ -10,6 +10,10 @@ const schema = {
     type: 'object',
     default: {},
   },
+  hotkeys: {
+    type: 'object',
+    default: {},
+  }
 } as const;
 
 const createStore = async (storeType: StoreType) => {
@@ -21,7 +25,7 @@ const createStore = async (storeType: StoreType) => {
     const CuiStore = await import('conf');
     store = new CuiStore.default({ schema, configName: 'common' });
   } else {
-    throw new Error('conf store type not correct');
+    throw new Error('conf store type not correct!');
   }
 
   const Functions = {
@@ -33,14 +37,21 @@ const createStore = async (storeType: StoreType) => {
       return store.get('commands') as any;
     },
 
+    getHotkeys: () => {
+      return store.get('hotkeys') as any;
+    },
+
     getWorkflow: (bundleId: string) => {
       return Functions.getInstalledWorkflows()[bundleId];
     },
 
     setWorkflow: (workflow: any) => {
+      // Update workflow installation info
       const installedWorkflows = Functions.getInstalledWorkflows();
       installedWorkflows[workflow.bundleId] = workflow;
       store.set('installed', installedWorkflows);
+
+      // Update available commands
       const commands = Functions.getCommands();
       for (const commandObj of workflow.commands) {
         commandObj.bundleId = workflow.bundleId;
@@ -50,12 +61,31 @@ const createStore = async (storeType: StoreType) => {
           : [commandObj];
       }
       store.set('commands', commands);
+
+      // Update available hotkeys
+      let hotkeys = _.pickBy(
+        workflow.commands,
+        (command) => command.type === 'hotkey'
+      );
+
+      hotkeys = _.map(hotkeys, (command) => {
+        return {
+          bundleId: workflow.bundleId,
+          ...command,
+        };
+      });
+
+      hotkeys = _.keyBy(hotkeys, (item) => item.hotkey);
+      store.set('hotkeys', { ...hotkeys, ...Functions.getHotkeys() });
     },
 
     deleteWorkflow: (bundleId: string) => {
+      // Update workflow installation info
       const installedWorkflows = Functions.getInstalledWorkflows();
       delete installedWorkflows[bundleId];
       store.set('installed', installedWorkflows);
+
+      // Update available commands
       const allCommands = Functions.getCommands();
       for (const command of Object.keys(allCommands)) {
         // Command bar corresponding to that command
@@ -77,7 +107,14 @@ const createStore = async (storeType: StoreType) => {
         }
       }
       store.set('commands', allCommands);
-    },
+
+      // Update available hotkeys
+      const availableHotkeys = Functions.getHotkeys();
+      const hotkeys = _.pickBy(availableHotkeys, hotkey => hotkey.bundleId !== bundleId);
+
+      console.log('hotkeys', hotkeys);
+      store.set('hotkeys', hotkeys);
+    }
   };
 
   return Functions;

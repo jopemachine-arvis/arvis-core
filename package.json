@@ -1,7 +1,7 @@
 {
   "name": "wf-creator-core",
   "version": "0.0.1",
-  "description": "demo version",
+  "description": "Core part of wf-creator, Designed as a common part of the CUI and GUI.",
   "main": "dist/index.js",
   "bin": "dist/main.js",
   "scripts": {

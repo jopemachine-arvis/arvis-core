@@ -23,13 +23,16 @@ interface Work {
   rerunInterval?: number;
 }
 
-type WorkManagerProp = {
-  printActionType?: boolean;
-  printWorkStack?: boolean;
-  printWorkflowOutput?: boolean;
-};
-
 export class WorkManager {
+  static instance: WorkManager;
+
+  static getInstance() {
+    if (!WorkManager.instance) {
+      WorkManager.instance = new WorkManager();
+    }
+    return WorkManager.instance;
+  }
+
   workStk: Work[];
   handleAction: Function;
   globalVariables?: object;
@@ -45,14 +48,10 @@ export class WorkManager {
   onItemShouldBeUpdate?: (items: ScriptFilterItem[]) => void;
   onInputShouldBeUpdate?: (str: string) => void;
 
-  constructor(props: WorkManagerProp) {
+  private constructor() {
     this.workStk = [];
     this.globalVariables = {};
     this.handleAction = handleAction.bind(this);
-
-    this.printActionType = props.printActionType;
-    this.printWorkStack = props.printWorkStack;
-    this.printWorkflowOutput = props.printWorkflowOutput;
   }
 
   getTopWork = () => {
@@ -249,7 +248,7 @@ export class WorkManager {
           });
 
           if (nextAction.type === 'scriptfilter') {
-            scriptFilterExcute(this, newInput);
+            scriptFilterExcute(newInput);
 
             this.onItemPressHandler && this.onItemPressHandler();
             this.onInputShouldBeUpdate &&

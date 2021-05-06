@@ -50,17 +50,17 @@ const installByGit = async (storeType: StoreType, giturl: string) => {
     const wfConfig = await fse.readJson(`${savedPath}${path.sep}wfconf.json`);
     store.setWorkflow(wfConfig);
   } catch (fileNotExistErr) {
-    console.error("wfConfig file not exists.");
+    console.error('wfConfig file not exists.');
     throw new Error(fileNotExistErr);
   }
 };
 
 const install = async (storeType: StoreType, arg: string): Promise<void> => {
-  if (arg.includes(".json")) {
+  if (arg.includes('.json')) {
     await installByJson(storeType, arg);
-  } else if (arg.includes(".plist")) {
+  } else if (arg.includes('.plist')) {
     // Need to convert alfred's info.plist to json first
-    await installByJson(storeType, "");
+    await installByJson(storeType, '');
   } else if (validateUrl(arg)) {
     await installByGit(storeType, arg);
   } else {
