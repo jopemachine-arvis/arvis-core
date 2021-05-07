@@ -102,6 +102,19 @@ function handleAction(
           }).nextActions;
           break;
 
+        // Just execute next action
+        case 'hotkey':
+          action = action as HotkeyAction;
+          target = action.hotkey;
+          logColor = chalk.whiteBright;
+
+          nextActions = this.handleAction({
+            actions: nextActions,
+            queryArgs,
+            modifiersInput,
+          }).nextActions;
+          break;
+
         // Open specific program, url..
         case 'open':
           action = action as OpenAction;

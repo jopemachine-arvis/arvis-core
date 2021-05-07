@@ -1,6 +1,7 @@
 import { ArgsAction as _ArgsAction } from './actions/argsAction';
 import { ClipboardAction as _ClipboardAction } from './actions/clipboardAction';
 import { CondAction as _CondAction } from './actions/condAction';
+import { HotkeyAction as _HotkeyAction } from './actions/HotkeyAction';
 import { KeywordAction as _KeywordAction } from './actions/keywordAction';
 import { NotificationAction as _NotificationAction } from './actions/notificationAction';
 import { OpenAction as _OpenAction } from './actions/openAction';
@@ -27,6 +28,7 @@ declare global {
   type KeywordAction = _KeywordAction;
   type ArgsAction = _ArgsAction;
   type CondAction = _CondAction;
+  type HotkeyAction = _HotkeyAction;
   type Action =
     | OpenAction
     | ScriptAction
@@ -35,7 +37,8 @@ declare global {
     | KeywordAction
     | ArgsAction
     | CondAction
-    | NotiAction;
+    | NotiAction
+    | HotkeyAction;
 
   type Keyword = _Keyword;
   type ScriptFilter = _ScriptFilter;

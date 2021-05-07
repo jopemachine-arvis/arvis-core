@@ -21,7 +21,12 @@ export const handleModifiers = (
   if (!pressedModifier) pressedModifier = 'normal';
 
   if (actions) {
-    return _.filter(actions, (action) => action.modifiers === pressedModifier);
+    return _.filter(actions, (action) => {
+      return (
+        action.modifiers === pressedModifier ||
+        (!action.modifiers && pressedModifier === 'normal')
+      );
+    });
   }
 
   return actions;

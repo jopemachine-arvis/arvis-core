@@ -24,7 +24,7 @@ interface Work {
 }
 
 export class WorkManager {
-  static instance: WorkManager;
+  private static instance: WorkManager;
 
   static getInstance() {
     if (!WorkManager.instance) {
