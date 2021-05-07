@@ -1,7 +1,7 @@
 {
-  "name": "wf-creator-core",
+  "name": "arvis-core",
   "version": "0.0.1",
-  "description": "Core part of wf-creator, Designed as a common part of the CUI and GUI.",
+  "description": "Core part of Arvis, Designed as a common part of the CUI and GUI.",
   "main": "dist/index.js",
   "bin": "dist/main.js",
   "scripts": {
@@ -13,17 +13,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jopemachine/wf-creator-core.git"
+    "url": "git+https://github.com/jopemachine/arvis-core.git"
   },
   "keywords": [
-    "wf-creator"
+    "arvis"
   ],
   "author": "jopemachine",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/jopemachine/wf-creator-core/issues"
+    "url": "https://github.com/jopemachine/arvis-core/issues"
   },
-  "homepage": "https://github.com/jopemachine/wf-creator-core#readme",
+  "homepage": "https://github.com/jopemachine/arvis-core#readme",
   "devDependencies": {
     "@types/fs-extra": "^9.0.8",
     "@types/lodash": "^4.14.168",

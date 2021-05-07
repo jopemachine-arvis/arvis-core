@@ -1,6 +1,6 @@
 import envPathsGenerator from 'env-paths';
 
-const envPaths = envPathsGenerator('wf-creator');
+const envPaths = envPathsGenerator('arvis');
 const workflowInstallPath = envPaths.data;
 
 export {
