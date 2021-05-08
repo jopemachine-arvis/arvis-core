@@ -1,8 +1,7 @@
-import { createStore } from '../config/config';
-import { StoreType } from '../types/storeType';
+import { Store } from '../config/config';
 
-const findHotkeys = async (storeType: StoreType) => {
-  const store = await createStore(storeType);
+const findHotkeys = async () => {
+  const store = Store.getInstance();
   return store.getHotkeys();
 };
 

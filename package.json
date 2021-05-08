@@ -42,8 +42,6 @@
     "arvis-plist-converter": "../arvis-plist-converter",
     "chalk": "^4.1.0",
     "clipboardy": "^2.3.0",
-    "conf": "^10.0.1",
-    "electron-store": "^8.0.0",
     "env-paths": "^2.2.1",
     "execa": "^5.0.0",
     "fs-extra": "^9.1.0",

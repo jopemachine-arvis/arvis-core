@@ -3,21 +3,23 @@ import * as fse from 'fs-extra';
 import path from 'path';
 import unzipper from 'unzipper';
 import { v4 as uuidv4 } from 'uuid';
-import { createStore } from '../config/config';
+import { Store } from '../config/config';
 import { getWorkflowInstalledPath } from '../config/path';
-import { StoreType } from '../types/storeType';
 
-const installByPath = async (
-  storeType: StoreType,
-  installedPath: string
-): Promise<boolean> => {
-  const store = await createStore(storeType);
+const installByPath = async (installedPath: string): Promise<void | Error> => {
+  const store = Store.getInstance();
   const wfConfFilePath = path.resolve(
     path.normalize(`${installedPath}${path.sep}arvis-workflow.json`)
   );
 
   return new Promise(async (resolve, reject) => {
-    const wfConfig = await fse.readJson(wfConfFilePath).catch(reject);
+    let wfConfig;
+    try {
+      wfConfig = await fse.readJson(wfConfFilePath);
+    } catch (err) {
+      reject(err);
+      return;
+    }
 
     const arr = wfConfFilePath.split(path.sep);
     const wfConfDirPath = arr.slice(0, arr.length - 1).join(path.sep);
@@ -37,14 +39,11 @@ const installByPath = async (
     wfConfig.enabled = wfConfig.enabled ?? true;
     store.setWorkflow(wfConfig);
 
-    resolve(true);
+    resolve();
   });
 };
 
-const install = async (
-  storeType: StoreType,
-  installFile: string
-): Promise<boolean> => {
+const install = async (installFile: string): Promise<void | Error> => {
   let extractedPath: string;
   let zipFileName: string;
   let installPipe: unzipper.ParseStream | null;
@@ -72,38 +71,36 @@ const install = async (
       const installedPath = `${extractedPath}${path.sep}${innerPath}`;
 
       if (installFile.endsWith('.arvisworkflow')) {
-        installByPath(storeType, installedPath)
+        installByPath(installedPath)
           .then(() => {
-            fse.remove(extractedPath);
-            resolve(true);
+            resolve();
           })
-          .catch(reject);
+          .catch(reject)
+          .finally(() => {
+            fse.remove(extractedPath);
+          });
       } else if (installFile.endsWith('.alfredworkflow')) {
         // Need to convert alfred's info.plist to json first
         convert(
           `${installedPath}${path.sep}info.plist`,
           `${installedPath}${path.sep}arvis-workflow.json`
         ).then(() => {
-          installByPath(storeType, installedPath)
+          installByPath(installedPath)
             .then(() => {
-              fse.remove(extractedPath);
-              resolve(true);
+              resolve();
             })
-            .catch(reject);
+            .catch(reject)
+            .finally(() => {
+              fse.remove(extractedPath);
+            });
         });
       }
     });
   });
 };
 
-const unInstall = async ({
-  storeType,
-  bundleId,
-}: {
-  storeType: StoreType;
-  bundleId: string;
-}): Promise<void> => {
-  const store = await createStore(storeType);
+const unInstall = async ({ bundleId }: { bundleId: string }): Promise<void> => {
+  const store = Store.getInstance();
 
   try {
     const installedDir = getWorkflowInstalledPath(bundleId!);

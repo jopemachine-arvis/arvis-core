@@ -1,10 +1,10 @@
 import { Store } from '../config/config';
 
-const getCommandList = () => {
+const renewWorkflows = async () => {
   const store = Store.getInstance();
-  return store.getCommands();
+  await store.renewWorkflows();
 };
 
 export {
-  getCommandList
+  renewWorkflows
 };

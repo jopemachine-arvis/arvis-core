@@ -9,36 +9,30 @@ import {
 } from './core';
 
 import helpManual from './config/getHelpStr';
-import initConfig from './config/initConfig';
-
-import { StoreType } from './types/storeType';
 
 // cli main function
 const cliFunc = async (input, flags): Promise<string> => {
   switch (input[0]) {
-    case 'init':
-      initConfig();
-      return chalk.cyan('Init config completed.');
     case 'l':
     case 'list':
-      return getWorkflowList(StoreType.CUI);
+      return getWorkflowList();
     case 'f':
     case 'find':
-      return findCommands(StoreType.CUI, input[1]);
+      return findCommands(input[1]);
     case 'i':
     case 'install':
-      await install(StoreType.CUI, input[1]);
+      await install(input[1]);
       break;
     case 'c':
     case 'commands':
-      return getCommandList(StoreType.CUI);
+      return getCommandList();
     case 'h':
     case 'hotkeys':
-      return findHotkeys(StoreType.CUI);
+      return findHotkeys();
     case 'un':
     case 'uninstall':
       const bundleId: string = input[1];
-      await unInstall({ storeType: StoreType.CUI, bundleId });
+      await unInstall({ bundleId });
       break;
   }
 
