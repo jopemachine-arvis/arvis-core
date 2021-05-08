@@ -1,8 +1,7 @@
 export default (appName: string) => `
 Usage
-    $ ${appName} install ./wfconf.json
-    $ ${appName} uninstall ./wfconf.json
-    $ ${appName} uninstall alfred-chrome-workflow
+    $ ${appName} install ./arvis-workflow.json
+    $ ${appName} uninstall ./arvis-workflow.json
 
 See README.md for more details.
 `;

@@ -2,7 +2,7 @@ import execa from 'execa';
 import _ from 'lodash';
 import path from 'path';
 
-import { workflowInstallPath } from '../config/path';
+import { getWorkflowInstalledPath } from '../config/path';
 
 type ScriptExecuterOption = {
   all?: boolean;
@@ -14,9 +14,7 @@ const execute = (
   scriptStr: string,
   options?: ScriptExecuterOption
 ) => {
-  const execPath = path.resolve(
-    `${workflowInstallPath}${path.sep}installed${path.sep}${bundleId}`
-  );
+  const execPath = path.resolve(getWorkflowInstalledPath(bundleId));
 
   let all;
   let timeout;

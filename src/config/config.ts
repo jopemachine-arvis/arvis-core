@@ -1,8 +1,13 @@
 import _ from 'lodash';
+import recursiveReaddir from 'recursive-readdir';
 import { StoreType } from '../types/storeType';
+import { zipDirectory } from '../utils/zip';
+import { getWorkflowInstalledPath, workflowInstallPath } from './path';
 
+// workflow, hotkeys, and commands are installed together during workflow installation.
+// plugins is installed with a separate installation.
 const schema = {
-  installed: {
+  workflows: {
     type: 'object',
     default: {},
   },
@@ -11,6 +16,10 @@ const schema = {
     default: {},
   },
   hotkeys: {
+    type: 'object',
+    default: {},
+  },
+  plugins: {
     type: 'object',
     default: {},
   }
@@ -29,8 +38,25 @@ const createStore = async (storeType: StoreType) => {
   }
 
   const Functions = {
+
+    exportWorkflow: (bundleId: string, outputPath: string) => {
+      zipDirectory(getWorkflowInstalledPath(bundleId), outputPath);
+    },
+
+    renewWorkflows: () => {
+      recursiveReaddir(workflowInstallPath, ['arvis-workflow.json'], (err, files) => {
+        if (err) {
+          console.error(err);
+          return;
+        }
+        for (const workflow of files) {
+          Functions.setWorkflow(workflow);
+        }
+      });
+    },
+
     getInstalledWorkflows: () => {
-      return store.get('installed') as any;
+      return store.get('workflows') as any;
     },
 
     getCommands: () => {
@@ -49,7 +75,7 @@ const createStore = async (storeType: StoreType) => {
       // Update workflow installation info
       const installedWorkflows = Functions.getInstalledWorkflows();
       installedWorkflows[workflow.bundleId] = workflow;
-      store.set('installed', installedWorkflows);
+      store.set('workflows', installedWorkflows);
 
       // Update available commands
       const commands = Functions.getCommands();
@@ -83,7 +109,7 @@ const createStore = async (storeType: StoreType) => {
       // Update workflow installation info
       const installedWorkflows = Functions.getInstalledWorkflows();
       delete installedWorkflows[bundleId];
-      store.set('installed', installedWorkflows);
+      store.set('workflows', installedWorkflows);
 
       // Update available commands
       const allCommands = Functions.getCommands();
@@ -112,7 +138,6 @@ const createStore = async (storeType: StoreType) => {
       const availableHotkeys = Functions.getHotkeys();
       const hotkeys = _.pickBy(availableHotkeys, hotkey => hotkey.bundleId !== bundleId);
 
-      console.log('hotkeys', hotkeys);
       store.set('hotkeys', hotkeys);
     }
   };

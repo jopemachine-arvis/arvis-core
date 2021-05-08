@@ -232,6 +232,17 @@
                 }
             ]
         },
+        "enabled": {
+            "type": "boolean",
+            "description": "'Enabled' Status",
+            "markdownDescription": "'Enabled' Status",
+            "defaultSnippets": [
+                {
+                    "label": "'Enabled' Status",
+                    "body": true
+                }
+            ]
+        },
         "commands": {
             "type": "array",
             "description": "Workflow's commands",

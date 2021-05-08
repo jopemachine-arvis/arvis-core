@@ -37,14 +37,8 @@ const cliFunc = async (input, flags): Promise<string> => {
       return findHotkeys(StoreType.CUI);
     case 'un':
     case 'uninstall':
-      let bundleId: string | undefined;
-      let wfConfigFilePath: string | undefined;
-      if (input[1].endsWith('.json')) {
-        bundleId = input[1];
-      } else {
-        wfConfigFilePath = input[1];
-      }
-      await unInstall({ storeType: StoreType.CUI, bundleId, wfConfigFilePath });
+      const bundleId: string = input[1];
+      await unInstall({ storeType: StoreType.CUI, bundleId });
       break;
   }
 
