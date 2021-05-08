@@ -1,10 +1,11 @@
-import { convert } from 'arvis-plist-converter';
+import convert from 'arvis-plist-converter';
 import * as fse from 'fs-extra';
 import path from 'path';
 import unzipper from 'unzipper';
 import { v4 as uuidv4 } from 'uuid';
 import { Store } from '../config/config';
 import { getWorkflowInstalledPath } from '../config/path';
+import { checkFileExists, sleep } from '../utils';
 
 const installByPath = async (installedPath: string): Promise<void | Error> => {
   const store = Store.getInstance();
@@ -65,36 +66,40 @@ const install = async (installFile: string): Promise<void | Error> => {
     throw new Error(`Install error, '${installFile}' is not valid`);
   }
 
-  return new Promise((resolve, reject) => {
-    installPipe!.on('finish', () => {
-      const innerPath = zipFileName.split('.')[0];
-      const installedPath = `${extractedPath}${path.sep}${innerPath}`;
+  return new Promise(async (resolve, reject) => {
+    installPipe!.on('finish', async () => {
+      // Even if the install pipe is finalized, there may be a short time when the file is not created yet.
+      // It's not clear, so change logic if it matters later.
+      sleep(1000);
 
-      if (installFile.endsWith('.arvisworkflow')) {
-        installByPath(installedPath)
-          .then(() => {
-            resolve();
-          })
-          .catch(reject)
-          .finally(() => {
-            fse.remove(extractedPath);
-          });
-      } else if (installFile.endsWith('.alfredworkflow')) {
-        // Need to convert alfred's info.plist to json first
-        convert(
+      const innerPath = zipFileName.split('.')[0];
+      const plistPath = `${extractedPath}${path.sep}info.plist`;
+      const arvisWfConfigPath = `${extractedPath}${path.sep}arvis-workflow.json`;
+      // Supports both compressed with folder and compressed without folders
+      const containedInfoPlist = await checkFileExists(plistPath);
+      const containedWorkflowConf = await checkFileExists(arvisWfConfigPath);
+      const folderNotContained = containedInfoPlist || containedWorkflowConf;
+
+      const installedPath = folderNotContained
+        ? extractedPath
+        : `${extractedPath}${path.sep}${innerPath}`;
+
+      // Need to convert alfred's info.plist to json first
+      if (installFile.endsWith('.alfredworkflow')) {
+        await convert(
           `${installedPath}${path.sep}info.plist`,
           `${installedPath}${path.sep}arvis-workflow.json`
-        ).then(() => {
-          installByPath(installedPath)
-            .then(() => {
-              resolve();
-            })
-            .catch(reject)
-            .finally(() => {
-              fse.remove(extractedPath);
-            });
-        });
+        );
       }
+
+      installByPath(installedPath)
+        .then(() => {
+          resolve();
+        })
+        .catch(reject)
+        .finally(() => {
+          fse.remove(extractedPath);
+        });
     });
   });
 };
