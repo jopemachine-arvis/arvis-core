@@ -21,6 +21,7 @@ interface Work {
   workCompleted?: boolean;
   workProcess?: execa.ExecaChildProcess | null;
   rerunInterval?: number;
+  items?: ScriptFilterItem[];
 }
 
 export class WorkManager {
@@ -48,7 +49,13 @@ export class WorkManager {
   onWorkEndHandler?: () => void;
   onItemPressHandler?: () => void;
   onItemShouldBeUpdate?: (items: ScriptFilterItem[]) => void;
-  onInputShouldBeUpdate?: (str: string) => void;
+  onInputShouldBeUpdate?: ({
+    str,
+    needItemsUpdate,
+  }: {
+    str: string;
+    needItemsUpdate: boolean;
+  }) => void;
 
   private constructor() {
     this.workStk = [];
@@ -80,10 +87,38 @@ export class WorkManager {
     this.debugWorkStk();
   }
 
+  // If the script filters are nested, return to the previous script filter.
+  popWork = () => {
+    if (
+      !this.onItemShouldBeUpdate ||
+      !this.onInputShouldBeUpdate ||
+      !this.onWorkEndHandler
+    ) {
+      throw new Error('renderer update funtions are not set!');
+    }
+
+    if (this.hasNestedScriptFilters()) {
+      this.workStk.pop();
+      if (this.getTopWork().type !== 'scriptfilter') return;
+
+      this.onItemShouldBeUpdate(this.getTopWork().items!);
+      this.onInputShouldBeUpdate({
+        str: this.getTopWork().input,
+        needItemsUpdate: false,
+      });
+
+      this.debugWorkStk();
+    } else {
+      this.clearWorkStack();
+      this.onItemShouldBeUpdate([]);
+      this.onWorkEndHandler();
+      return;
+    }
+  }
+
   setErrorItem = (err: any, errorItems: ScriptFilterItem[]) => {
     if (!this.onItemShouldBeUpdate) {
-      console.error('onItemShouldBeUpdate is not set.');
-      return;
+      throw new Error('renderer update funtions are not set!');
     }
 
     if (errorItems.length !== 0) {
@@ -129,8 +164,7 @@ export class WorkManager {
     runningSubText: string;
   }) {
     if (!this.onItemShouldBeUpdate) {
-      console.error('onItemShouldBeUpdate is not set.');
-      return;
+      throw new Error('renderer update funtions are not set!');
     }
 
     const swap = itemArr;
@@ -205,6 +239,12 @@ export class WorkManager {
     console.log('--------------------------------------');
   }
 
+  renewInput = (str: string) => {
+    if (this.getTopWork().type === 'scriptfilter') {
+      this.workStk[this.workStk.length - 1].input = str;
+    }
+  }
+
   // Handler for enter event
   async commandExcute(
     item: Command | ScriptFilterItem,
@@ -222,8 +262,12 @@ export class WorkManager {
 
     let actionResult;
     let targetActions = actions;
+    const exists = (arr: any[]) => arr && arr.length > 0;
 
-    while (targetActions && targetActions.length > 0) {
+    // Renew input
+    this.renewInput(inputStr);
+
+    while (exists(targetActions)) {
       actionResult = this.handleAction({
         actions: targetActions,
         queryArgs: args,
@@ -232,29 +276,38 @@ export class WorkManager {
 
       targetActions = actionResult.nextActions;
 
-      if (targetActions && targetActions.length > 0) {
+      if (exists(targetActions)) {
         for (const nextAction of targetActions) {
-          const newInput = this.getNextActionsInput(
+          const nextInput = this.getNextActionsInput(
             nextAction,
             actionResult.args
           );
 
-          this.pushWork({
-            type: nextAction.type,
-            input: newInput,
-            command: nextAction,
-            bundleId: this.getTopWork().bundleId,
-            args: actionResult.args,
-            workProcess: null,
-            workCompleted: false,
-          });
+          // 왜 여기에 keyword를 뒀더라..? 생각이 안 남...
+          if (
+            nextAction.type === 'scriptfilter' ||
+            nextAction.type === 'keyword'
+          ) {
+            this.pushWork({
+              type: nextAction.type,
+              input: nextInput,
+              command: nextAction,
+              bundleId: this.getTopWork().bundleId,
+              args: actionResult.args,
+              workProcess: null,
+              workCompleted: false,
+            });
+          }
 
           if (nextAction.type === 'scriptfilter') {
-            scriptFilterExcute(newInput);
+            scriptFilterExcute(nextInput);
 
             this.onItemPressHandler && this.onItemPressHandler();
             this.onInputShouldBeUpdate &&
-              this.onInputShouldBeUpdate(newInput + ' ');
+              this.onInputShouldBeUpdate({
+                str: nextInput + ' ',
+                needItemsUpdate: false,
+              });
             return;
           }
         }

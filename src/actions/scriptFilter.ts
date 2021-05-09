@@ -23,6 +23,10 @@ function scriptFilterCompleteEventHandler(
     workManager.workStk.length - 1
   ].rerunInterval = rerunInterval;
 
+  workManager.workStk[
+    workManager.workStk.length - 1
+  ].items = items;
+
   workManager.workStk[workManager.workStk.length - 1].workCompleted = true;
 
   // Append bundleId to each ScriptFilterItem.
@@ -31,10 +35,10 @@ function scriptFilterCompleteEventHandler(
   });
 
   if (!workManager.onItemShouldBeUpdate) {
-    console.error('onItemShouldBeUpdate is not set!!');
+    throw new Error('renderer update funtions are not set!');
   }
 
-  workManager.onItemShouldBeUpdate && workManager.onItemShouldBeUpdate(items);
+  workManager.onItemShouldBeUpdate(items);
 }
 
 function scriptErrorHandler (err: ExecaError) {

@@ -23,6 +23,18 @@ const scriptErrorHandler = (err: ExecaError) => {
   }
 };
 
+const printDebuggingLog = (disabled: boolean) => (
+  color: Function,
+  type: string,
+  text: string
+) => {
+  if (!color || !type || !text) {
+    console.error(`Error: [${type}] is not properly set up.`);
+    return;
+  }
+  !disabled && console.log(color(`[Action: ${type}] `), text);
+};
+
 // The actions arrangement is taken as a factor to branch according to cond or modifiers.
 function handleAction(
   this: WorkManager,
@@ -41,14 +53,6 @@ function handleAction(
   let target;
   let nextActions: Action[] | undefined = [];
 
-  const log = (color: Function, type: string, text: string) => {
-    if (!color || !type || !text) {
-      console.error(`Error: [${type}] is not properly set up.`);
-      return;
-    }
-    this.printActionType && console.log(color(`[Action: ${type}] `), text);
-  };
-
   _.map(actions, (action) => {
     const type = action.type.toLowerCase();
     let logColor;
@@ -61,6 +65,10 @@ function handleAction(
       return;
     }
 
+    const log = () => {
+      printDebuggingLog(!this.printActionType)(logColor, type, target);
+    };
+
     try {
       switch (type) {
         case 'script':
@@ -70,6 +78,7 @@ function handleAction(
           const scriptWork = execute(this.getTopWork().bundleId, target, {
             all: true,
           });
+          log();
 
           scriptWork
             .then((result: execa.ExecaReturnValue<string>) => {
@@ -87,6 +96,7 @@ function handleAction(
           logColor = chalk.redBright;
           target = action.script_filter;
           nextActions = [action];
+          log();
           break;
 
         // Just execute next action
@@ -94,6 +104,7 @@ function handleAction(
           action = action as KeywordAction;
           target = action.command;
           logColor = chalk.blackBright;
+          log();
 
           nextActions = this.handleAction({
             actions: nextActions,
@@ -107,6 +118,7 @@ function handleAction(
           action = action as HotkeyAction;
           target = action.hotkey;
           logColor = chalk.whiteBright;
+          log();
 
           nextActions = this.handleAction({
             actions: nextActions,
@@ -122,12 +134,12 @@ function handleAction(
           target = applyArgsToScript({ str: action.target, queryArgs });
 
           openFile(target);
+          log();
           break;
 
         // Notification (Not implemented on here)
         case 'notification':
           action = action as NotiAction;
-          log(chalk.whiteBright, type, action.title);
           break;
 
         // Copy text to clipboard
@@ -136,6 +148,7 @@ function handleAction(
           logColor = chalk.greenBright;
           target = applyArgsToScript({ str: action.text, queryArgs });
           copyToClipboard(target);
+          log();
           break;
 
         // Extract query from args, vars and execute the action.
@@ -147,6 +160,7 @@ function handleAction(
           queryArgs = argsExtract(queryArgs, argToExtract);
           target = queryArgs;
 
+          log();
           nextActions = this.handleAction({
             actions: nextActions,
             queryArgs,
@@ -170,6 +184,7 @@ function handleAction(
             eval(target) === true
               ? action.if.action.then
               : action.if.action.else;
+          log();
 
           nextActions = this.handleAction({
             actions: conditionalAction,
@@ -181,8 +196,6 @@ function handleAction(
     } catch (e) {
       throw new Error(`[Action: ${type}] occured error!\n, target: ${target}`);
     }
-
-    log(logColor, type, target);
   });
 
   // Theoretically, nextAction may have more than one script filter, but the case is not considered yet..
