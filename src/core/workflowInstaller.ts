@@ -1,4 +1,5 @@
 import convert from 'arvis-plist-converter';
+import chmodr from 'chmodr';
 import * as fse from 'fs-extra';
 import path from 'path';
 import unzipper from 'unzipper';
@@ -42,10 +43,12 @@ const installByPath = async (installedPath: string): Promise<void | Error> => {
       preserveTimestamps: false,
     });
 
-    wfConfig.enabled = wfConfig.enabled ?? true;
-    store.setWorkflow(wfConfig);
-
-    resolve();
+    // Makes scripts, binaries of installed paths executable
+    chmodr(destinationPath, 0o777, () => {
+      wfConfig.enabled = wfConfig.enabled ?? true;
+      store.setWorkflow(wfConfig);
+      resolve();
+    });
   });
 };
 
@@ -99,9 +102,7 @@ const install = async (installFile: string): Promise<void | Error> => {
       }
 
       installByPath(installedPath)
-        .then(() => {
-          resolve();
-        })
+        .then(resolve)
         .catch(reject)
         .finally(() => {
           fse.remove(extractedPath);
