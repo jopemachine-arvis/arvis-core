@@ -1,4 +1,4 @@
-import { Store } from '../config/config';
+import { Store } from '../config/store';
 
 const findHotkeys = async () => {
   const store = Store.getInstance();

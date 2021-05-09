@@ -1,7 +1,6 @@
 import execa from 'execa';
 import _ from 'lodash';
 import path from 'path';
-
 import { getWorkflowInstalledPath } from '../config/path';
 
 type ScriptExecuterOption = {

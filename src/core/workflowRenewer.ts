@@ -1,4 +1,4 @@
-import { Store } from '../config/config';
+import { Store } from '../config/store';
 
 const renewWorkflows = async (bundleId? : string) => {
   const store = Store.getInstance();

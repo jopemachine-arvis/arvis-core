@@ -4,7 +4,7 @@ import * as fse from 'fs-extra';
 import path from 'path';
 import unzipper from 'unzipper';
 import { v4 as uuidv4 } from 'uuid';
-import { Store } from '../config/config';
+import { Store } from '../config/store';
 import { getWorkflowInstalledPath } from '../config/path';
 import { checkFileExists, sleep } from '../utils';
 
@@ -61,12 +61,13 @@ const install = async (installFile: string): Promise<void | Error> => {
     installFile.endsWith('.arvisworkflow') ||
     installFile.endsWith('.alfredworkflow')
   ) {
-    const id = uuidv4();
+    // Create temporary folder and delete it after installtion
+    const temporaryFolderName = uuidv4();
     const pathArr = installFile.split(path.sep);
     zipFileName = pathArr.pop() as string;
     const dirPath = pathArr.join(path.sep);
 
-    extractedPath = `${dirPath}${path.sep}${id}`;
+    extractedPath = `${dirPath}${path.sep}${temporaryFolderName}`;
     installPipe = fse
       .createReadStream(installFile)
       .pipe(unzipper.Extract({ path: extractedPath }));

@@ -1,4 +1,4 @@
-import { Store } from '../config/config';
+import { Store } from '../config/store';
 
 const getCommandList = () => {
   const store = Store.getInstance();

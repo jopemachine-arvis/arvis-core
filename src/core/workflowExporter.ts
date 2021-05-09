@@ -1,4 +1,4 @@
-import { Store } from '../config/config';
+import { Store } from '../config/store';
 
 const exportWorkflow = (bundleId: string, outputPath: string) => {
   const store = Store.getInstance();
