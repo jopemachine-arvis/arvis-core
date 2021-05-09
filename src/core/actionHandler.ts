@@ -46,7 +46,7 @@ function handleAction(
       console.error(`Error: [${type}] is not properly set up.`);
       return;
     }
-    this.printActionType && console.log(color(`[${type}] `), text);
+    this.printActionType && console.log(color(`[Action: ${type}] `), text);
   };
 
   _.map(actions, (action) => {
@@ -66,7 +66,7 @@ function handleAction(
         case 'script':
           action = action as ScriptAction;
           logColor = chalk.yellowBright;
-          target = action.script;
+          target = applyArgsToScript({ str: action.script, queryArgs });
           const scriptWork = execute(this.getTopWork().bundleId, target, {
             all: true,
           });
@@ -74,7 +74,7 @@ function handleAction(
           scriptWork
             .then((result: execa.ExecaReturnValue<string>) => {
               if (this.printWorkflowOutput) {
-                console.log(`[ScriptOutput]\n\n ${result.all}`);
+                console.log(`[Output]\n\n ${result.all}`);
               }
             })
             .catch(scriptErrorHandler);

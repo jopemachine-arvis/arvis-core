@@ -2,6 +2,7 @@ import { execute } from '../actions/scriptExecution';
 import '../types';
 import { escapeBraket } from '../utils';
 import { applyArgsToScript } from './argsHandler';
+import { WorkManager } from './workManager';
 
 type ScriptFilterChangeHandlerOption = {
   timeout?: number;
@@ -22,7 +23,11 @@ const handleScriptFilterChange = (
 
   const scriptStr = applyArgsToScript({ str: script, queryArgs });
 
-  console.log('[ScriptfilterScript]', scriptStr);
+  const workManager = WorkManager.getInstance();
+
+  if (workManager.printScriptfilter) {
+    console.log('[SF Script]', scriptStr);
+  }
 
   return execute(bundleId, scriptStr, options);
 };

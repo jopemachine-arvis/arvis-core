@@ -9,8 +9,8 @@ function scriptFilterCompleteEventHandler(
   const workManager = WorkManager.getInstance();
   const stdout = JSON.parse(result.stdout) as ScriptFilterResult;
 
-  workManager.printWorkflowOutput &&
-    console.log('[ScriptfilterResult]', stdout);
+  workManager.printScriptfilter &&
+    console.log('[SF Result]', stdout);
 
   const { items, rerun: rerunInterval, variables } = stdout;
 
@@ -37,14 +37,20 @@ function scriptFilterCompleteEventHandler(
   workManager.onItemShouldBeUpdate && workManager.onItemShouldBeUpdate(items);
 }
 
-function scriptErrorHandler (err: ExecaError, workManager: WorkManager) {
+function scriptErrorHandler (err: ExecaError) {
+  const workManager = WorkManager.getInstance();
+
   if (err.timedOut) {
     console.error(`Script timeout!\n'${err}`);
   } else if (err.isCanceled) {
-    // console.log('Command was canceled.');
+    // console.log('Command was canceled by other scriptfilter.');
   } else {
-    console.error(`${err}`);
-    workManager.handleWorkflowError(err);
+    if (workManager.hasEmptyWorkStk()) {
+    // console.log('Command was canceled by user.');
+    } else {
+      console.error(`${err}`);
+      workManager.handleWorkflowError(err);
+    }
   }
 }
 
@@ -118,7 +124,7 @@ async function scriptFilterExcute(
         }
       }
     })
-    .catch((err: ExecaError) => scriptErrorHandler(err, workManager));
+    .catch(scriptErrorHandler);
 }
 
 export { scriptFilterExcute };

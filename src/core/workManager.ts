@@ -42,6 +42,8 @@ export class WorkManager {
   printActionType?: boolean;
   printWorkStack?: boolean;
   printWorkflowOutput?: boolean;
+  printArgs?: boolean;
+  printScriptfilter?: boolean;
 
   onWorkEndHandler?: () => void;
   onItemPressHandler?: () => void;

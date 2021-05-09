@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { escapeBraket, replaceAll } from '../utils';
+import { WorkManager } from './workManager';
 
 const applyArgsToScript = ({
   str,
@@ -55,8 +56,12 @@ const extractArgsFromQuery = (querys: string[]) => {
     args[`$${Number(qIdx) + 1}`] = querys[qIdx];
   }
 
-  // Print 'args' to debugging console
-  console.log('[Args]', args);
+  const workManager = WorkManager.getInstance();
+
+  if (workManager.printArgs) {
+    // Print 'args' to debugging console
+    console.log('[Args]', args);
+  }
 
   return args;
 };
@@ -73,8 +78,12 @@ const extractArgsFromScriptFilterItem = (item: ScriptFilterItem, vars: any) => {
     args[`{var:${variable}}`] = `${vars[variable]}`;
   }
 
-  // Print 'args' to debugging console
-  console.log('[Args]', args);
+  const workManager = WorkManager.getInstance();
+
+  if (workManager.printArgs) {
+    // Print 'args' to debugging console
+    console.log('[Args]', args);
+  }
 
   return args;
 };
