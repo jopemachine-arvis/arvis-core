@@ -1,5 +1,6 @@
 import fse from 'fs-extra';
 import _ from 'lodash';
+import path from 'path';
 import recursiveReaddir from 'recursive-readdir';
 import { zipDirectory } from '../utils/zip';
 import { getWorkflowInstalledPath, workflowInstallPath } from './path';
@@ -34,9 +35,11 @@ const addCommands = (commands: object, newCommands: any[], bundleId: string) => 
 
 export class Store {
   private static instance: Store;
-  store = new Map<string, any>();
+  store: Map<string, any>;
 
-  private constructor() {}
+  private constructor() {
+    this.store = new Map<string, any>();
+  }
 
   static getInstance() {
     if (!Store.instance) {
@@ -49,7 +52,9 @@ export class Store {
     zipDirectory(getWorkflowInstalledPath(bundleId), outputPath);
   }
 
-  async renewWorkflows () {
+  async renewWorkflows (bundleId?: string) {
+    if (!bundleId) this.store = new Map<string, any>();
+
     return new Promise((resolve, reject) => {
       recursiveReaddir(workflowInstallPath, async (err, files) => {
         if (err) {
@@ -57,11 +62,21 @@ export class Store {
           return;
         }
 
-        files = files.filter(filePath => filePath.endsWith('arvis-workflow.json'));
+        files = files.filter((filePath) => {
+          if (bundleId)
+            return filePath.endsWith(
+              `${bundleId}${path.sep}arvis-workflow.json`
+            );
+          return filePath.endsWith('arvis-workflow.json');
+        });
 
         for (const workflow of files) {
-          const workflowInfo = await fse.readJson(workflow);
-          this.setWorkflow(workflowInfo);
+          try {
+            const workflowInfo = await fse.readJson(workflow);
+            this.setWorkflow(workflowInfo);
+          } catch (err) {
+            throw new Error(err);
+          }
         }
         resolve(true);
       });

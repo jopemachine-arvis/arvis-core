@@ -22,6 +22,11 @@ const installByPath = async (installedPath: string): Promise<void | Error> => {
       return;
     }
 
+    if (!wfConfig.bundleId || wfConfig.bundleId === '') {
+      reject(new Error('Invalid workflow - bundleId is not set!'));
+      return;
+    }
+
     const arr = wfConfFilePath.split(path.sep);
     const wfConfDirPath = arr.slice(0, arr.length - 1).join(path.sep);
 
@@ -68,9 +73,9 @@ const install = async (installFile: string): Promise<void | Error> => {
 
   return new Promise(async (resolve, reject) => {
     installPipe!.on('finish', async () => {
-      // Even if the install pipe is finalized, there may be a short time when the file is not created yet.
-      // It's not clear, so change logic if it matters later.
-      sleep(1000);
+      // Even if the install pipe is finalized, there might be a short time when the file is not created yet.
+      // It's not clear, so change below logic if it matters later.
+      await sleep(1000);
 
       const innerPath = zipFileName.split('.')[0];
       const plistPath = `${extractedPath}${path.sep}info.plist`;
@@ -80,6 +85,7 @@ const install = async (installFile: string): Promise<void | Error> => {
       const containedWorkflowConf = await checkFileExists(arvisWfConfigPath);
       const folderNotContained = containedInfoPlist || containedWorkflowConf;
 
+      // Suppose it is in the inner folder if it is not in the outer folder. if not, throw error.
       const installedPath = folderNotContained
         ? extractedPath
         : `${extractedPath}${path.sep}${innerPath}`;

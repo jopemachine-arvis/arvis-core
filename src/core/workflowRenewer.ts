@@ -1,8 +1,8 @@
 import { Store } from '../config/config';
 
-const renewWorkflows = async () => {
+const renewWorkflows = async (bundleId? : string) => {
   const store = Store.getInstance();
-  await store.renewWorkflows();
+  await store.renewWorkflows(bundleId);
 };
 
 export {
