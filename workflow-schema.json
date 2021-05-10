@@ -162,6 +162,17 @@
             "defaultSnippets": [
                 {
                     "label": "Workflow's creator name",
+                    "body": "icon.png"
+                }
+            ]
+        },
+        "defaultIcon": {
+            "type": "string",
+            "description": "Workflow's default icon",
+            "markdownDescription": "Workflow's default icon",
+            "defaultSnippets": [
+                {
+                    "label": "Workflow's default icon",
                     "body": ""
                 }
             ]

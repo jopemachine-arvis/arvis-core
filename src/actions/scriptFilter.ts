@@ -1,5 +1,5 @@
 import execa, { ExecaError } from '../../execa';
-import { WorkManager } from '../core';
+import { getWorkflowList, WorkManager } from '../core';
 import { extractArgsFromQuery } from '../core/argsHandler';
 import { handleScriptFilterChange } from '../core/scriptFilterChangeHandler';
 
@@ -29,9 +29,16 @@ function scriptFilterCompleteEventHandler(
 
   workManager.workStk[workManager.workStk.length - 1].workCompleted = true;
 
-  // Append bundleId to each ScriptFilterItem.
+  const { bundleId } = workManager.getTopWork();
+  const workflowDefaultIcon = getWorkflowList()[bundleId].defaultIcon;
+
   items.map((item: ScriptFilterItem) => {
-    item.bundleId = workManager.getTopWork().bundleId;
+    // Append bundleId to each ScriptFilterItem.
+    item.bundleId = bundleId;
+    // Append workflow's defaultIcon
+    item.icon = item.icon ?? {
+      path: workflowDefaultIcon
+    };
   });
 
   if (!workManager.onItemShouldBeUpdate) {

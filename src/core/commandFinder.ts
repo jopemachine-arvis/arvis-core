@@ -1,17 +1,25 @@
 import { getCommandList } from './commandList';
+import { getWorkflowList } from './workflowList';
 
-const findCommands = (command: string) => {
+const findCommands = (inputStr: string) => {
   const commands = getCommandList();
 
-  const filtered = [] as any;
-  for (const item of Object.keys(commands)) {
+  const searchResult = [] as any;
+  for (const commandStr of Object.keys(commands)) {
     // Same search result, no matter how many whitespace is attached to the right of command.
-    if (item.startsWith(command.trimRight())) {
-      filtered.push(...commands[item]);
+    if (commandStr.startsWith(inputStr.trimRight())) {
+      for (const command of commands[commandStr]) {
+        const { bundleId } = command;
+        const defaultIcon = getWorkflowList()[bundleId].defaultIcon;
+        command.icon = {
+          path: defaultIcon,
+        };
+        searchResult.push(command);
+      }
     }
   }
 
-  return filtered;
+  return searchResult;
 };
 
 export { findCommands };
