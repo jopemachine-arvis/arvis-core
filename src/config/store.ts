@@ -15,7 +15,7 @@ const removeOldCommand = (commands: object, bundleId: string) => {
       (command: any) => command.bundleId !== bundleId
     );
 
-    ret[commandObj.command] = otherWorkflowsSameCommands;
+    ret[commandKey] = otherWorkflowsSameCommands;
   }
   return ret;
 };
