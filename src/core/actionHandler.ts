@@ -96,6 +96,8 @@ function handleAction(
           logColor = chalk.redBright;
           target = action.script_filter;
           nextActions = [action];
+          // In the case of scriptfilter, you must press return to explicitly execute the action to leave below log.
+          // Because otherwise, handleAction is not executed
           log();
           break;
 
