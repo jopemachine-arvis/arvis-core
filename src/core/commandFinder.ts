@@ -1,6 +1,9 @@
 import { getCommandList } from './commandList';
 import { getWorkflowList } from './workflowList';
 
+/**
+ * @param  {string} inputStr
+ */
 const findCommands = (inputStr: string) => {
   const commands = getCommandList();
 

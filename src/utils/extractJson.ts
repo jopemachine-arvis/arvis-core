@@ -1,4 +1,8 @@
-// Return all json candidates from string
+/**
+ * @summary Return all json candidates from string
+ * @param  {string} str
+ * @return {any[]} All json candidates
+ */
 export default function extractJSON(str: string) {
   // https://stackoverflow.com/questions/10574520/extract-json-from-text
   let firstOpen = 0;

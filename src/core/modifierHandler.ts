@@ -1,6 +1,11 @@
 import _ from 'lodash';
 import '../types';
 
+/**
+ * @param  {Action[]} actions
+ * @param  {ModifierInput} modifiersInput
+ * @return {Action[]} modifiers applied actions
+ */
 export const handleModifiers = (
   actions: Action[],
   modifiersInput: ModifierInput

@@ -8,6 +8,13 @@ type ScriptFilterChangeHandlerOption = {
   timeout?: number;
 };
 
+/**
+ * @param  {string} bundleId
+ * @param  {Command} command
+ * @param  {object} queryArgs
+ * @param  {ScriptFilterChangeHandlerOption} options?
+ * @return {execa.ExecaChildProcess<string>} executed process
+ */
 const handleScriptFilterChange = (
   bundleId: string,
   command: Command,

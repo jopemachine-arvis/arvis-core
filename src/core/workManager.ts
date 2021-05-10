@@ -71,7 +71,9 @@ export class WorkManager {
     this.workStk.length = 0;
   }
 
-  // If workStk is empty, look for command.
+  /**
+   * @summary If workStk is empty, look for command.
+   */
   hasEmptyWorkStk = () => {
     return this.workStk.length === 0;
   }
@@ -87,7 +89,9 @@ export class WorkManager {
     this.debugWorkStk();
   }
 
-  // If the script filters are nested, return to the previous script filter.
+  /**
+   * @summary If the script filters are nested, return to the previous script filter.
+   */
   popWork = () => {
     if (
       !this.onItemShouldBeUpdate ||
@@ -116,6 +120,11 @@ export class WorkManager {
     }
   }
 
+  /**
+   * @param  {any} err
+   * @param  {ScriptFilterItem[]} errorItems
+   * @summary When an error occurs, onItemShouldBeUpdate is called by this method and those error messages are displayed to the user.
+   */
   setErrorItem = (err: any, errorItems: ScriptFilterItem[]) => {
     if (!this.onItemShouldBeUpdate) {
       throw new Error('renderer update funtions are not set!');
@@ -138,6 +147,9 @@ export class WorkManager {
     }
   }
 
+  /**
+   * @param  {any} err
+   */
   handleWorkflowError = (err: any) => {
     const possibleJsons = extractJson(err.toString());
     const errors = possibleJsons.filter((item) => item.items);
@@ -154,6 +166,11 @@ export class WorkManager {
     this.setErrorItem(err, errorItems);
   }
 
+  /**
+   * @param  {any[]} itemArr
+   * @param  {number} index
+   * @param  {string} runningSubText
+   */
   setRunningText({
     itemArr,
     index,
@@ -183,6 +200,10 @@ export class WorkManager {
     );
   }
 
+  /**
+   * @param  {Command | ScriptFilterItem} item
+   * @param  {string} inputStr
+   */
   prepareActions = ({
     item,
     inputStr,
@@ -221,6 +242,10 @@ export class WorkManager {
     };
   }
 
+  /**
+   * @param  {Action} nextAction
+   * @param  {any} args
+   */
   getNextActionsInput = (nextAction: Action, args) => {
     if (nextAction.type === 'scriptfilter') {
       return getAppliedArgsFromScript(nextAction.script_filter, args);
@@ -239,13 +264,22 @@ export class WorkManager {
     console.log('--------------------------------------');
   }
 
+  /**
+   * @param  {string} str
+   * @summary Update input of stack (It could be used when popWork)
+   */
   renewInput = (str: string) => {
     if (this.getTopWork().type === 'scriptfilter') {
       this.workStk[this.workStk.length - 1].input = str;
     }
   }
 
-  // Handler for enter event
+  /**
+   * @param  {Command|ScriptFilterItem} item
+   * @param  {string} inputStr
+   * @param  {ModifierInput} modifier
+   * @summary Handler for enter event
+   */
   async commandExcute(
     item: Command | ScriptFilterItem,
     inputStr: string,

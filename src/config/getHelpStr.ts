@@ -1,3 +1,6 @@
+/**
+ * @param  {string} appName
+ */
 export default (appName: string) => `
 Usage
     $ ${appName} install ./arvis-workflow.json

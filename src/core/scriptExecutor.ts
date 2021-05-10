@@ -8,6 +8,12 @@ type ScriptExecuterOption = {
   timeout?: number;
 };
 
+/**
+ * @param  {string} bundleId
+ * @param  {string} scriptStr
+ * @param  {ScriptExecuterOption} options?
+ * @return {execa.ExecaChildProcess<string>} executed process
+ */
 const execute = (
   bundleId: string,
   scriptStr: string,

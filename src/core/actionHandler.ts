@@ -13,6 +13,9 @@ import { handleModifiers } from './modifierHandler';
 import { execute } from './scriptExecutor';
 import { WorkManager } from './workManager';
 
+/**
+ * @param  {ExecaError} err
+ */
 const scriptErrorHandler = (err: ExecaError) => {
   if (err.timedOut) {
     console.error(`Script timeout!`);
@@ -23,6 +26,9 @@ const scriptErrorHandler = (err: ExecaError) => {
   }
 };
 
+/**
+ * @param  {boolean} disabled
+ */
 const printDebuggingLog = (disabled: boolean) => (
   color: Function,
   type: string,
@@ -35,7 +41,13 @@ const printDebuggingLog = (disabled: boolean) => (
   !disabled && console.log(color(`[Action: ${type}] `), text);
 };
 
-// The actions arrangement is taken as a factor to branch according to cond or modifiers.
+/**
+ * @param  {WorkManager} this
+ * @param  {Action[]} actions
+ * @param  {object} queryArgs
+ * @param  {ModifierInput} modifiersInput
+ * @summary The actions arrangement is taken as a factor to branch according to cond or modifiers.
+ */
 function handleAction(
   this: WorkManager,
   {

@@ -4,10 +4,14 @@ import * as fse from 'fs-extra';
 import path from 'path';
 import unzipper from 'unzipper';
 import { v4 as uuidv4 } from 'uuid';
-import { Store } from '../config/store';
 import { getWorkflowInstalledPath } from '../config/path';
+import { Store } from '../config/store';
 import { checkFileExists, sleep } from '../utils';
 
+/**
+ * @param  {string} installedPath
+ * @return {Promise<void | Error>}
+ */
 const installByPath = async (installedPath: string): Promise<void | Error> => {
   const store = Store.getInstance();
   const wfConfFilePath = path.resolve(
@@ -52,6 +56,10 @@ const installByPath = async (installedPath: string): Promise<void | Error> => {
   });
 };
 
+/**
+ * @param  {string} installFile
+ * @return {Promise<void | Error>}
+ */
 const install = async (installFile: string): Promise<void | Error> => {
   let extractedPath: string;
   let zipFileName: string;
@@ -112,6 +120,10 @@ const install = async (installFile: string): Promise<void | Error> => {
   });
 };
 
+/**
+ * @param  {{bundleId:string}} {bundleId}
+ * @return {Promise<void>}
+ */
 const unInstall = async ({ bundleId }: { bundleId: string }): Promise<void> => {
   const store = Store.getInstance();
 

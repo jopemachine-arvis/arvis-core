@@ -2,6 +2,12 @@ import _ from 'lodash';
 import { escapeBraket, replaceAll } from '../utils';
 import { WorkManager } from './workManager';
 
+/**
+ * @param  {} scriptStr
+ * @param  {} queryArgs
+ * @param  {} appendQuotes
+ * @return {string} argsAppliedScriptStr
+ */
 const applyArgsToScript = ({
   scriptStr,
   queryArgs,
@@ -19,7 +25,11 @@ const applyArgsToScript = ({
   return scriptStr.trim();
 };
 
-// Get args from script in correct order
+/**
+ * @param  {string} scriptStr
+ * @param  {any} args
+ * @summary Get args from script in correct order
+ */
 const getAppliedArgsFromScript = (scriptStr: string, args: any) => {
   const strArr: string[] = scriptStr.split(' ');
   const argsArr: string[] = new Array(strArr.length);
@@ -44,6 +54,9 @@ const getAppliedArgsFromScript = (scriptStr: string, args: any) => {
   );
 };
 
+/**
+ * @param  {string[]} querys
+ */
 const extractArgsFromQuery = (querys: string[]) => {
   // To do:: In some cases, the single quotes below may need to be escape.
   const args = { '{query}': querys.join(' '), $1: '' };
@@ -66,6 +79,10 @@ const extractArgsFromQuery = (querys: string[]) => {
   return args;
 };
 
+/**
+ * @param  {ScriptFilterItem} item
+ * @param  {any} vars
+ */
 const extractArgsFromScriptFilterItem = (item: ScriptFilterItem, vars: any) => {
   let args = {};
   if (item.arg) {

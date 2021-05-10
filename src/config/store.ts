@@ -5,6 +5,11 @@ import recursiveReaddir from 'recursive-readdir';
 import { zipDirectory } from '../utils/zip';
 import { getWorkflowInstalledPath, workflowInstallPath } from './path';
 
+/**
+ * @param  {object} commands
+ * @param  {string} bundleId
+ * @return {object} Commands except for the command equivalent of bundleId.
+ */
 const removeOldCommand = (commands: object, bundleId: string) => {
   const ret = commands;
   for (const commandKey of Object.keys(commands)) {
@@ -20,6 +25,12 @@ const removeOldCommand = (commands: object, bundleId: string) => {
   return ret;
 };
 
+/**
+ * @param  {object} commands
+ * @param  {any[]} newCommands
+ * @param  {string} bundleId
+ * @returns {object} Command object with new commands
+ */
 const addCommands = (commands: object, newCommands: any[], bundleId: string) => {
   const ret = commands;
   for (const commandObj of newCommands) {
@@ -48,11 +59,18 @@ export class Store {
     return Store.instance;
   }
 
-  exportWorkflow (bundleId: string, outputPath: string) {
+  /**
+   * @param  {string} bundleId
+   * @param  {string} outputPath
+   */
+  exportWorkflow(bundleId: string, outputPath: string) {
     zipDirectory(getWorkflowInstalledPath(bundleId), outputPath);
   }
 
-  async renewWorkflows (bundleId?: string) {
+  /**
+   * @param  {string} bundleId?
+   */
+  async renewWorkflows(bundleId?: string) {
     if (!bundleId) this.store = new Map<string, any>();
 
     return new Promise((resolve, reject) => {
@@ -83,29 +101,48 @@ export class Store {
     });
   }
 
-  getter(key: string, defaultValue: any) {
+  /**
+   * @param  {string} key
+   * @param  {any} defaultValue
+   */
+  private getter(key: string, defaultValue: any) {
     if (this.store.has(key)) {
       return this.store.get(key) as any;
     } else return defaultValue;
   }
 
-  getInstalledWorkflows () {
+  /**
+   * @param  {} {}
+   */
+  getInstalledWorkflows() {
     return this.getter('workflows', {});
   }
 
-  getCommands () {
+  /**
+   * @param  {} {}
+   */
+  getCommands() {
     return this.getter('commands', {});
   }
 
-  getHotkeys () {
+  /**
+   * @param  {} {}
+   */
+  getHotkeys() {
     return this.getter('hotkeys', {});
   }
 
-  getWorkflow (bundleId: string) {
+  /**
+   * @param  {string} bundleId
+   */
+  getWorkflow(bundleId: string) {
     return this.getInstalledWorkflows()[bundleId];
   }
 
-  setWorkflow (workflow: any) {
+  /**
+   * @param  {any} workflow
+   */
+  setWorkflow(workflow: any) {
     // Update workflow installation info
     const installedWorkflows = this.getInstalledWorkflows();
     installedWorkflows[workflow.bundleId] = workflow;
@@ -134,7 +171,11 @@ export class Store {
     this.store.set('hotkeys', { ...hotkeys, ...this.getHotkeys() });
   }
 
-  deleteWorkflow (bundleId: string) {
+  /**
+   * @param  {string} bundleId
+   * @summary Called to unInstaller to remove information from the workflow from the Store
+   */
+  deleteWorkflow(bundleId: string) {
     // Update workflow installation info
     const installedWorkflows = this.getInstalledWorkflows();
     delete installedWorkflows[bundleId];
@@ -165,7 +206,10 @@ export class Store {
 
     // Update available hotkeys
     const availableHotkeys = this.getHotkeys();
-    const hotkeys = _.pickBy(availableHotkeys, hotkey => hotkey.bundleId !== bundleId);
+    const hotkeys = _.pickBy(
+      availableHotkeys,
+      (hotkey) => hotkey.bundleId !== bundleId
+    );
 
     this.store.set('hotkeys', hotkeys);
   }

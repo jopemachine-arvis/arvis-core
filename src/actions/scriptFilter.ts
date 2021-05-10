@@ -3,6 +3,9 @@ import { getWorkflowList, WorkManager } from '../core';
 import { extractArgsFromQuery } from '../core/argsHandler';
 import { handleScriptFilterChange } from '../core/scriptFilterChangeHandler';
 
+/**
+ * @param  {execa.ExecaReturnValue<string>} result
+ */
 function scriptFilterCompleteEventHandler(
   result: execa.ExecaReturnValue<string>
 ) {
@@ -48,6 +51,9 @@ function scriptFilterCompleteEventHandler(
   workManager.onItemShouldBeUpdate(items);
 }
 
+/**
+ * @param  {ExecaError} err
+ */
 function scriptErrorHandler (err: ExecaError) {
   const workManager = WorkManager.getInstance();
 
@@ -65,9 +71,12 @@ function scriptErrorHandler (err: ExecaError) {
   }
 }
 
+/**
+ * @param  {string} inputStr
+ * @param  {Command} commandWhenStackIsEmpty? command object should be given when stack is empty
+ */
 async function scriptFilterExcute(
   inputStr: string,
-  // command object should be given when stack is empty
   commandWhenStackIsEmpty?: Command
 ): Promise<void> {
   // If WorkStk is empty, users can enter the script filter without a return event.
