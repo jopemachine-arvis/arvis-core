@@ -1,6 +1,6 @@
 import chalk from 'chalk';
-import execa, { ExecaError } from 'execa';
 import _ from 'lodash';
+import execa, { ExecaError } from '../../execa';
 import {
   argsExtract,
   copyToClipboard,
@@ -74,7 +74,7 @@ function handleAction(
         case 'script':
           action = action as ScriptAction;
           logColor = chalk.yellowBright;
-          target = applyArgsToScript({ str: action.script, queryArgs });
+          target = applyArgsToScript({ scriptStr: action.script, queryArgs });
           const scriptWork = execute(this.getTopWork().bundleId, target, {
             all: true,
           });
@@ -131,7 +131,7 @@ function handleAction(
         case 'open':
           action = action as OpenAction;
           logColor = chalk.blueBright;
-          target = applyArgsToScript({ str: action.target, queryArgs });
+          target = applyArgsToScript({ scriptStr: action.target, queryArgs });
 
           openFile(target);
           log();
@@ -146,7 +146,7 @@ function handleAction(
         case 'clipboard':
           action = action as ClipboardAction;
           logColor = chalk.greenBright;
-          target = applyArgsToScript({ str: action.text, queryArgs });
+          target = applyArgsToScript({ scriptStr: action.text, queryArgs });
           copyToClipboard(target);
           log();
           break;
@@ -174,7 +174,7 @@ function handleAction(
           action = action as CondAction;
           logColor = chalk.magentaBright;
           target = applyArgsToScript({
-            str: action.if.cond,
+            scriptStr: action.if.cond,
             queryArgs,
             appendQuotes: true,
           });

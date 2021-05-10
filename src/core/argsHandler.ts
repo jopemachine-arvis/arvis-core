@@ -3,20 +3,20 @@ import { escapeBraket, replaceAll } from '../utils';
 import { WorkManager } from './workManager';
 
 const applyArgsToScript = ({
-  str,
+  scriptStr,
   queryArgs,
   appendQuotes,
 }: {
-  str: string;
+  scriptStr: string;
   queryArgs: object;
   appendQuotes?: boolean;
 }) => {
   for (const key of Object.keys(queryArgs)) {
     const newStr =
       appendQuotes === true ? `"${queryArgs[key].trim()}"` : queryArgs[key];
-    str = replaceAll(str, key, newStr);
+    scriptStr = replaceAll(scriptStr, key, newStr);
   }
-  return str;
+  return scriptStr.trim();
 };
 
 // Get args from script in correct order

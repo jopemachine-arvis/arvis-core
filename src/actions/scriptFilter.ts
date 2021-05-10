@@ -1,4 +1,4 @@
-import execa, { ExecaError } from 'execa';
+import execa, { ExecaError } from '../../execa';
 import { WorkManager } from '../core';
 import { extractArgsFromQuery } from '../core/argsHandler';
 import { handleScriptFilterChange } from '../core/scriptFilterChangeHandler';

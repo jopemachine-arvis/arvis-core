@@ -1,5 +1,5 @@
-import execa from 'execa';
 import _ from 'lodash';
+import execa from '../../execa';
 import { scriptFilterExcute } from '../actions/scriptFilter';
 import '../types';
 import extractJson from '../utils/extractJson';

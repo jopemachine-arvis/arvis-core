@@ -14,14 +14,14 @@ const handleScriptFilterChange = (
   queryArgs: object,
   options?: ScriptFilterChangeHandlerOption,
 ) => {
-  const script = command
-    .script_filter!.split(' ')
-    .map((str: string) => {
-      return escapeBraket(str);
-    })
-    .join(' ');
+  if (command.type !== 'scriptfilter') {
+    throw new Error(`Command is not scriptfilter! ${command}`);
+  }
 
-  const scriptStr = applyArgsToScript({ str: script, queryArgs });
+  // const script = command.script_filter!.split(' ').map(escapeBraket).join(' ');
+  const script = command.script_filter!;
+
+  const scriptStr = applyArgsToScript({ scriptStr: script, queryArgs });
 
   const workManager = WorkManager.getInstance();
 
