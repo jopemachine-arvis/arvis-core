@@ -1,4 +1,4 @@
-import convert from 'arvis-plist-converter';
+import alfredWorkflowPlistConvert from 'arvis-plist-converter';
 import chmodr from 'chmodr';
 import * as fse from 'fs-extra';
 import path from 'path';
@@ -57,7 +57,7 @@ const installByPath = async (installedPath: string): Promise<void | Error> => {
 };
 
 /**
- * @param  {string} installFile
+ * @param  {string} installFile arvisworkflow files or alfredworkflow files
  * @return {Promise<void | Error>}
  */
 const install = async (installFile: string): Promise<void | Error> => {
@@ -104,7 +104,7 @@ const install = async (installFile: string): Promise<void | Error> => {
 
       // Need to convert alfred's info.plist to json first
       if (installFile.endsWith('.alfredworkflow')) {
-        await convert(
+        await alfredWorkflowPlistConvert(
           `${installedPath}${path.sep}info.plist`,
           `${installedPath}${path.sep}arvis-workflow.json`
         );
@@ -121,7 +121,7 @@ const install = async (installFile: string): Promise<void | Error> => {
 };
 
 /**
- * @param  {{bundleId:string}} {bundleId}
+ * @param  {{bundleId:string}} bundleId
  * @return {Promise<void>}
  */
 const unInstall = async ({ bundleId }: { bundleId: string }): Promise<void> => {

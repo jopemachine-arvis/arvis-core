@@ -26,9 +26,6 @@ const scriptErrorHandler = (err: ExecaError) => {
   }
 };
 
-/**
- * @param  {boolean} disabled
- */
 const printDebuggingLog = (disabled: boolean) => (
   color: Function,
   type: string,

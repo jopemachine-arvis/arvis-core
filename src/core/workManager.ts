@@ -63,12 +63,27 @@ export class WorkManager {
     this.handleAction = handleAction.bind(this);
   }
 
+  /**
+   * @summary
+   */
   getTopWork = () => {
     return this.workStk[this.workStk.length - 1];
   }
 
+  /**
+   * @summary
+   */
   clearWorkStack = () => {
     this.workStk.length = 0;
+  }
+
+  /**
+   * @summary
+   */
+  updateTopWork = (keyValueDict: object) => {
+    for (const key of Object.keys(keyValueDict)) {
+      this.workStk[this.workStk.length - 1][key] = keyValueDict[key];
+    }
   }
 
   /**
@@ -78,12 +93,18 @@ export class WorkManager {
     return this.workStk.length === 0;
   }
 
+  /**
+   * @summary
+   */
   workIsPending = () => {
     return (
       this.workStk.length >= 1 && this.getTopWork().workCompleted === false
     );
   }
 
+  /**
+   * @param {Work} work
+   */
   pushWork = (work: Work) => {
     this.workStk.push(work);
     this.debugWorkStk();
@@ -193,6 +214,9 @@ export class WorkManager {
     this.onItemShouldBeUpdate(swap);
   }
 
+  /**
+   * @summary
+   */
   hasNestedScriptFilters = () => {
     return (
       this.workStk.filter((work: Work) => work.type === 'scriptfilter')
@@ -254,6 +278,9 @@ export class WorkManager {
     return 'Unsupported type error';
   }
 
+  /**
+   * @summary
+   */
   debugWorkStk = () => {
     if (!this.printWorkStack) return;
 

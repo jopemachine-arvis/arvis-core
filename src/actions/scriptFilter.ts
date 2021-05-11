@@ -7,30 +7,25 @@ import { handleScriptFilterChange } from '../core/scriptFilterChangeHandler';
  * @param  {execa.ExecaReturnValue<string>} result
  */
 function scriptFilterCompleteEventHandler(
-  result: execa.ExecaReturnValue<string>
+  scriptFilterResult: execa.ExecaReturnValue<string>
 ) {
   const workManager = WorkManager.getInstance();
-  const stdout = JSON.parse(result.stdout) as ScriptFilterResult;
+  const stdout = JSON.parse(scriptFilterResult.stdout) as ScriptFilterResult;
 
   workManager.printScriptfilter &&
     console.log('[SF Result]', stdout);
 
   const { items, rerun: rerunInterval, variables } = stdout;
 
-  workManager.globalVariables = {
-    ...variables,
-    ...workManager.globalVariables,
-  };
-
-  workManager.workStk[
-    workManager.workStk.length - 1
-  ].rerunInterval = rerunInterval;
-
-  workManager.workStk[
-    workManager.workStk.length - 1
-  ].items = items;
-
-  workManager.workStk[workManager.workStk.length - 1].workCompleted = true;
+  workManager.updateTopWork({
+    items,
+    rerunInterval,
+    workCompleted: true,
+    globalVariables: {
+      ...variables,
+      ...workManager.globalVariables,
+    }
+  });
 
   const { bundleId } = workManager.getTopWork();
   const workflowDefaultIcon = getWorkflowList()[bundleId].defaultIcon;
@@ -130,7 +125,9 @@ async function scriptFilterExcute(
     extractedArgs
   );
 
-  workManager.workStk[workManager.workStk.length - 1].workProcess = scriptWork;
+  workManager.updateTopWork({
+    workProcess: scriptWork,
+  });
 
   scriptWork
     .then((result) => {

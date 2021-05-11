@@ -1,6 +1,6 @@
 import '.';
 
-// Add more attributes if necessary
+// To do :: Add more attributes if necessary
 export interface WorkflowConfigFile {
   bundleId: string;
   commands: Command[];

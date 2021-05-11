@@ -10,8 +10,12 @@ import {
 
 import helpManual from './config/getHelpStr';
 
-// cli main function
-const cliFunc = async (input, flags): Promise<string> => {
+/**
+ * @param  {string[]} input
+ * @param  {any} flags
+ * @summary cli main function
+ */
+const cliFunc = async (input: string[], flags: any): Promise<string> => {
   switch (input[0]) {
     case 'l':
     case 'list':

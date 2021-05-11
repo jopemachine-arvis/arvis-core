@@ -36,8 +36,6 @@ const getAppliedArgsFromScript = (scriptStr: string, args: any) => {
   argsArr.fill('');
 
   for (const arg of Object.keys(args)) {
-    // 따옴표 때문에 아래 같은 케이스에서 안 잡히는 경우가 많다. 따옴표 처리 어떻게 할 것인지 명확히 정할 것.
-    // args에 작은 따옴표로 감싸진 경우, 큰 따옴표로 감싸진 경우 다 넣어버릴까?
     if (strArr.includes(`'${arg}'`)) {
       const order = strArr.indexOf(`'${arg}'`);
       argsArr[order] = args[arg];
