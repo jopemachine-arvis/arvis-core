@@ -93,7 +93,7 @@ export class Store {
             const workflowInfo = await fse.readJson(workflow);
             this.setWorkflow(workflowInfo);
           } catch (err) {
-            throw new Error(err);
+            throw new Error('workflow file format error' + err);
           }
         }
         resolve(true);

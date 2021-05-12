@@ -2,6 +2,7 @@ import alfredWorkflowPlistConvert from 'arvis-plist-converter';
 import chmodr from 'chmodr';
 import * as fse from 'fs-extra';
 import path from 'path';
+import rimraf from 'rimraf';
 import unzipper from 'unzipper';
 import { v4 as uuidv4 } from 'uuid';
 import { getWorkflowInstalledPath } from '../config/path';
@@ -104,10 +105,15 @@ const install = async (installFile: string): Promise<void | Error> => {
 
       // Need to convert alfred's info.plist to json first
       if (installFile.endsWith('.alfredworkflow')) {
-        await alfredWorkflowPlistConvert(
-          `${installedPath}${path.sep}info.plist`,
-          `${installedPath}${path.sep}arvis-workflow.json`
-        );
+        try {
+          await alfredWorkflowPlistConvert(
+            `${installedPath}${path.sep}info.plist`,
+            `${installedPath}${path.sep}arvis-workflow.json`
+          );
+        } catch (err) {
+          fse.remove(extractedPath);
+          reject(err);
+        }
       }
 
       installByPath(installedPath)
@@ -128,13 +134,12 @@ const unInstall = async ({ bundleId }: { bundleId: string }): Promise<void> => {
   const store = Store.getInstance();
 
   try {
-    const installedDir = getWorkflowInstalledPath(bundleId!);
+    const installedDir = getWorkflowInstalledPath(bundleId);
 
-    if (await fse.pathExists(installedDir)) {
-      await fse.remove(installedDir);
-    }
+    rimraf(installedDir, () => {
+      store.deleteWorkflow(bundleId);
+    });
 
-    store.deleteWorkflow(bundleId!);
   } catch (e) {
     throw new Error(e);
   }
