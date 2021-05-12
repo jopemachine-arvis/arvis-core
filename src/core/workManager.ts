@@ -422,16 +422,16 @@ export class WorkManager {
 
       if (exists(targetActions)) {
         for (const nextAction of targetActions) {
-          const nextInput = this.getNextActionsInput(
-            nextAction,
-            actionResult.args
-          );
-
           // 왜 여기에 keyword를 뒀더라..? 생각이 안 남...
           if (
             nextAction.type === 'scriptfilter' ||
             nextAction.type === 'keyword'
           ) {
+            const nextInput = this.getNextActionsInput(
+              nextAction,
+              actionResult.args
+            );
+
             this.pushWork({
               type: nextAction.type,
               input: nextInput,
@@ -441,19 +441,20 @@ export class WorkManager {
               workProcess: null,
               workCompleted: false,
             });
+
+            if (nextAction.type === 'scriptfilter') {
+              scriptFilterExcute(nextInput);
+
+              this.onItemPressHandler && this.onItemPressHandler();
+              this.onInputShouldBeUpdate &&
+                this.onInputShouldBeUpdate({
+                  str: nextInput + ' ',
+                  needItemsUpdate: false,
+                });
+              return;
+            }
           }
 
-          if (nextAction.type === 'scriptfilter') {
-            scriptFilterExcute(nextInput);
-
-            this.onItemPressHandler && this.onItemPressHandler();
-            this.onInputShouldBeUpdate &&
-              this.onInputShouldBeUpdate({
-                str: nextInput + ' ',
-                needItemsUpdate: false,
-              });
-            return;
-          }
         }
       }
     }

@@ -13,11 +13,14 @@ const findCommands = (inputStr: string) => {
     if (commandStr.startsWith(inputStr.trimRight())) {
       for (const command of commands[commandStr]) {
         const { bundleId } = command;
-        const defaultIcon = getWorkflowList()[bundleId].defaultIcon;
-        command.icon = {
-          path: defaultIcon,
-        };
-        searchResult.push(command);
+        const { defaultIcon, enabled } = getWorkflowList()[bundleId];
+
+        if (enabled) {
+          command.icon = {
+            path: defaultIcon,
+          };
+          searchResult.push(command);
+        }
       }
     }
   }

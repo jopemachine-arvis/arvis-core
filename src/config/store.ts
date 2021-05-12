@@ -69,6 +69,9 @@ export class Store {
 
   /**
    * @param  {string} bundleId?
+   * @summary Renew workflows info based on workflowInstallPath's arvis-workflow.json
+   *          This funtion is called by file watcher if arvis-workflow.json's changes are detected.
+   * @description If bundleId is given, renew only that workflow info.
    */
   async renewWorkflows(bundleId?: string) {
     if (!bundleId) this.store = new Map<string, any>();

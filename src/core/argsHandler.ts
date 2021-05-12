@@ -3,9 +3,9 @@ import { escapeBraket, replaceAll } from '../utils';
 import { WorkManager } from './workManager';
 
 /**
- * @param  {} scriptStr
- * @param  {} queryArgs
- * @param  {} appendQuotes
+ * @param  {string} scriptStr
+ * @param  {object} queryArgs
+ * @param  {boolean} appendQuotes
  * @return {string} argsAppliedScriptStr
  */
 const applyArgsToScript = ({
