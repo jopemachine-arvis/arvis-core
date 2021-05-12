@@ -1,7 +1,49 @@
+import { xml2json } from 'xml-js';
 import execa, { ExecaError } from '../../execa';
 import { getWorkflowList, WorkManager } from '../core';
 import { extractArgsFromQuery } from '../core/argsHandler';
 import { handleScriptFilterChange } from '../core/scriptFilterChangeHandler';
+
+/**
+ * @param  {string} stdout
+ */
+const parseStdout = (stdout: string): ScriptFilterResult => {
+  try {
+    if (stdout.startsWith('<?xml')) {
+      const target = JSON.parse(
+        xml2json(stdout, { compact: true, ignoreDeclaration: true })
+      );
+      const getValue = (obj: object | undefined, key: string) => {
+        if (obj) return obj[key];
+        return undefined;
+      };
+
+      const items = target.items.item ? target.items.item.map(item => {
+        const eachItem = {};
+        eachItem['title'] = getValue(item.title, '_text');
+        eachItem['subtitle'] = getValue(item.title, '_text');
+        eachItem['uid'] = getValue(item._attributes, 'uid');
+        eachItem['arg'] = getValue(item._attributes, 'arg');
+        eachItem['autocomplete'] = getValue(item._attributes, 'autocomplete');
+        eachItem['icon'] = {
+          path: getValue(item.icon, '_text')
+        };
+
+        return eachItem;
+      }) : [];
+
+      return {
+        items,
+        variables: {},
+        rerun: undefined,
+      };
+    } else {
+      return JSON.parse(stdout) as ScriptFilterResult;
+    }
+  } catch (err) {
+    throw new Error(`Script format error! ${err}`);
+  }
+};
 
 /**
  * @param  {execa.ExecaReturnValue<string>} result
@@ -10,7 +52,7 @@ function scriptFilterCompleteEventHandler(
   scriptFilterResult: execa.ExecaReturnValue<string>
 ) {
   const workManager = WorkManager.getInstance();
-  const stdout = JSON.parse(scriptFilterResult.stdout) as ScriptFilterResult;
+  const stdout = parseStdout(scriptFilterResult.stdout);
 
   workManager.printScriptfilter && console.log('[SF Result]', stdout);
 

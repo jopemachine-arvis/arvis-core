@@ -2,9 +2,34 @@ import envPathsGenerator from 'env-paths';
 import path from 'path';
 
 const envPaths = envPathsGenerator('arvis');
+
 const installedDataPath = envPaths.data;
+// Store workflow's data
+const workflowDataPath = `${installedDataPath}${path.sep}workflow-data`;
+
+// Store workflow files
 const workflowInstallPath = `${installedDataPath}${path.sep}workflows`;
+
+// Store plugin's files
 const pluginInstallPath = `${installedDataPath}${path.sep}plugins`;
+
+// Store workflow's caches
+const cachePath = envPaths.cache;
+const workflowCache = `${cachePath}${path.sep}workflow-cache`;
+
+/**
+ * @param  {string} bundleId
+ */
+const getWorkflowDataPath = (bundleId: string) => {
+  return `${workflowDataPath}${path.sep}${bundleId}`;
+};
+
+/**
+ * @param  {string} bundleId
+ */
+const getWorkflowCachePath = (bundleId: string) => {
+  return `${workflowCache}${path.sep}${bundleId}`;
+};
 
 /**
  * @param  {string} bundleId
@@ -31,9 +56,11 @@ export {
   installedDataPath,
   workflowInstallPath,
   pluginInstallPath,
+  getWorkflowCachePath,
   getWorkflowInstalledPath,
   getWorkflowConfigJsonPath,
-  getPluginInstalledPath
+  getPluginInstalledPath,
+  getWorkflowDataPath,
 };
 
 export default {
@@ -42,5 +69,5 @@ export default {
   pluginInstallPath,
   getWorkflowConfigJsonPath,
   getWorkflowInstalledPath,
-  getPluginInstalledPath
+  getPluginInstalledPath,
 };

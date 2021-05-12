@@ -1,7 +1,11 @@
 import _ from 'lodash';
 import path from 'path';
 import execa from '../../execa';
-import { getWorkflowInstalledPath } from '../config/path';
+import {
+  getWorkflowCachePath,
+  getWorkflowDataPath,
+  getWorkflowInstalledPath,
+} from '../config/path';
 
 type ScriptExecuterOption = {
   all?: boolean;
@@ -30,8 +34,14 @@ const execute = (
   }
 
   const env = {
-    // Environment variable setting for 'alfy' compatibility
-    alfred_workflow_cache: bundleId,
+
+  };
+  const alfredWorkflowEnv = {
+    // Environment variable setting for alfred workflows
+    alfred_debug: '1',
+    alfred_version: '4.3.4',
+    alfred_workflow_data: getWorkflowDataPath(bundleId),
+    alfred_workflow_cache: getWorkflowCachePath(bundleId),
   };
 
   // 100MB
@@ -45,7 +55,6 @@ const execute = (
     cleanup: true,
     cwd: execPath,
     encoding: 'utf8',
-    env,
     extendEnv: true,
     killSignal: 'SIGTERM',
     maxBuffer,
@@ -54,6 +63,10 @@ const execute = (
     shell: false,
     timeout,
     windowsHide: true,
+    env: {
+      ...env,
+      ...alfredWorkflowEnv
+    },
   });
 };
 
