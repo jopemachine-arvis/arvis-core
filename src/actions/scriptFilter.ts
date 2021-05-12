@@ -12,8 +12,7 @@ function scriptFilterCompleteEventHandler(
   const workManager = WorkManager.getInstance();
   const stdout = JSON.parse(scriptFilterResult.stdout) as ScriptFilterResult;
 
-  workManager.printScriptfilter &&
-    console.log('[SF Result]', stdout);
+  workManager.printScriptfilter && console.log('[SF Result]', stdout);
 
   const { items, rerun: rerunInterval, variables } = stdout;
 
@@ -24,7 +23,7 @@ function scriptFilterCompleteEventHandler(
     globalVariables: {
       ...variables,
       ...workManager.globalVariables,
-    }
+    },
   });
 
   const { bundleId } = workManager.getTopWork();
@@ -35,7 +34,7 @@ function scriptFilterCompleteEventHandler(
     item.bundleId = bundleId;
     // Append workflow's defaultIcon
     item.icon = item.icon ?? {
-      path: workflowDefaultIcon
+      path: workflowDefaultIcon,
     };
   });
 
@@ -43,7 +42,7 @@ function scriptFilterCompleteEventHandler(
     throw new Error('renderer update funtions are not set!');
   }
 
-  workManager.onItemShouldBeUpdate(items);
+  workManager.onItemShouldBeUpdate({ items, needIndexInfoClear: true });
 }
 
 /**

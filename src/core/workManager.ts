@@ -48,7 +48,15 @@ export class WorkManager {
 
   onWorkEndHandler?: () => void;
   onItemPressHandler?: () => void;
-  onItemShouldBeUpdate?: (items: ScriptFilterItem[]) => void;
+
+  onItemShouldBeUpdate?: ({
+    items,
+    needIndexInfoClear,
+  }: {
+    items: ScriptFilterItem[];
+    needIndexInfoClear: boolean;
+  }) => void;
+
   onInputShouldBeUpdate?: ({
     str,
     needItemsUpdate,
@@ -126,7 +134,10 @@ export class WorkManager {
       this.workStk.pop();
       if (this.getTopWork().type !== 'scriptfilter') return;
 
-      this.onItemShouldBeUpdate(this.getTopWork().items!);
+      this.onItemShouldBeUpdate({
+        items: this.getTopWork().items!,
+        needIndexInfoClear: true,
+      });
       this.onInputShouldBeUpdate({
         str: this.getTopWork().input,
         needItemsUpdate: false,
@@ -135,7 +146,7 @@ export class WorkManager {
       this.debugWorkStk();
     } else {
       this.clearWorkStack();
-      this.onItemShouldBeUpdate([]);
+      this.onItemShouldBeUpdate({ items: [], needIndexInfoClear: true });
       this.onWorkEndHandler();
       return;
     }
@@ -152,20 +163,92 @@ export class WorkManager {
     }
 
     if (errorItems.length !== 0) {
-      this.onItemShouldBeUpdate(errorItems);
+      this.onItemShouldBeUpdate({
+        items: errorItems,
+        needIndexInfoClear: true,
+      });
     } else {
-      this.onItemShouldBeUpdate([
-        {
-          valid: false,
-          title: err.name,
-          subtitle: err.message,
-          text: {
-            copy: err.message,
-            largetype: err.message,
+      this.onItemShouldBeUpdate({
+        items: [
+          {
+            valid: false,
+            title: err.name,
+            subtitle: err.message,
+            text: {
+              copy: err.message,
+              largetype: err.message,
+            },
           },
-        },
-      ]);
+        ],
+        needIndexInfoClear: true,
+      });
     }
+  }
+
+  /**
+   * @param  {number} selectedItemIdx
+   * @param  {ModifierInput} modifiers
+   */
+  setModifierOnScriptFilterItem = (selectedItemIdx: number, modifiers: ModifierInput) => {
+    if (!this.onItemShouldBeUpdate) {
+      throw new Error('renderer update funtions are not set!');
+    }
+    if (
+      this.hasEmptyWorkStk() ||
+      this.getTopWork().type !== 'scriptfilter' ||
+      !this.getTopWork().workCompleted
+    ) {
+      return;
+    }
+
+    const pressedModifier: string = _.filter(
+      Object.keys(modifiers),
+      (modifier: string) => {
+        return modifiers[modifier] === true ? true : false;
+      }
+    )[0];
+
+    const items = _.map(this.getTopWork().items, _.cloneDeep);
+
+    if (!pressedModifier || !items || !items.length) {
+      return;
+    }
+
+    if (items[selectedItemIdx].mods) {
+      const targetMods = items[selectedItemIdx].mods![pressedModifier];
+      const modifiersAttributes = Object.keys(targetMods);
+      for (const modifierAttribute of modifiersAttributes) {
+        items[selectedItemIdx][modifierAttribute] = targetMods[modifierAttribute];
+      }
+    } else {
+      items[selectedItemIdx] = {
+        ...items[selectedItemIdx],
+        subtitle: '',
+      };
+    }
+
+    this.onItemShouldBeUpdate({ items, needIndexInfoClear: false });
+  }
+
+  /**
+   * @summary
+   */
+  clearModifierOnScriptFilterItem = () => {
+    if (!this.onItemShouldBeUpdate) {
+      throw new Error('renderer update funtions are not set!');
+    }
+    if (
+      this.hasEmptyWorkStk() ||
+      this.getTopWork().type !== 'scriptfilter' ||
+      !this.getTopWork().workCompleted
+    ) {
+      return;
+    }
+
+    this.onItemShouldBeUpdate({
+      items: this.getTopWork().items!,
+      needIndexInfoClear: false,
+    });
   }
 
   /**
@@ -211,7 +294,7 @@ export class WorkManager {
       subtitle: runningSubText,
     };
 
-    this.onItemShouldBeUpdate(swap);
+    this.onItemShouldBeUpdate({ items: swap, needIndexInfoClear: true });
   }
 
   /**
@@ -376,7 +459,8 @@ export class WorkManager {
     }
 
     this.clearWorkStack();
-    this.onItemShouldBeUpdate && this.onItemShouldBeUpdate([]);
+    this.onItemShouldBeUpdate &&
+      this.onItemShouldBeUpdate({ items: [], needIndexInfoClear: true });
     this.onItemPressHandler && this.onItemPressHandler();
     this.onWorkEndHandler && this.onWorkEndHandler();
   }
