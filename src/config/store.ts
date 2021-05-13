@@ -74,8 +74,6 @@ export class Store {
    * @description If bundleId is given, renew only that workflow info.
    */
   async renewWorkflows(bundleId?: string) {
-    if (!bundleId) this.store = new Map<string, any>();
-
     return new Promise((resolve, reject) => {
       recursiveReaddir(workflowInstallPath, async (err, files) => {
         if (err) {
@@ -91,14 +89,21 @@ export class Store {
           return filePath.endsWith('arvis-workflow.json');
         });
 
+        const workflowInfoArr: any[] = [];
         for (const workflow of files) {
           try {
             const workflowInfo = await fse.readJson(workflow);
-            this.setWorkflow(workflowInfo);
+            workflowInfoArr.push(workflowInfo);
           } catch (err) {
             throw new Error('workflow file format error' + err);
           }
         }
+
+        if (!bundleId) this.store = new Map<string, any>();
+        for (const workflowInfo of workflowInfoArr) {
+          this.setWorkflow(workflowInfo);
+        }
+
         resolve(true);
       });
     });
