@@ -1,5 +1,7 @@
 import envPathsGenerator from 'env-paths';
+import fse from 'fs-extra';
 import path from 'path';
+import { checkFileExists } from '../utils';
 
 const envPaths = envPathsGenerator('arvis');
 
@@ -15,7 +17,22 @@ const pluginInstallPath = `${installedDataPath}${path.sep}plugins`;
 
 // Store workflow's caches
 const cachePath = envPaths.cache;
-const workflowCache = `${cachePath}${path.sep}workflow-cache`;
+const workflowCachePath = `${cachePath}${path.sep}workflow-cache`;
+
+/**
+ * @summary Create the necessary paths for the Arvis if they don't exists
+ */
+const initializePath = async () => {
+  if (!(await checkFileExists(workflowInstallPath))) {
+    await fse.mkdir(workflowInstallPath, { recursive: true });
+  }
+  if (!(await checkFileExists(workflowDataPath))) {
+    await fse.mkdir(workflowDataPath, { recursive: true });
+  }
+  if (!(await checkFileExists(workflowCachePath))) {
+    await fse.mkdir(workflowCachePath, { recursive: true });
+  }
+};
 
 /**
  * @param  {string} bundleId
@@ -28,7 +45,7 @@ const getWorkflowDataPath = (bundleId: string) => {
  * @param  {string} bundleId
  */
 const getWorkflowCachePath = (bundleId: string) => {
-  return `${workflowCache}${path.sep}${bundleId}`;
+  return `${workflowCachePath}${path.sep}${bundleId}`;
 };
 
 /**
@@ -61,13 +78,17 @@ export {
   getWorkflowConfigJsonPath,
   getPluginInstalledPath,
   getWorkflowDataPath,
+  initializePath,
 };
 
 export default {
   installedDataPath,
   workflowInstallPath,
   pluginInstallPath,
-  getWorkflowConfigJsonPath,
+  getWorkflowCachePath,
   getWorkflowInstalledPath,
+  getWorkflowConfigJsonPath,
   getPluginInstalledPath,
+  getWorkflowDataPath,
+  initializePath,
 };

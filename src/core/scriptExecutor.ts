@@ -34,14 +34,27 @@ const execute = (
   }
 
   const env = {
-
+    arvis_workflow_data: getWorkflowDataPath(bundleId),
+    arvis_workflow_cache: getWorkflowCachePath(bundleId),
   };
+
+  // Environment variable setting for alfred workflows
   const alfredWorkflowEnv = {
-    // Environment variable setting for alfred workflows
     alfred_debug: '1',
     alfred_version: '4.3.4',
-    alfred_workflow_data: getWorkflowDataPath(bundleId),
-    alfred_workflow_cache: getWorkflowCachePath(bundleId),
+    alfred_workflow_bundleid: bundleId,
+    alfred_workflow_cache: env.arvis_workflow_cache,
+    alfred_workflow_data: env.arvis_workflow_data,
+    alfred_workflow_name: bundleId,
+    alfred_workflow_uid: bundleId,
+
+    // mock data
+    alfred_preferences: '',
+    alfred_preferences_localhash: '',
+    alfred_theme: '',
+    alfred_theme_background: '',
+    alfred_theme_subtext: '',
+    alfred_version_build: '',
   };
 
   // 100MB

@@ -214,11 +214,15 @@ export class WorkManager {
       return;
     }
 
-    if (items[selectedItemIdx].mods) {
+    if (
+      items[selectedItemIdx].mods &&
+      items[selectedItemIdx].mods![pressedModifier]
+    ) {
       const targetMods = items[selectedItemIdx].mods![pressedModifier];
       const modifiersAttributes = Object.keys(targetMods);
       for (const modifierAttribute of modifiersAttributes) {
-        items[selectedItemIdx][modifierAttribute] = targetMods[modifierAttribute];
+        items[selectedItemIdx][modifierAttribute] =
+          targetMods[modifierAttribute];
       }
     } else {
       items[selectedItemIdx] = {
@@ -325,8 +329,12 @@ export class WorkManager {
       item = item as Command;
       actions = [item];
 
-      const [_commandTitle, queryStr] = inputStr.split(item.title);
-      args = extractArgsFromQuery(queryStr ? queryStr.trim().split(' ') : []);
+      const [_commandTitle, queryStr] = inputStr.split(
+        (item as Command).command!
+      );
+      args = extractArgsFromQuery(
+        queryStr ? queryStr.trim().split((item as Command).command!) : []
+      );
 
       // keyword, scriptfilter, or other starting node
       this.pushWork({

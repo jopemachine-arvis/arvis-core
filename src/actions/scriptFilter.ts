@@ -1,3 +1,5 @@
+// tslint:disable: no-string-literal
+import _ from 'lodash';
 import { xml2json } from 'xml-js';
 import execa, { ExecaError } from '../../execa';
 import { getWorkflowList, WorkManager } from '../core';
@@ -5,43 +7,94 @@ import { extractArgsFromQuery } from '../core/argsHandler';
 import { handleScriptFilterChange } from '../core/scriptFilterChangeHandler';
 
 /**
+ * @param  {any} variables
+ * @summary Extract variables from xml format's ScriptFilterItem
+ */
+const xmlExtractGlobalVars = (variables: any) => {
+  return _.reduce(
+    variables.variable.map((variable) => {
+      return {
+        [variable._attributes.name]: variable._text,
+      };
+    }),
+    (prev, curr) => {
+      curr[Object.keys(prev)[0]] = Object.values(prev)[0];
+      return curr;
+    },
+    {}
+  );
+};
+
+/**
+ * @param  {any} xmlScriptFilterItem
+ * @summary Convert xml format's ScriptFilterItem to json format's ScriptFilterItem
+ */
+const xmlScriptFilterItemToJsonScriptFilterItem = (xmlScriptFilterItem: any) => {
+  const extractValue = (obj: object | undefined, key: string) => {
+    if (obj) return obj[key];
+    return undefined;
+  };
+
+  const eachItem = {};
+  // * Attributes
+  eachItem['uid'] = extractValue(xmlScriptFilterItem._attributes, 'uid');
+  eachItem['arg'] = extractValue(xmlScriptFilterItem._attributes, 'arg');
+  eachItem['autocomplete'] = extractValue(xmlScriptFilterItem._attributes, 'autocomplete');
+  eachItem["valid"] = extractValue(xmlScriptFilterItem._attributes, "valid");
+  eachItem["type"] = extractValue(xmlScriptFilterItem._attributes, "type");
+
+  // * Elements
+  eachItem['title'] = extractValue(xmlScriptFilterItem.title, '_text');
+  eachItem['subtitle'] = extractValue(xmlScriptFilterItem.subtitle, '_text');
+
+  // To do :: Add below elements here
+  eachItem['mod'] = {};
+  eachItem['text'] = {
+    copy: extractValue(xmlScriptFilterItem.text, '_text'),
+    largetype: ''
+  };
+  eachItem['quicklookurl'] = extractValue(xmlScriptFilterItem.quicklookurl, '_text');
+  eachItem['icon'] = {
+    path: extractValue(xmlScriptFilterItem.icon, '_text')
+  };
+
+  return eachItem;
+};
+
+/**
  * @param  {string} stdout
  */
 const parseStdout = (stdout: string): ScriptFilterResult => {
   try {
     if (stdout.startsWith('<?xml')) {
-      const target = JSON.parse(
+      let target = JSON.parse(
         xml2json(stdout, { compact: true, ignoreDeclaration: true })
       );
-      const getValue = (obj: object | undefined, key: string) => {
-        if (obj) return obj[key];
-        return undefined;
-      };
 
-      const items = target.items.item ? target.items.item.map(item => {
-        const eachItem = {};
-        eachItem['title'] = getValue(item.title, '_text');
-        eachItem['subtitle'] = getValue(item.title, '_text');
-        eachItem['uid'] = getValue(item._attributes, 'uid');
-        eachItem['arg'] = getValue(item._attributes, 'arg');
-        eachItem['autocomplete'] = getValue(item._attributes, 'autocomplete');
-        eachItem['icon'] = {
-          path: getValue(item.icon, '_text')
-        };
+      if (target.output) target = target.output;
 
-        return eachItem;
-      }) : [];
+      const items = target.items.item
+        ? target.items.item.length
+          ? target.items.item.map(xmlScriptFilterItemToJsonScriptFilterItem)
+          : [xmlScriptFilterItemToJsonScriptFilterItem(target.items.item)]
+        : [];
+
+      const variables = target.variables
+        ? xmlExtractGlobalVars(target.variables)
+        : {};
+
+      const rerun = target.rerun ? target.rerun._text : undefined;
 
       return {
         items,
-        variables: {},
-        rerun: undefined,
+        variables,
+        rerun,
       };
     } else {
       return JSON.parse(stdout) as ScriptFilterResult;
     }
   } catch (err) {
-    throw new Error(`Script format error! ${err}`);
+    throw new Error(`Script format error! ${err}\n\nstdout: ${stdout}`);
   }
 };
 
