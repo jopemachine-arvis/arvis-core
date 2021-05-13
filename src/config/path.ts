@@ -19,6 +19,9 @@ const pluginInstallPath = `${installedDataPath}${path.sep}plugins`;
 const cachePath = envPaths.cache;
 const workflowCachePath = `${cachePath}${path.sep}workflow-cache`;
 
+// Store temp files
+const tempPath = envPaths.temp;
+
 /**
  * @summary Create the necessary paths for the Arvis if they don't exists
  */
@@ -31,6 +34,9 @@ const initializePath = async () => {
   }
   if (!(await checkFileExists(workflowCachePath))) {
     await fse.mkdir(workflowCachePath, { recursive: true });
+  }
+  if (!(await checkFileExists(tempPath))) {
+    await fse.mkdir(tempPath, { recursive: true });
   }
 };
 
@@ -70,6 +76,7 @@ const getWorkflowConfigJsonPath = (bundleId: string) => {
 };
 
 export {
+  tempPath,
   installedDataPath,
   workflowInstallPath,
   pluginInstallPath,
@@ -82,6 +89,7 @@ export {
 };
 
 export default {
+  tempPath,
   installedDataPath,
   workflowInstallPath,
   pluginInstallPath,

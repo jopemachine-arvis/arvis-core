@@ -5,7 +5,7 @@ import path from 'path';
 import rimraf from 'rimraf';
 import unzipper from 'unzipper';
 import { v4 as uuidv4 } from 'uuid';
-import { getWorkflowInstalledPath } from '../config/path';
+import { getWorkflowInstalledPath, tempPath } from '../config/path';
 import { Store } from '../config/store';
 import { checkFileExists, sleep } from '../utils';
 
@@ -63,8 +63,8 @@ const installByPath = async (installedPath: string): Promise<void | Error> => {
  */
 const install = async (installFile: string): Promise<void | Error> => {
   let extractedPath: string;
-  let zipFileName: string;
-  let installPipe: unzipper.ParseStream | null;
+  let unzipStream: unzipper.ParseStream | null;
+  const zipFileName: string = installFile.split(path.sep).pop()!;
 
   if (
     installFile.endsWith('.arvisworkflow') ||
@@ -72,12 +72,9 @@ const install = async (installFile: string): Promise<void | Error> => {
   ) {
     // Create temporary folder and delete it after installtion
     const temporaryFolderName = uuidv4();
-    const pathArr = installFile.split(path.sep);
-    zipFileName = pathArr.pop() as string;
-    const dirPath = pathArr.join(path.sep);
 
-    extractedPath = `${dirPath}${path.sep}${temporaryFolderName}`;
-    installPipe = fse
+    extractedPath = `${tempPath}${path.sep}${temporaryFolderName}`;
+    unzipStream = fse
       .createReadStream(installFile)
       .pipe(unzipper.Extract({ path: extractedPath }));
   } else {
@@ -85,7 +82,7 @@ const install = async (installFile: string): Promise<void | Error> => {
   }
 
   return new Promise(async (resolve, reject) => {
-    installPipe!.on('finish', async () => {
+    unzipStream!.on('finish', async () => {
       // Even if the install pipe is finalized, there might be a short time when the file is not created yet.
       // It's not clear, so change below logic if it matters later.
       await sleep(1000);
