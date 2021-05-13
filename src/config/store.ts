@@ -90,13 +90,18 @@ export class Store {
         });
 
         const workflowInfoArr: any[] = [];
+        const readJsonPromises: Promise<any>[] = [];
+
         for (const workflow of files) {
           try {
-            const workflowInfo = await fse.readJson(workflow);
-            workflowInfoArr.push(workflowInfo);
+            readJsonPromises.push(fse.readJson(workflow));
           } catch (err) {
-            throw new Error('workflow file format error' + err);
+            throw new Error('Arvis workflow file format error' + err);
           }
+        }
+
+        for await (const workflowInfo of readJsonPromises) {
+          workflowInfoArr.push(workflowInfo);
         }
 
         if (!bundleId) this.store = new Map<string, any>();
