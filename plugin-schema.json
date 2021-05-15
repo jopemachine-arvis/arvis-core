@@ -1,0 +1,136 @@
+{
+    "title": "Arvis plugin json schema configuration",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "bundleId"
+    ],
+    "definitions": {
+    },
+    "properties": {
+        "$schema": {
+            "type": "string"
+        },
+        "bundleId": {
+            "type": "string",
+            "description": "Plugin's unique bundleId (name)",
+            "markdownDescription": "Plugin's unique bundleId (name)",
+            "defaultSnippets": [
+                {
+                    "label": "Plugin's unique bundleId (name)",
+                    "body": ""
+                }
+            ]
+        },
+        "createdby": {
+            "type": "string",
+            "description": "Plugin's creator name",
+            "markdownDescription": "Plugin's creator name",
+            "defaultSnippets": [
+                {
+                    "label": "Plugin's creator name",
+                    "body": "icon.png"
+                }
+            ]
+        },
+        "defaultIcon": {
+            "type": "string",
+            "description": "Plugin's default icon",
+            "markdownDescription": "Plugin's default icon",
+            "defaultSnippets": [
+                {
+                    "label": "Plugin's default icon",
+                    "body": ""
+                }
+            ]
+        },
+        "description": {
+            "type": "string",
+            "description": "Plugin's description",
+            "markdownDescription": "Plugin's description",
+            "defaultSnippets": [
+                {
+                    "label": "Plugin's description",
+                    "body": ""
+                }
+            ]
+        },
+        "name": {
+            "type": "string",
+            "description": "Plugin's name",
+            "markdownDescription": "Plugin's name",
+            "defaultSnippets": [
+                {
+                    "label": "Plugin's name",
+                    "body": ""
+                }
+            ]
+        },
+        "readme": {
+            "type": "string",
+            "description": "Plugin's readme url",
+            "markdownDescription": "Plugin's readme url",
+            "defaultSnippets": [
+                {
+                    "label": "Plugin's readme url",
+                    "body": ""
+                }
+            ]
+        },
+        "category": {
+            "type": "string",
+            "description": "Plugin's category",
+            "markdownDescription": "Plugin's category",
+            "defaultSnippets": [
+                {
+                    "label": "Plugin's category",
+                    "body": ""
+                }
+            ]
+        },
+        "version": {
+            "type": "string",
+            "description": "Plugin's version",
+            "markdownDescription": "Plugin's version",
+            "defaultSnippets": [
+                {
+                    "label": "Plugin's version",
+                    "body": "0.0.1"
+                }
+            ]
+        },
+        "webaddress": {
+            "type": "string",
+            "description": "Plugin's webaddress url",
+            "markdownDescription": "Plugin's webaddress url",
+            "defaultSnippets": [
+                {
+                    "label": "Plugin's webaddress url",
+                    "body": ""
+                }
+            ]
+        },
+        "enabled": {
+            "type": "boolean",
+            "description": "'Enabled' Status",
+            "markdownDescription": "'Enabled' Status",
+            "defaultSnippets": [
+                {
+                    "label": "'Enabled' Status",
+                    "body": true
+                }
+            ]
+        },
+        "main": {
+            "type": "string",
+            "description": "Entry file to import",
+            "markdownDescription": "Entry file to import",
+            "defaultSnippets": [
+                {
+                    "label": "Entry file to import",
+                    "body": true
+                }
+            ]
+        }
+    }
+}

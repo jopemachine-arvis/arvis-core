@@ -22,7 +22,7 @@ const cliFunc = async (input: string[], flags: any): Promise<string> => {
       return getWorkflowList();
     case 'f':
     case 'find':
-      return findCommands(input[1]);
+      return findCommands(input[1]).toString();
     case 'i':
     case 'install':
       await install(input[1]);

@@ -2,6 +2,7 @@ import { handleAction } from './actionHandler';
 import { findCommands } from './commandFinder';
 import { getCommandList } from './commandList';
 import { findHotkeys } from './hotkeyFinder';
+import { renewPlugins } from './pluginRenewer';
 import { execute } from './scriptExecutor';
 import { exportWorkflow } from './workflowExporter';
 import { install, unInstall } from './workflowInstaller';
@@ -16,15 +17,16 @@ import { registerCustomAction, scriptFilterExcute } from '../actions';
 export {
   execute,
   exportWorkflow,
-  findHotkeys,
   findCommands,
+  findHotkeys,
   getCommandList,
   getWorkflowList,
-  renewWorkflows,
   handleAction,
   install,
   path,
   registerCustomAction,
+  renewPlugins,
+  renewWorkflows,
   scriptFilterExcute,
   unInstall,
   WorkManager,

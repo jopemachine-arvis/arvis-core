@@ -2,8 +2,13 @@ import fse from 'fs-extra';
 import _ from 'lodash';
 import path from 'path';
 import recursiveReaddir from 'recursive-readdir';
+import pluginWorkspace from '../core/pluginWorkspace';
 import { zipDirectory } from '../utils/zip';
-import { getWorkflowInstalledPath, workflowInstallPath } from './path';
+import {
+  getWorkflowInstalledPath,
+  pluginInstallPath,
+  workflowInstallPath,
+} from './path';
 
 /**
  * @param  {object} commands
@@ -31,7 +36,11 @@ const removeOldCommand = (commands: object, bundleId: string) => {
  * @param  {string} bundleId
  * @returns {object} Command object with new commands
  */
-const addCommands = (commands: object, newCommands: any[], bundleId: string) => {
+const addCommands = (
+  commands: object,
+  newCommands: any[],
+  bundleId: string
+) => {
   const ret = commands;
   for (const commandObj of newCommands) {
     commandObj.bundleId = bundleId;
@@ -115,6 +124,62 @@ export class Store {
   }
 
   /**
+   * @param  {boolean} initializePluginWorkspace
+   * @param  {string} bundleId?
+   * @summary Renew plugins info based on pluginInstallPath's arvis-plugin.json
+   *          This funtion is called by file watcher if arvis-plugin.json's changes are detected.
+   * @description If bundleId is given, renew only that plugin info.
+   */
+  renewPlugins = ({
+    initializePluginWorkspace,
+    bundleId,
+  }: {
+    initializePluginWorkspace: boolean;
+    bundleId?: string;
+  }) => {
+    return new Promise((resolve, reject) => {
+      recursiveReaddir(pluginInstallPath, async (err, files) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+
+        files = files.filter((filePath) => {
+          if (bundleId)
+            return filePath.endsWith(`${bundleId}${path.sep}arvis-plugin.json`);
+          return filePath.endsWith('arvis-plugin.json');
+        });
+
+        const pluginInfoArr: any[] = [];
+        const readJsonPromises: Promise<any>[] = [];
+
+        for (const pluginJson of files) {
+          try {
+            readJsonPromises.push(fse.readJson(pluginJson));
+          } catch (err) {
+            throw new Error('Arvis plugin file format error' + err);
+          }
+        }
+
+        for await (const pluginInfo of readJsonPromises) {
+          pluginInfoArr.push(pluginInfo);
+        }
+
+        const newPluginDict: any = bundleId ? this.store.get('plugin') : {};
+        for (const pluginInfo of pluginInfoArr) {
+          newPluginDict[pluginInfo.bundleId] = pluginInfo;
+        }
+        this.store.set('plugin', newPluginDict);
+
+        if (initializePluginWorkspace) {
+          pluginWorkspace.renew(pluginInfoArr);
+        }
+        resolve(true);
+      });
+    });
+  }
+
+  /**
    * @param  {string} key
    * @param  {any} defaultValue
    */
@@ -143,6 +208,13 @@ export class Store {
    */
   getHotkeys() {
     return this.getter('hotkeys', {});
+  }
+
+  /**
+   * @param  {} {}
+   */
+  getPlugins() {
+    return this.getter('plugins', {});
   }
 
   /**

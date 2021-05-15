@@ -1,17 +1,22 @@
 import { getCommandList } from './commandList';
+import { pluginWorkspace } from './pluginWorkspace';
 import { getWorkflowList } from './workflowList';
 
 /**
  * @param  {string} inputStr
+ * @return {(Command | PluginItem)[]}
+ * @description Return commands containing inputStr and plugin execution results
+ *              workflowItem has higher display priority than pluginItem
  */
-const findCommands = (inputStr: string) => {
+const findCommands = (inputStr: string): (Command | PluginItem)[] => {
   const commands = getCommandList();
 
   const searchResult = [] as any;
   for (const commandStr of Object.keys(commands)) {
     // e.g when given inputStr is 'en abc' => output: en
     const isBackwardCandidates =
-      inputStr.split(commandStr).length > 1 && inputStr.startsWith(commandStr + ' ');
+      inputStr.split(commandStr).length > 1 &&
+      inputStr.startsWith(commandStr + ' ');
     // e.g. when given inputStr is 'en' => output: en, enc, enct..
     const isForwardCandidates = commandStr.startsWith(inputStr.trimRight());
 
@@ -35,7 +40,7 @@ const findCommands = (inputStr: string) => {
     }
   }
 
-  return searchResult;
+  return [...searchResult, ...pluginWorkspace.search(inputStr)];
 };
 
 export { findCommands };

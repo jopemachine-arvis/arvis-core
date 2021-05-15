@@ -35,6 +35,9 @@ const initializePath = async () => {
   if (!(await checkFileExists(workflowCachePath))) {
     await fse.mkdir(workflowCachePath, { recursive: true });
   }
+  if (!(await checkFileExists(pluginInstallPath))) {
+    await fse.mkdir(pluginInstallPath, { recursive: true });
+  }
   if (!(await checkFileExists(tempPath))) {
     await fse.mkdir(tempPath, { recursive: true });
   }

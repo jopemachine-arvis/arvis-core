@@ -35,11 +35,12 @@ const printDebuggingLog = (disabled: boolean) => (
   type: string,
   text: string
 ) => {
+  if (disabled) return;
   if (!color || !type || !text) {
     console.error(`Error: [${type}] is not properly set up.`);
     return;
   }
-  !disabled && console.log(color(`[Action: ${type}] `), text);
+  console.log(color(`[Action: ${type}] `), text);
 };
 
 /**
