@@ -6,7 +6,7 @@ export interface Command {
   command?: string;
   bundleId?: string;
   modifiers?: string;
-  script_filter?: string;
+  script_filter?: string | object;
   running_subtext?: string;
   withspace?: boolean;
   type: Keyword | ScriptFilter;

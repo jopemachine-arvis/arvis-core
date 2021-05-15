@@ -38,7 +38,7 @@ const installByPath = async (installedPath: string): Promise<void | Error> => {
 
     const destinationPath = getWorkflowInstalledPath(wfConfig.bundleId);
 
-    if (fse.existsSync(destinationPath)) {
+    if (await checkFileExists(destinationPath)) {
       await fse.remove(destinationPath);
     }
 

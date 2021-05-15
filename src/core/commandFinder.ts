@@ -20,7 +20,7 @@ const findCommands = (inputStr: string) => {
         const { bundleId } = command;
         const { defaultIcon, enabled, arg_type } = getWorkflowList()[bundleId];
 
-        // Except if arg_type is no and query exists
+        // Except if arg_type is 'no' and query exists
         if (arg_type === 'no' && inputStr !== commandStr) {
           break;
         }

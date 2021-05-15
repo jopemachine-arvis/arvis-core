@@ -1,7 +1,7 @@
 import { execute } from '../actions/scriptExecution';
 import '../types';
-import { escapeBraket } from '../utils';
 import { applyArgsToScript } from './argsHandler';
+import { extractScriptOnThisPlatform } from './scriptExtracter';
 import { WorkManager } from './workManager';
 
 type ScriptFilterChangeHandlerOption = {
@@ -28,7 +28,10 @@ const handleScriptFilterChange = (
   // const script = command.script_filter!.split(' ').map(escapeBraket).join(' ');
   const script = command.script_filter!;
 
-  const scriptStr = applyArgsToScript({ scriptStr: script, queryArgs });
+  const scriptStr = applyArgsToScript({
+    scriptStr: extractScriptOnThisPlatform(script),
+    queryArgs,
+  });
 
   const workManager = WorkManager.getInstance();
 

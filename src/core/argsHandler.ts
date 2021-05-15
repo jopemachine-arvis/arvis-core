@@ -16,7 +16,7 @@ const applyArgsToScript = ({
   scriptStr: string;
   queryArgs: object;
   appendQuotes?: boolean;
-}) => {
+}): string => {
   for (const key of Object.keys(queryArgs)) {
     const newStr =
       appendQuotes === true ? `"${queryArgs[key].trim()}"` : queryArgs[key];
@@ -28,9 +28,10 @@ const applyArgsToScript = ({
 /**
  * @param  {string} scriptStr
  * @param  {any} args
+ * @return {string}
  * @summary Get args from script in correct order
  */
-const getAppliedArgsFromScript = (scriptStr: string, args: any) => {
+const getAppliedArgsFromScript = (scriptStr: string, args: any): string => {
   const strArr: string[] = scriptStr.split(' ');
   const argsArr: string[] = new Array(strArr.length);
   argsArr.fill('');
@@ -54,8 +55,9 @@ const getAppliedArgsFromScript = (scriptStr: string, args: any) => {
 
 /**
  * @param  {string[]} querys
+ * @return {object}
  */
-const extractArgsFromQuery = (querys: string[]) => {
+const extractArgsFromQuery = (querys: string[]): object => {
   // To do:: In some cases, the single quotes below may need to be escape.
   const args = { '{query}': querys.join(' '), $1: '' };
 
@@ -80,8 +82,12 @@ const extractArgsFromQuery = (querys: string[]) => {
 /**
  * @param  {ScriptFilterItem} item
  * @param  {any} vars
+ * @return {object}
  */
-const extractArgsFromScriptFilterItem = (item: ScriptFilterItem, vars: any) => {
+const extractArgsFromScriptFilterItem = (
+  item: ScriptFilterItem,
+  vars: any
+): object => {
   let args = {};
   if (item.arg) {
     item.arg = escapeBraket(item.arg);

@@ -11,6 +11,7 @@ import { escapeBraket } from '../utils';
 import { applyArgsToScript } from './argsHandler';
 import { handleModifiers } from './modifierHandler';
 import { execute } from './scriptExecutor';
+import { extractScriptOnThisPlatform } from './scriptExtracter';
 import { WorkManager } from './workManager';
 
 /**
@@ -86,7 +87,8 @@ function handleAction(
         case 'script':
           action = action as ScriptAction;
           logColor = chalk.yellowBright;
-          target = applyArgsToScript({ scriptStr: action.script, queryArgs });
+          const scriptStr = extractScriptOnThisPlatform(action.script);
+          target = applyArgsToScript({ scriptStr, queryArgs });
           const scriptWork = execute(this.getTopWork().bundleId, target, {
             all: true,
           });
@@ -200,11 +202,13 @@ function handleAction(
               : action.if.action.else;
           log();
 
-          nextActions = this.handleAction({
-            actions: conditionalAction,
-            queryArgs,
-            modifiersInput,
-          }).nextActions;
+          if (conditionalAction) {
+            nextActions = this.handleAction({
+              actions: conditionalAction,
+              queryArgs,
+              modifiersInput,
+            }).nextActions;
+          }
           break;
       }
     } catch (e) {

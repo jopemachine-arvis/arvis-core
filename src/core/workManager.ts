@@ -9,6 +9,7 @@ import {
   extractArgsFromScriptFilterItem,
   getAppliedArgsFromScript,
 } from './argsHandler';
+import { extractScriptOnThisPlatform } from './scriptExtracter';
 
 interface Work {
   type: string;
@@ -363,7 +364,10 @@ export class WorkManager {
    */
   getNextActionsInput = (nextAction: Action, args) => {
     if (nextAction.type === 'scriptfilter') {
-      return getAppliedArgsFromScript(nextAction.script_filter, args);
+      return getAppliedArgsFromScript(
+        extractScriptOnThisPlatform(nextAction.script_filter),
+        args
+      );
     }
     console.error(`Unsupported type, '${nextAction.type}'`);
     return 'Unsupported type error';
