@@ -254,6 +254,11 @@
                 }
             ]
         },
+        "platform": {
+            "type": "array",
+            "description": "Target platforms",
+            "markdownDescription": "Target platforms"
+        },
         "commands": {
             "type": "array",
             "description": "Workflow's commands",

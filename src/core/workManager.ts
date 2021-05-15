@@ -36,7 +36,6 @@ export class WorkManager {
   }
 
   workStk: Work[];
-  handleAction: Function;
   globalVariables?: object;
   rerunTimer?: NodeJS.Timeout;
 
@@ -69,7 +68,6 @@ export class WorkManager {
   private constructor() {
     this.workStk = [];
     this.globalVariables = {};
-    this.handleAction = handleAction.bind(this);
   }
 
   /**
@@ -424,7 +422,7 @@ export class WorkManager {
     this.renewInput(inputStr);
 
     while (exists(targetActions)) {
-      actionResult = this.handleAction({
+      actionResult = handleAction({
         actions: targetActions,
         queryArgs: args,
         modifiersInput: modifier,

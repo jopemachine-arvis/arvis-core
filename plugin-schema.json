@@ -131,6 +131,11 @@
                     "body": true
                 }
             ]
+        },
+        "platform": {
+            "type": "array",
+            "description": "Target platforms",
+            "markdownDescription": "Target platforms"
         }
     }
 }

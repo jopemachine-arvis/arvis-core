@@ -13,6 +13,7 @@ import { Command as _Command } from './command';
 import { Keyword as _Keyword } from './inputs/keyword';
 import { ScriptFilter as _ScriptFilter } from './inputs/scriptFilter';
 import { ModifierInput as _ModifierInput } from './modifierInput';
+import { PluginConfigFile as _PluginConfigFile } from './pluginConfig';
 import { PluginItem as _PluginItem } from './pluginItem';
 import { ScriptFilterItem as _ScriptFilterItem } from './scriptFilterItem';
 import { WorkflowConfigFile as _WorkflowConfigFile } from './workflowConfig';
@@ -49,6 +50,7 @@ declare global {
   type ScriptFilterItem = _ScriptFilterItem;
   type ModifierInput = _ModifierInput;
   type WorkflowConfigFile = _WorkflowConfigFile;
+  type PluginConfigFile = _PluginConfigFile;
 }
 
 export default global;

@@ -1,8 +1,7 @@
 import '.';
 
-export interface WorkflowConfigFile {
+export interface PluginConfigFile {
   bundleId: string;
-  commands: Command[];
   name?: string;
   enabled?: boolean;
   category?: string;

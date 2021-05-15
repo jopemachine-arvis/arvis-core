@@ -100,6 +100,7 @@ const parseStdout = (stdout: string): ScriptFilterResult => {
 
 /**
  * @param  {execa.ExecaReturnValue<string>} result
+ * @description Event Handler when scriptfilter's script is complete
  */
 function scriptFilterCompleteEventHandler(
   scriptFilterResult: execa.ExecaReturnValue<string>
@@ -142,6 +143,7 @@ function scriptFilterCompleteEventHandler(
 
 /**
  * @param  {ExecaError} err
+ * @description Handler when scriptfilter's script fails
  */
 function scriptErrorHandler (err: ExecaError) {
   const workManager = WorkManager.getInstance();

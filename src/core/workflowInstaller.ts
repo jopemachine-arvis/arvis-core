@@ -15,34 +15,42 @@ import { checkFileExists, sleep } from '../utils';
  */
 const installByPath = async (installedPath: string): Promise<void | Error> => {
   const store = Store.getInstance();
-  const wfConfFilePath = path.resolve(
+  const workflowConfFilePath = path.resolve(
     path.normalize(`${installedPath}${path.sep}arvis-workflow.json`)
   );
 
   return new Promise(async (resolve, reject) => {
-    let wfConfig;
+    let workflowConfig: WorkflowConfigFile;
     try {
-      wfConfig = await fse.readJson(wfConfFilePath);
+      workflowConfig = await fse.readJson(workflowConfFilePath);
     } catch (err) {
       reject(err);
       return;
     }
 
-    if (!wfConfig.bundleId || wfConfig.bundleId === '') {
-      reject(new Error('Invalid workflow - bundleId is not set!'));
+    if (!workflowConfig.bundleId || workflowConfig.bundleId === '') {
+      reject(new Error('Invalid workflow - bundleId is not set'));
       return;
     }
 
-    const arr = wfConfFilePath.split(path.sep);
-    const wfConfDirPath = arr.slice(0, arr.length - 1).join(path.sep);
+    if (
+      workflowConfig.platform &&
+      !workflowConfig.platform.includes(process.platform)
+    ) {
+      reject(new Error(`This workflows not supports '${process.platform}'`));
+      return;
+    }
 
-    const destinationPath = getWorkflowInstalledPath(wfConfig.bundleId);
+    const arr = workflowConfFilePath.split(path.sep);
+    const workflowConfDirPath = arr.slice(0, arr.length - 1).join(path.sep);
+
+    const destinationPath = getWorkflowInstalledPath(workflowConfig.bundleId);
 
     if (await checkFileExists(destinationPath)) {
       await fse.remove(destinationPath);
     }
 
-    await fse.copy(wfConfDirPath, destinationPath, {
+    await fse.copy(workflowConfDirPath, destinationPath, {
       recursive: true,
       overwrite: true,
       preserveTimestamps: false,
@@ -50,8 +58,8 @@ const installByPath = async (installedPath: string): Promise<void | Error> => {
 
     // Makes scripts, binaries of installed paths executable
     chmodr(destinationPath, 0o777, () => {
-      wfConfig.enabled = wfConfig.enabled ?? true;
-      store.setWorkflow(wfConfig);
+      workflowConfig.enabled = workflowConfig.enabled ?? true;
+      store.setWorkflow(workflowConfig);
       resolve();
     });
   });
@@ -89,10 +97,10 @@ const install = async (installFile: string): Promise<void | Error> => {
 
       const innerPath = zipFileName.split('.')[0];
       const plistPath = `${extractedPath}${path.sep}info.plist`;
-      const arvisWfConfigPath = `${extractedPath}${path.sep}arvis-workflow.json`;
+      const arvisWorkflowConfigPath = `${extractedPath}${path.sep}arvis-workflow.json`;
       // Supports both compressed with folder and compressed without folders
       const containedInfoPlist = await checkFileExists(plistPath);
-      const containedWorkflowConf = await checkFileExists(arvisWfConfigPath);
+      const containedWorkflowConf = await checkFileExists(arvisWorkflowConfigPath);
       const folderNotContained = containedInfoPlist || containedWorkflowConf;
 
       // Suppose it is in the inner folder if it is not in the outer folder. if not, throw error.

@@ -30,38 +30,32 @@ const scriptErrorHandler = (err: ExecaError) => {
 /**
  * @summary
  */
-const printDebuggingLog = (disabled: boolean) => (
-  color: Function,
-  type: string,
-  text: string
-) => {
-  if (disabled) return;
-  if (!color || !type || !text) {
-    console.error(`Error: [${type}] is not properly set up.`);
-    return;
-  }
-  console.log(color(`[Action: ${type}] `), text);
-};
+const printDebuggingLog =
+  (disabled: boolean) => (color: Function, type: string, text: string) => {
+    if (disabled) return;
+    if (!color || !type || !text) {
+      console.error(`Error: [${type}] is not properly set up.`);
+      return;
+    }
+    console.log(color(`[Action: ${type}] `), text);
+  };
 
 /**
- * @param  {WorkManager} this
  * @param  {Action[]} actions
  * @param  {object} queryArgs
  * @param  {ModifierInput} modifiersInput
  * @summary The actions arrangement is taken as a factor to branch according to cond or modifiers.
  */
-function handleAction(
-  this: WorkManager,
-  {
-    actions,
-    queryArgs,
-    modifiersInput,
-  }: {
-    actions: Action[];
-    queryArgs: object;
-    modifiersInput: ModifierInput;
-  }
-) {
+function handleAction({
+  actions,
+  queryArgs,
+  modifiersInput,
+}: {
+  actions: Action[];
+  queryArgs: object;
+  modifiersInput: ModifierInput;
+}) {
+  const workManager = WorkManager.getInstance();
   actions = handleModifiers(actions, modifiersInput);
 
   let target;
@@ -80,7 +74,7 @@ function handleAction(
     }
 
     const log = () => {
-      printDebuggingLog(!this.printActionType)(logColor, type, target);
+      printDebuggingLog(!workManager.printActionType)(logColor, type, target);
     };
 
     try {
@@ -90,14 +84,18 @@ function handleAction(
           logColor = chalk.yellowBright;
           const scriptStr = extractScriptOnThisPlatform(action.script);
           target = applyArgsToScript({ scriptStr, queryArgs });
-          const scriptWork = execute(this.getTopWork().bundleId, target, {
-            all: true,
-          });
+          const scriptWork = execute(
+            workManager.getTopWork().bundleId,
+            target,
+            {
+              all: true,
+            }
+          );
           log();
 
           scriptWork
             .then((result: execa.ExecaReturnValue<string>) => {
-              if (this.printWorkflowOutput) {
+              if (workManager.printWorkflowOutput) {
                 console.log(`[Output]\n\n ${result.all}`);
               }
             })
@@ -123,11 +121,13 @@ function handleAction(
           logColor = chalk.blackBright;
           log();
 
-          nextActions = this.handleAction({
-            actions: nextActions,
-            queryArgs,
-            modifiersInput,
-          }).nextActions;
+          if (nextActions) {
+            nextActions = handleAction({
+              actions: nextActions,
+              queryArgs,
+              modifiersInput,
+            }).nextActions;
+          }
           break;
 
         // Just execute next action
@@ -137,11 +137,13 @@ function handleAction(
           logColor = chalk.whiteBright;
           log();
 
-          nextActions = this.handleAction({
-            actions: nextActions,
-            queryArgs,
-            modifiersInput,
-          }).nextActions;
+          if (nextActions) {
+            nextActions = handleAction({
+              actions: nextActions,
+              queryArgs,
+              modifiersInput,
+            }).nextActions;
+          }
           break;
 
         // Open specific program, url..
@@ -178,11 +180,13 @@ function handleAction(
           target = queryArgs;
 
           log();
-          nextActions = this.handleAction({
-            actions: nextActions,
-            queryArgs,
-            modifiersInput,
-          }).nextActions;
+          if (nextActions) {
+            nextActions = handleAction({
+              actions: nextActions,
+              queryArgs,
+              modifiersInput,
+            }).nextActions;
+          }
           break;
 
         // Run 'cond' as eval to determine if true.
@@ -204,7 +208,7 @@ function handleAction(
           log();
 
           if (conditionalAction) {
-            nextActions = this.handleAction({
+            nextActions = handleAction({
               actions: conditionalAction,
               queryArgs,
               modifiersInput,
