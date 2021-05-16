@@ -56,20 +56,8 @@ const addCommands = (
 
 export class Store {
   private static instance: Store;
-  store: Map<string, any>;
+  private store: Map<string, any>;
   checkStoreIsAvailable?: (available: boolean) => void;
-
-  private constructor() {
-    this.store = new Map<string, any>();
-  }
-
-  private setStoreAvailability(available: boolean) {
-    if (this.checkStoreIsAvailable) {
-      if (available === false) console.log('Store is used in Arvis..');
-      if (available === true) console.log('Store is now available.');
-      this.checkStoreIsAvailable(available);
-    }
-  }
 
   static getInstance() {
     if (!Store.instance) {
@@ -78,13 +66,43 @@ export class Store {
     return Store.instance;
   }
 
+  private constructor() {
+    this.store = new Map<string, any>();
+  }
+
+  private setStoreAvailability(available: boolean) {
+    if (this.checkStoreIsAvailable) {
+      if (available === false) console.log('Store is occupied in Arvis now..');
+      this.checkStoreIsAvailable(available);
+    }
+  }
+
+  /**
+   * @param  {string} key
+   * @param  {any} defaultValue
+   */
+  private getter(key: string, defaultValue: any) {
+    if (this.store.has(key)) {
+      return this.store.get(key) as any;
+    } else {
+      console.log('map', this.store);
+      return defaultValue;
+    }
+  }
+
+  private clearWorkflowsInfo() {
+    this.store['commands'] = {};
+    this.store['workflows'] = {};
+    this.store['hotkeys'] = {};
+  }
+
   /**
    * @param  {string} bundleId
    * @param  {string} outputPath
    * @description Create zip file exporting plugin with bundleId to outputPath
    */
   exportPlugin(bundleId: string, outputPath: string) {
-    zipDirectory(getPluginInstalledPath(bundleId), outputPath);
+    return zipDirectory(getPluginInstalledPath(bundleId), outputPath);
   }
 
   /**
@@ -93,7 +111,7 @@ export class Store {
    * @description Create zip file exporting workflow with bundleId to outputPath
    */
   exportWorkflow(bundleId: string, outputPath: string) {
-    zipDirectory(getWorkflowInstalledPath(bundleId), outputPath);
+    return zipDirectory(getWorkflowInstalledPath(bundleId), outputPath);
   }
 
   /**
@@ -136,7 +154,11 @@ export class Store {
           workflowInfoArr.push(workflowInfo);
         }
 
-        if (!bundleId) this.store = new Map<string, any>();
+        // if (!bundleId) this.store = new Map<string, any>();
+        if (!bundleId) {
+          this.clearWorkflowsInfo();
+        }
+
         for (const workflowInfo of workflowInfoArr) {
           this.setWorkflow(workflowInfo);
         }
@@ -154,7 +176,7 @@ export class Store {
    *          This funtion is called by file watcher if arvis-plugin.json's changes are detected.
    * @description If bundleId is given, renew only that plugin info.
    */
-  renewPlugins = ({
+  renewPlugins = async ({
     initializePluginWorkspace,
     bundleId,
   }: {
@@ -192,11 +214,13 @@ export class Store {
           pluginInfoArr.push(pluginInfo);
         }
 
-        const newPluginDict: any = bundleId ? this.store.get('plugin') : {};
+        const newPluginDict: any = bundleId ? this.getPlugins() : {};
         for (const pluginInfo of pluginInfoArr) {
           newPluginDict[pluginInfo.bundleId] = pluginInfo;
         }
-        this.store.set('plugin', newPluginDict);
+
+        this.store.set('plugins', newPluginDict);
+        console.log('plugins', this.getPlugins());
 
         if (initializePluginWorkspace) {
           pluginWorkspace.renew(pluginInfoArr);
@@ -206,16 +230,6 @@ export class Store {
       });
     });
   };
-
-  /**
-   * @param  {string} key
-   * @param  {any} defaultValue
-   */
-  private getter(key: string, defaultValue: any) {
-    if (this.store.has(key)) {
-      return this.store.get(key) as any;
-    } else return defaultValue;
-  }
 
   /**
    * @param  {} {}

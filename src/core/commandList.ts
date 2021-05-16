@@ -4,11 +4,9 @@ import { Store } from '../config/store';
  * @param  {}
  * @summary Find available workflow commands
  */
-const getCommandList = () => {
+const getCommandList = (): Command[] => {
   const store = Store.getInstance();
   return store.getCommands();
 };
 
-export {
-  getCommandList
-};
+export { getCommandList };

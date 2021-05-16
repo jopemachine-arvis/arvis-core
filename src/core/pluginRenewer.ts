@@ -13,7 +13,7 @@ const renewPlugins = async ({
   bundleId?: string;
 }) => {
   const store = Store.getInstance();
-  await store.renewPlugins({ initializePluginWorkspace, bundleId });
+  return store.renewPlugins({ initializePluginWorkspace, bundleId });
 };
 
 export { renewPlugins };

@@ -29,7 +29,7 @@ const cliFunc = async (input: string[], flags: any): Promise<string> => {
       break;
     case 'c':
     case 'commands':
-      return getCommandList();
+      return getCommandList().toString();
     case 'h':
     case 'hotkeys':
       return findHotkeys();
