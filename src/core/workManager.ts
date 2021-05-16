@@ -46,6 +46,8 @@ export class WorkManager {
   printArgs?: boolean;
   printScriptfilter?: boolean;
 
+  maxRetrieveCount?: number;
+
   onWorkEndHandler?: () => void;
   onItemPressHandler?: () => void;
 

@@ -25,11 +25,11 @@ export {
   handleAction,
   install,
   path,
-  setStoreAvailabiltyChecker,
   registerCustomAction,
   renewPlugins,
   renewWorkflows,
   scriptFilterExcute,
+  setStoreAvailabiltyChecker,
   unInstall,
   WorkManager,
 };

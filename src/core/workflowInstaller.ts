@@ -91,8 +91,9 @@ const install = async (installFile: string): Promise<void | Error> => {
 
   return new Promise(async (resolve, reject) => {
     unzipStream!.on('finish', async () => {
-      // Even if the install pipe is finalized, there might be a short time when the file is not created yet.
-      // It's not clear, so change below logic if it matters later.
+      console.log('Unzip finished..');
+      // even if the install pipe is finalized, there might be a short time when the file is not created yet.
+      // it's not clear, so change below logic if it matters later.
       await sleep(1000);
 
       const innerPath = zipFileName.split('.')[0];
@@ -100,7 +101,9 @@ const install = async (installFile: string): Promise<void | Error> => {
       const arvisWorkflowConfigPath = `${extractedPath}${path.sep}arvis-workflow.json`;
       // Supports both compressed with folder and compressed without folders
       const containedInfoPlist = await checkFileExists(plistPath);
-      const containedWorkflowConf = await checkFileExists(arvisWorkflowConfigPath);
+      const containedWorkflowConf = await checkFileExists(
+        arvisWorkflowConfigPath
+      );
       const folderNotContained = containedInfoPlist || containedWorkflowConf;
 
       // Suppose it is in the inner folder if it is not in the outer folder. if not, throw error.
@@ -137,15 +140,17 @@ const install = async (installFile: string): Promise<void | Error> => {
  */
 const unInstall = async ({ bundleId }: { bundleId: string }): Promise<void> => {
   const store = Store.getInstance();
+  const installedDir = getWorkflowInstalledPath(bundleId);
+  console.log(`Uninstalling '${bundleId}'...`);
 
   try {
-    const installedDir = getWorkflowInstalledPath(bundleId);
-
     rimraf(installedDir, () => {
       store.deleteWorkflow(bundleId);
     });
-
   } catch (e) {
+    if (!(await checkFileExists(installedDir))) {
+      return;
+    }
     throw new Error(e);
   }
 };

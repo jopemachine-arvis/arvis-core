@@ -67,8 +67,6 @@ export class Store {
       if (available === false) console.log('Store is used in Arvis..');
       if (available === true) console.log('Store is now available.');
       this.checkStoreIsAvailable(available);
-    } else {
-      console.error('checkStoreIsAvailable is not set.');
     }
   }
 

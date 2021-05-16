@@ -1,6 +1,9 @@
 import path from 'path';
 import { getPluginInstalledPath } from '../config/path';
 
+/**
+ * @param  {string} modulePath
+ */
 const requireDynamically = (modulePath: string) => {
   modulePath = modulePath.split('\\').join('/');
   // tslint:disable-next-line: no-eval
