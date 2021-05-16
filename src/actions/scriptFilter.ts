@@ -94,7 +94,7 @@ const parseStdout = (stdout: string): ScriptFilterResult => {
       return JSON.parse(stdout) as ScriptFilterResult;
     }
   } catch (err) {
-    throw new Error(`Script format error! ${err}\n\nstdout: ${stdout}`);
+    throw new Error(`XML Script format error! ${err}\n\nstdout: ${stdout}`);
   }
 };
 
