@@ -5,14 +5,13 @@ import '../types';
  * @param  {Action[]} actions
  * @param  {ModifierInput} modifiersInput
  * @return {Action[]} modifiers applied actions
+ * @description Only one modifier can be accepted for now
+ *              Expand this function to handle modifiers array if needed
  */
 export const handleModifiers = (
   actions: Action[],
   modifiersInput: ModifierInput
 ) => {
-  // Only one modifier can be accepted for now
-  // Expand this function to handle modifiers array if needed
-
   // let pressedModifiers: string[] = _.filter(
   //   Object.keys(modifiersInput),
   //   (modifier) => modifiersInput[modifier] === true

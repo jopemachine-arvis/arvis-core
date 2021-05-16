@@ -6,20 +6,31 @@ import { checkFileExists } from '../utils';
 const envPaths = envPathsGenerator('arvis');
 
 const installedDataPath = envPaths.data;
-// Store workflow's data
+const cachePath = envPaths.cache;
+
+/**
+ * @description Store workflow's data
+ */
 const workflowDataPath = `${installedDataPath}${path.sep}workflow-data`;
 
-// Store workflow files
+/**
+ * @description Store workflow files
+ */
 const workflowInstallPath = `${installedDataPath}${path.sep}workflows`;
 
-// Store plugin's files
+/**
+ * @description Store plugin's files
+ */
 const pluginInstallPath = `${installedDataPath}${path.sep}plugins`;
 
-// Store workflow's caches
-const cachePath = envPaths.cache;
+/**
+ * @description Store workflow's caches
+ */
 const workflowCachePath = `${cachePath}${path.sep}workflow-cache`;
 
-// Store temp files
+/**
+ * @description Store temp files
+ */
 const tempPath = envPaths.temp;
 
 /**

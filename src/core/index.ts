@@ -4,6 +4,7 @@ import { getCommandList } from './commandList';
 import { findHotkeys } from './hotkeyFinder';
 import { renewPlugins } from './pluginRenewer';
 import { execute } from './scriptExecutor';
+import { setStoreAvailabiltyChecker } from './setStoreAvailabiltyChecker';
 import { exportWorkflow } from './workflowExporter';
 import { install, unInstall } from './workflowInstaller';
 import { getWorkflowList } from './workflowList';
@@ -24,6 +25,7 @@ export {
   handleAction,
   install,
   path,
+  setStoreAvailabiltyChecker,
   registerCustomAction,
   renewPlugins,
   renewWorkflows,

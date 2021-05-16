@@ -56,9 +56,20 @@ const addCommands = (
 export class Store {
   private static instance: Store;
   store: Map<string, any>;
+  checkStoreIsAvailable?: (available: boolean) => void;
 
   private constructor() {
     this.store = new Map<string, any>();
+  }
+
+  private setStoreAvailability(available: boolean) {
+    if (this.checkStoreIsAvailable) {
+      if (available === false) console.log('Store is used in Arvis..');
+      if (available === true) console.log('Store is now available.');
+      this.checkStoreIsAvailable(available);
+    } else {
+      console.error('checkStoreIsAvailable is not set.');
+    }
   }
 
   static getInstance() {
@@ -71,6 +82,7 @@ export class Store {
   /**
    * @param  {string} bundleId
    * @param  {string} outputPath
+   * @description Create zip file exporting workflow with bundleId to outputPath
    */
   exportWorkflow(bundleId: string, outputPath: string) {
     zipDirectory(getWorkflowInstalledPath(bundleId), outputPath);
@@ -84,9 +96,11 @@ export class Store {
    */
   async renewWorkflows(bundleId?: string) {
     return new Promise((resolve, reject) => {
+      this.setStoreAvailability(false);
       recursiveReaddir(workflowInstallPath, async (err, files) => {
         if (err) {
           reject(err);
+          this.setStoreAvailability(true);
           return;
         }
 
@@ -106,6 +120,8 @@ export class Store {
             readJsonPromises.push(fse.readJson(workflow));
           } catch (err) {
             throw new Error('Arvis workflow file format error' + err);
+          } finally {
+            this.setStoreAvailability(true);
           }
         }
 
@@ -118,6 +134,7 @@ export class Store {
           this.setWorkflow(workflowInfo);
         }
 
+        this.setStoreAvailability(true);
         resolve(true);
       });
     });
@@ -138,9 +155,11 @@ export class Store {
     bundleId?: string;
   }) => {
     return new Promise((resolve, reject) => {
+      this.setStoreAvailability(false);
       recursiveReaddir(pluginInstallPath, async (err, files) => {
         if (err) {
           reject(err);
+          this.setStoreAvailability(true);
           return;
         }
 
@@ -158,6 +177,8 @@ export class Store {
             readJsonPromises.push(fse.readJson(pluginJson));
           } catch (err) {
             throw new Error('Arvis plugin file format error' + err);
+          } finally {
+            this.setStoreAvailability(true);
           }
         }
 
@@ -174,6 +195,7 @@ export class Store {
         if (initializePluginWorkspace) {
           pluginWorkspace.renew(pluginInfoArr);
         }
+        this.setStoreAvailability(true);
         resolve(true);
       });
     });
