@@ -5,6 +5,7 @@ import recursiveReaddir from 'recursive-readdir';
 import pluginWorkspace from '../core/pluginWorkspace';
 import { zipDirectory } from '../utils/zip';
 import {
+  getPluginInstalledPath,
   getWorkflowInstalledPath,
   pluginInstallPath,
   workflowInstallPath,
@@ -75,6 +76,15 @@ export class Store {
       Store.instance = new Store();
     }
     return Store.instance;
+  }
+
+  /**
+   * @param  {string} bundleId
+   * @param  {string} outputPath
+   * @description Create zip file exporting plugin with bundleId to outputPath
+   */
+  exportPlugin(bundleId: string, outputPath: string) {
+    zipDirectory(getPluginInstalledPath(bundleId), outputPath);
   }
 
   /**
@@ -195,7 +205,7 @@ export class Store {
         resolve(true);
       });
     });
-  }
+  };
 
   /**
    * @param  {string} key

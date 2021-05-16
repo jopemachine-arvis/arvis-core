@@ -12,6 +12,7 @@ const requireDynamically = (modulePath: string) => {
 
 const pluginWorkspace = {
   pluginModules: {},
+
   renew: async (pluginInfos: any[]) => {
     for (const pluginInfo of pluginInfos) {
       const modulePath = path.normalize(

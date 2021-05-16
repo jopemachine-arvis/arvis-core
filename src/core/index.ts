@@ -2,6 +2,8 @@ import { handleAction } from './actionHandler';
 import { findCommands } from './commandFinder';
 import { getCommandList } from './commandList';
 import { findHotkeys } from './hotkeyFinder';
+import { exportPlugin } from './pluginExporter';
+import { getPluginList } from './pluginList';
 import { renewPlugins } from './pluginRenewer';
 import { execute } from './scriptExecutor';
 import { setStoreAvailabiltyChecker } from './setStoreAvailabiltyChecker';
@@ -17,10 +19,12 @@ import { registerCustomAction, scriptFilterExcute } from '../actions';
 
 export {
   execute,
+  exportPlugin,
   exportWorkflow,
   findCommands,
   findHotkeys,
   getCommandList,
+  getPluginList,
   getWorkflowList,
   handleAction,
   install,

@@ -85,6 +85,13 @@ const getPluginInstalledPath = (bundleId: string) => {
 /**
  * @param  {string} bundleId
  */
+const getPluginConfigJsonPath = (bundleId: string) => {
+  return `${getPluginInstalledPath(bundleId)}${path.sep}arvis-plugin.json`;
+};
+
+/**
+ * @param  {string} bundleId
+ */
 const getWorkflowConfigJsonPath = (bundleId: string) => {
   return `${getWorkflowInstalledPath(bundleId)}${path.sep}arvis-workflow.json`;
 };
@@ -94,11 +101,12 @@ export {
   installedDataPath,
   workflowInstallPath,
   pluginInstallPath,
-  getWorkflowCachePath,
-  getWorkflowInstalledPath,
-  getWorkflowConfigJsonPath,
+  getPluginConfigJsonPath,
   getPluginInstalledPath,
+  getWorkflowCachePath,
+  getWorkflowConfigJsonPath,
   getWorkflowDataPath,
+  getWorkflowInstalledPath,
   initializePath,
 };
 
@@ -107,10 +115,11 @@ export default {
   installedDataPath,
   workflowInstallPath,
   pluginInstallPath,
-  getWorkflowCachePath,
-  getWorkflowInstalledPath,
-  getWorkflowConfigJsonPath,
+  getPluginConfigJsonPath,
   getPluginInstalledPath,
+  getWorkflowCachePath,
+  getWorkflowConfigJsonPath,
   getWorkflowDataPath,
+  getWorkflowInstalledPath,
   initializePath,
 };
