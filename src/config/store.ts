@@ -117,9 +117,8 @@ export class Store {
           try {
             readJsonPromises.push(fse.readJson(workflow));
           } catch (err) {
-            throw new Error('Arvis workflow file format error' + err);
-          } finally {
             this.setStoreAvailability(true);
+            throw new Error('Arvis workflow file format error' + err);
           }
         }
 
@@ -174,9 +173,8 @@ export class Store {
           try {
             readJsonPromises.push(fse.readJson(pluginJson));
           } catch (err) {
-            throw new Error('Arvis plugin file format error' + err);
-          } finally {
             this.setStoreAvailability(true);
+            throw new Error('Arvis plugin file format error' + err);
           }
         }
 

@@ -9,9 +9,11 @@ export interface ScriptFilterItem {
     copy?: string;
     largetype?: string;
   };
-  icon?: {
-    path?: string;
-  };
+  icon?:
+    | {
+        path?: string;
+      }
+    | string;
   quicklookurl?: string;
   bundleId?: string;
   mods?: {

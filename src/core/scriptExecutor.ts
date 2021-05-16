@@ -34,13 +34,15 @@ const execute = (
   }
 
   const env = {
+    arvis_version: 'demo',
+    arvis_workflow_bundleid: bundleId,
     arvis_workflow_data: getWorkflowDataPath(bundleId),
     arvis_workflow_cache: getWorkflowCachePath(bundleId),
   };
 
   // Environment variable setting for alfred workflows
   const alfredWorkflowEnv = {
-    alfred_workflow_bundleid: bundleId,
+    alfred_workflow_bundleid: env.arvis_workflow_bundleid,
     alfred_workflow_cache: env.arvis_workflow_cache,
     alfred_workflow_data: env.arvis_workflow_data,
     alfred_workflow_name: bundleId,
