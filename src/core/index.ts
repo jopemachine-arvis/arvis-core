@@ -3,12 +3,19 @@ import { findCommands } from './commandFinder';
 import { getCommandList } from './commandList';
 import { findHotkeys } from './hotkeyFinder';
 import { exportPlugin } from './pluginExporter';
+import {
+  install as installPlugin,
+  unInstall as uninstallPlugin,
+} from './pluginInstaller';
 import { getPluginList } from './pluginList';
 import { renewPlugins } from './pluginRenewer';
 import { execute } from './scriptExecutor';
 import { setStoreAvailabiltyChecker } from './setStoreAvailabiltyChecker';
 import { exportWorkflow } from './workflowExporter';
-import { install, unInstall } from './workflowInstaller';
+import {
+  install as installWorkflow,
+  unInstall as uninstallWorkflow,
+} from './workflowInstaller';
 import { getWorkflowList } from './workflowList';
 import { renewWorkflows } from './workflowRenewer';
 import { WorkManager } from './workManager';
@@ -27,13 +34,15 @@ export {
   getPluginList,
   getWorkflowList,
   handleAction,
-  install,
+  installPlugin,
+  installWorkflow,
   path,
   registerCustomAction,
   renewPlugins,
   renewWorkflows,
   scriptFilterExcute,
   setStoreAvailabiltyChecker,
-  unInstall,
+  uninstallPlugin,
+  uninstallWorkflow,
   WorkManager,
 };
