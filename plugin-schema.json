@@ -6,6 +6,122 @@
         "bundleId"
     ],
     "definitions": {
+        "command": {
+            "type": "object",
+            "required": [
+                "type"
+            ],
+            "properties": {
+                "type": {
+                    "$ref": "#/definitions/type",
+                    "description": "Action's type",
+                    "markdownDescription": "Action's type"
+                },
+                "command": {
+                    "type": "string",
+                    "description": "[keyword, scriptfilter] Command to search for and execute commands.",
+                    "markdownDescription": "[keyword, scriptfilter] Command to search for and execute commands."
+                },
+                "title": {
+                    "type": "string",
+                    "description": "[keyword, scriptfilter] Description of the command to display in the search window.",
+                    "markdownDescription": "[keyword, scriptfilter] Description of the command to display in the search window."
+                },
+                "subtitle": {
+                    "type": "string",
+                    "description": "[keyword, scriptfilter] A additional description of the command to display in the search window.",
+                    "markdownDescription": "[keyword, scriptfilter] A additional description of the command to display in the search window."
+                },
+                "withspace": {
+                    "type": "boolean",
+                    "description": "[scriptfilter] Indicates if space is required after the command to execute it",
+                    "markdownDescription": "[scriptfilter] Indicates if space is required after the command to execute it"
+                },
+                "running_subtext": {
+                    "type": "string",
+                    "description": "[scriptfilter] Statement to display while scriptfilter is running.",
+                    "markdownDescription": "[scriptfilter] Statement to display while scriptfilter is running."
+                },
+                "script_filter": {
+                    "type": "string",
+                    "description": "[scriptfilter] Scriptfilter to execute",
+                    "markdownDescription": "[scriptfilter] Scriptfilter to execute"
+                },
+                "script": {
+                    "type": "string",
+                    "description": "[script] Script to execute",
+                    "markdownDescription": "[script] Script to execute"
+                },
+                "text": {
+                    "type": "string",
+                    "description": "",
+                    "markdownDescription": ""
+                },
+                "if": {
+                    "type": "object",
+                    "description": "[cond] Divides the flow of execution by conditions",
+                    "markdownDescription": "[cond] Divides the flow of execution by conditions"
+                },
+                "cond": {
+                    "type": "string",
+                    "description": "[cond] Conditions",
+                    "markdownDescription": "[cond] Conditions"
+                },
+                "then": {
+                    "type": "array",
+                    "description": "[cond] If 'cond' is true execute these actions",
+                    "markdownDescription": "[cond] If 'cond' is true execute these actions",
+                    "items": {
+                        "$ref": "#/definitions/command"
+                    }
+                },
+                "else": {
+                    "type": "array",
+                    "description": "[cond] If 'cond' is false execute these actions",
+                    "markdownDescription": "[cond] If 'cond' is false execute these actions",
+                    "items": {
+                        "$ref": "#/definitions/command"
+                    }
+                },
+                "arg": {
+                    "type": "string",
+                    "description": "[arg] Select argument",
+                    "markdownDescription": "[arg] Select argument",
+                    "defaultSnippets": [
+                        {
+                            "label": "[arg] Select argument",
+                            "body": "${query}"
+                        }
+                    ]
+                },
+                "target": {
+                    "type": "string",
+                    "description": "[open] target to open (url, file path)",
+                    "markdownDescription": "[open] target to open (url, file path)"
+                },
+                "modifiers": {
+                    "type": "string",
+                    "enum": [
+                        "normal",
+                        "cmd",
+                        "alt",
+                        "ctrl",
+                        "win",
+                        "opt",
+                        "meta",
+                        "shift"
+                    ],
+                    "description": "Specific modifier key must be pressed to run",
+                    "markdownDescription": "Specific modifier key must be pressed to run"
+                },
+                "action": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/command"
+                    }
+                }
+            }
+        }
     },
     "properties": {
         "$schema": {
@@ -131,6 +247,12 @@
                     "body": true
                 }
             ]
+        },
+        "action": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/command"
+            }
         },
         "platform": {
             "type": "array",

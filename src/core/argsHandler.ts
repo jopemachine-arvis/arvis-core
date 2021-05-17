@@ -80,6 +80,17 @@ const extractArgsFromQuery = (querys: string[]): object => {
 };
 
 /**
+ * @param  {PluginItem} item
+ * @return {object}
+ */
+const extractArgsFromPluginItem = (item: PluginItem): object => {
+  return {
+    ['{query}']: item.arg,
+    '$1': item.arg,
+  };
+};
+
+/**
  * @param  {ScriptFilterItem} item
  * @param  {any} vars
  * @return {object}
@@ -111,6 +122,7 @@ const extractArgsFromScriptFilterItem = (
 
 export {
   extractArgsFromQuery,
+  extractArgsFromPluginItem,
   extractArgsFromScriptFilterItem,
   applyArgsToScript,
   getAppliedArgsFromScript,

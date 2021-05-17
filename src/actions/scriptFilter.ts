@@ -173,9 +173,8 @@ async function scriptFilterExcute(
   // If WorkStk is empty, users can enter the script filter without a return event.
   // To handle this, push this command to WorkStk
   const workManager = WorkManager.getInstance();
-  const haveNoCommandInfo = workManager.hasEmptyWorkStk();
 
-  if (haveNoCommandInfo) {
+  if (workManager.hasEmptyWorkStk()) {
     if (!commandWhenStackIsEmpty) {
       throw new Error('Error - command should be given when stack is empty');
     }

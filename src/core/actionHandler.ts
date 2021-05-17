@@ -84,13 +84,11 @@ function handleAction({
           logColor = chalk.yellowBright;
           const scriptStr = extractScriptOnThisPlatform(action.script);
           target = applyArgsToScript({ scriptStr, queryArgs });
-          const scriptWork = execute(
-            workManager.getTopWork().bundleId,
-            target,
-            {
-              all: true,
-            }
-          );
+          const scriptWork = execute({
+            bundleId: workManager.getTopWork().bundleId,
+            scriptStr: target,
+            options: { all: true },
+          });
           log();
 
           scriptWork

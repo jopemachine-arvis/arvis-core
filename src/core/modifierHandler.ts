@@ -11,7 +11,7 @@ import '../types';
 export const handleModifiers = (
   actions: Action[],
   modifiersInput: ModifierInput
-) => {
+): Action[] => {
   // let pressedModifiers: string[] = _.filter(
   //   Object.keys(modifiersInput),
   //   (modifier) => modifiersInput[modifier] === true

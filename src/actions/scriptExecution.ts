@@ -1,4 +1,2 @@
 import { execute } from '../core';
-export {
-  execute
-};
+export { execute };

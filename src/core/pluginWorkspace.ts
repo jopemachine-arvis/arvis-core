@@ -1,5 +1,6 @@
 import path from 'path';
 import { getPluginInstalledPath } from '../config/path';
+import { getPluginList } from './pluginList';
 
 /**
  * @param  {string} modulePath
@@ -13,6 +14,9 @@ const requireDynamically = (modulePath: string) => {
 const pluginWorkspace = {
   pluginModules: {},
 
+  /**
+   * @param  {any[]} pluginInfos
+   */
   renew: async (pluginInfos: any[]) => {
     for (const pluginInfo of pluginInfos) {
       const modulePath = path.normalize(
@@ -33,14 +37,20 @@ const pluginWorkspace = {
     console.log('Updated pluginModules', pluginWorkspace.pluginModules);
   },
 
+  /**
+   * @param  {string} inputStr
+   */
   search: (inputStr: string) => {
     let pluginOutputItems: any[] = [];
     for (const pluginBundleId of Object.keys(pluginWorkspace.pluginModules)) {
       const pluginModule = pluginWorkspace.pluginModules[pluginBundleId];
       try {
+        const thisPluginOutputItems = (pluginModule as any)(inputStr).items;
+        thisPluginOutputItems.forEach((item) => item.bundleId = pluginBundleId);
+
         pluginOutputItems = [
           ...pluginOutputItems,
-          ...(pluginModule as any)(inputStr).items,
+          ...thisPluginOutputItems,
         ];
       } catch (err) {
         console.error(
@@ -48,6 +58,13 @@ const pluginWorkspace = {
         );
       }
     }
+
+    pluginOutputItems.forEach((item) => {
+      item.isPluginItem = true;
+      item.type = 'keyword';
+      item.command = item.title;
+      item.action = getPluginList()[item.bundleId].action;
+    });
     return pluginOutputItems;
   },
 };

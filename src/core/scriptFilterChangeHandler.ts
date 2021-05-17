@@ -13,13 +13,13 @@ type ScriptFilterChangeHandlerOption = {
  * @param  {Command} command
  * @param  {object} queryArgs
  * @param  {ScriptFilterChangeHandlerOption} options?
- * @return {execa.ExecaChildProcess<string>} executed process
+ * @return {execa.ExecaChildProcess<string>} Executed process
  */
 const handleScriptFilterChange = (
   bundleId: string,
-  command: Command,
+  command: Command | PluginItem,
   queryArgs: object,
-  options?: ScriptFilterChangeHandlerOption,
+  options?: ScriptFilterChangeHandlerOption
 ) => {
   if (command.type !== 'scriptfilter') {
     throw new Error(`Command is not scriptfilter! ${command}`);
@@ -39,7 +39,7 @@ const handleScriptFilterChange = (
     console.log('[SF Script]', scriptStr);
   }
 
-  return execute(bundleId, scriptStr, options);
+  return execute({ bundleId, scriptStr, options });
 };
 
 export { handleScriptFilterChange };

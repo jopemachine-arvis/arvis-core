@@ -10,5 +10,5 @@ export interface Command {
   running_subtext?: string;
   withspace?: boolean;
   type: Keyword | ScriptFilter;
-  action?: (ScriptAction | OpenAction)[];
+  action?: Action[];
 }

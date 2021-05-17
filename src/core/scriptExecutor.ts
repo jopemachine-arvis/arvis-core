@@ -1,11 +1,11 @@
 import _ from 'lodash';
-import path from 'path';
 import execa from '../../execa';
 import {
   getWorkflowCachePath,
   getWorkflowDataPath,
   getWorkflowInstalledPath,
 } from '../config/path';
+import { WorkManager } from './workManager';
 
 type ScriptExecuterOption = {
   all?: boolean;
@@ -16,14 +16,21 @@ type ScriptExecuterOption = {
  * @param  {string} bundleId
  * @param  {string} scriptStr
  * @param  {ScriptExecuterOption} options?
- * @return {execa.ExecaChildProcess<string>} executed process
+ * @return {execa.ExecaChildProcess<string>} Executed process
  */
-const execute = (
-  bundleId: string,
-  scriptStr: string,
-  options?: ScriptExecuterOption
-) => {
-  const execPath = path.resolve(getWorkflowInstalledPath(bundleId));
+const execute = ({
+  bundleId,
+  scriptStr,
+  options,
+}: {
+  bundleId: string;
+  scriptStr: string;
+  options?: ScriptExecuterOption;
+}): execa.ExecaChildProcess<string> => {
+
+  let { execPath } = WorkManager.getInstance();
+  // Assume workflow's hotkey script execution
+  if (!execPath) execPath = getWorkflowInstalledPath(bundleId);
 
   let all;
   let timeout;
@@ -50,7 +57,8 @@ const execute = (
 
     // mock data
     alfred_debug: '0',
-    alfred_preferences: '/Users/Crayons/Dropbox/Alfred/Alfred.alfredpreferences',
+    alfred_preferences:
+      '/Users/Crayons/Dropbox/Alfred/Alfred.alfredpreferences',
     alfred_preferences_localhash: 'adbd4f66bc3ae8493832af61a41ee609b20d8705',
     alfred_theme: 'alfred.theme.yosemite',
     alfred_theme_background: 'rgba(255,255,255,0.98)',
@@ -80,11 +88,9 @@ const execute = (
     windowsHide: true,
     env: {
       ...env,
-      ...alfredWorkflowEnv
+      ...alfredWorkflowEnv,
     },
   });
 };
 
-export {
-  execute,
-};
+export { execute };

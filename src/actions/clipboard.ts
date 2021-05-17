@@ -3,7 +3,7 @@ const clipboardy = require('clipboardy');
 /**
  * @param  {string} str
  */
-const copyToClipboard = (str: string) => {
+const copyToClipboard = (str: string): void => {
   clipboardy.write(str);
 };
 

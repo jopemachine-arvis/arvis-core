@@ -1,10 +1,15 @@
 import _ from 'lodash';
 import execa from '../../execa';
 import { scriptFilterExcute } from '../actions/scriptFilter';
+import {
+  getPluginInstalledPath,
+  getWorkflowInstalledPath,
+} from '../config/path';
 import '../types';
 import extractJson from '../utils/extractJson';
 import { handleAction } from './actionHandler';
 import {
+  extractArgsFromPluginItem,
   extractArgsFromQuery,
   extractArgsFromScriptFilterItem,
   getAppliedArgsFromScript,
@@ -16,7 +21,7 @@ interface Work {
   input: string;
   bundleId: string;
   args: object | null;
-  command: Command;
+  command: Command | PluginItem;
 
   // Used in only type is 'scriptfilter'
   workCompleted?: boolean;
@@ -38,20 +43,21 @@ export class WorkManager {
   workStk: Work[];
   globalVariables?: object;
   rerunTimer?: NodeJS.Timeout;
+  execPath?: string;
 
   // For debugging
-  printActionType?: boolean;
-  printWorkStack?: boolean;
-  printWorkflowOutput?: boolean;
-  printArgs?: boolean;
-  printScriptfilter?: boolean;
+  public printActionType?: boolean;
+  public printWorkStack?: boolean;
+  public printWorkflowOutput?: boolean;
+  public printArgs?: boolean;
+  public printScriptfilter?: boolean;
 
-  maxRetrieveCount?: number;
+  public maxRetrieveCount?: number;
 
-  onWorkEndHandler?: () => void;
-  onItemPressHandler?: () => void;
+  public onWorkEndHandler?: () => void;
+  public onItemPressHandler?: () => void;
 
-  onItemShouldBeUpdate?: ({
+  public onItemShouldBeUpdate?: ({
     items,
     needIndexInfoClear,
   }: {
@@ -59,7 +65,7 @@ export class WorkManager {
     needIndexInfoClear: boolean;
   }) => void;
 
-  onInputShouldBeUpdate?: ({
+  public onInputShouldBeUpdate?: ({
     str,
     needItemsUpdate,
   }: {
@@ -75,21 +81,24 @@ export class WorkManager {
   /**
    * @summary
    */
-  getTopWork = () => {
+  public getTopWork = () => {
     return this.workStk[this.workStk.length - 1];
   }
 
   /**
    * @summary
    */
-  clearWorkStack = () => {
+  public clearWorkStack = () => {
     this.workStk.length = 0;
+    this.globalVariables = {};
+    this.rerunTimer = undefined;
+    this.execPath = undefined;
   }
 
   /**
    * @summary
    */
-  updateTopWork = (keyValueDict: object) => {
+  public updateTopWork = (keyValueDict: object) => {
     for (const key of Object.keys(keyValueDict)) {
       this.workStk[this.workStk.length - 1][key] = keyValueDict[key];
     }
@@ -98,14 +107,14 @@ export class WorkManager {
   /**
    * @summary If workStk is empty, look for command.
    */
-  hasEmptyWorkStk = () => {
+  public hasEmptyWorkStk = () => {
     return this.workStk.length === 0;
   }
 
   /**
    * @summary
    */
-  workIsPending = () => {
+  public workIsPending = () => {
     return (
       this.workStk.length >= 1 && this.getTopWork().workCompleted === false
     );
@@ -114,7 +123,7 @@ export class WorkManager {
   /**
    * @param {Work} work
    */
-  pushWork = (work: Work) => {
+  public pushWork = (work: Work) => {
     this.workStk.push(work);
     this.debugWorkStk();
   }
@@ -122,7 +131,7 @@ export class WorkManager {
   /**
    * @summary If the script filters are nested, return to the previous script filter.
    */
-  popWork = () => {
+  public popWork = () => {
     if (
       !this.onItemShouldBeUpdate ||
       !this.onInputShouldBeUpdate ||
@@ -158,7 +167,7 @@ export class WorkManager {
    * @param  {ScriptFilterItem[]} errorItems
    * @summary When an error occurs, onItemShouldBeUpdate is called by this method and those error messages are displayed to the user.
    */
-  setErrorItem = (err: any, errorItems: ScriptFilterItem[]) => {
+  public setErrorItem = (err: any, errorItems: ScriptFilterItem[]) => {
     if (!this.onItemShouldBeUpdate) {
       throw new Error('renderer update funtions are not set!');
     }
@@ -190,7 +199,10 @@ export class WorkManager {
    * @param  {number} selectedItemIdx
    * @param  {ModifierInput} modifiers
    */
-  setModifierOnScriptFilterItem = (selectedItemIdx: number, modifiers: ModifierInput) => {
+  public setModifierOnScriptFilterItem = (
+    selectedItemIdx: number,
+    modifiers: ModifierInput
+  ) => {
     if (!this.onItemShouldBeUpdate) {
       throw new Error('renderer update funtions are not set!');
     }
@@ -238,7 +250,7 @@ export class WorkManager {
   /**
    * @summary
    */
-  clearModifierOnScriptFilterItem = () => {
+  public clearModifierOnScriptFilterItem = () => {
     if (!this.onItemShouldBeUpdate) {
       throw new Error('renderer update funtions are not set!');
     }
@@ -259,7 +271,7 @@ export class WorkManager {
   /**
    * @param  {any} err
    */
-  handleWorkflowError = (err: any) => {
+  public handleWorkflowError = (err: any) => {
     const possibleJsons = extractJson(err.toString());
     const errors = possibleJsons.filter((item) => item.items);
 
@@ -280,7 +292,7 @@ export class WorkManager {
    * @param  {number} index
    * @param  {string} runningSubText
    */
-  setRunningText({
+  public setRunningText({
     itemArr,
     index,
     runningSubText,
@@ -304,8 +316,9 @@ export class WorkManager {
 
   /**
    * @summary
+   * @return {boolean}
    */
-  hasNestedScriptFilters = () => {
+  public hasNestedScriptFilters = (): boolean => {
     return (
       this.workStk.filter((work: Work) => work.type === 'scriptfilter')
         .length >= 2
@@ -313,56 +326,74 @@ export class WorkManager {
   }
 
   /**
+   * @param  {PluginItem|Command} item
+   */
+  private setExecPath = (item: PluginItem | Command) => {
+    // tslint:disable-next-line: no-string-literal
+    this.execPath = item['isPluginItem']
+      ? getPluginInstalledPath(item.bundleId!)
+      : getWorkflowInstalledPath(item.bundleId!);
+  }
+
+  /**
    * @param  {Command | ScriptFilterItem} item
    * @param  {string} inputStr
    */
-  prepareActions = ({
+  public prepareActions = ({
     item,
     inputStr,
   }: {
-    item: Command | ScriptFilterItem;
+    item: Command | ScriptFilterItem | PluginItem;
     inputStr: string;
   }) => {
-    let actions;
+    // let actions: Action[] | undefined;
+    if (this.hasEmptyWorkStk()) {
+      return [item] as Action[];
+    } else {
+      return this.getTopWork().command.action;
+    }
+  }
+
+  /**
+   * @param  {Command | ScriptFilterItem} item
+   * @param  {string} inputStr
+   */
+  public prepareArgs = ({
+    item,
+    inputStr,
+  }: {
+    item: Command | ScriptFilterItem | PluginItem;
+    inputStr: string;
+  }) => {
     let args;
 
     if (this.hasEmptyWorkStk()) {
-      item = item as Command;
-      actions = [item];
+      // tslint:disable-next-line: no-string-literal
+      if (item['isPluginItem']) {
+        args = extractArgsFromPluginItem(item as PluginItem);
+      } else {
+        const [_commandTitle, queryStr] = inputStr.split(
+          (item as Command).command!
+        );
 
-      const [_commandTitle, queryStr] = inputStr.split(
-        (item as Command).command!
-      );
-      args = extractArgsFromQuery(
-        queryStr ? queryStr.trim().split((item as Command).command!) : []
-      );
-
-      // keyword, scriptfilter, or other starting node
-      this.pushWork({
-        type: (item as Command).type,
-        input: inputStr,
-        command: item as Command,
-        bundleId: (item as Command).bundleId!,
-        args,
-      });
+        args = extractArgsFromQuery(
+          queryStr ? queryStr.trim().split((item as Command).command!) : []
+        );
+      }
     } else {
-      actions = this.getTopWork().command.action;
       item = item as ScriptFilterItem;
       const vars = { ...item.variables, ...this.globalVariables! };
       args = extractArgsFromScriptFilterItem(item, vars);
     }
 
-    return {
-      args,
-      actions,
-    };
+    return args;
   }
 
   /**
    * @param  {Action} nextAction
    * @param  {any} args
    */
-  getNextActionsInput = (nextAction: Action, args) => {
+  public getNextActionsInput = (nextAction: Action, args) => {
     if (nextAction.type === 'scriptfilter') {
       return getAppliedArgsFromScript(
         extractScriptOnThisPlatform(nextAction.script_filter),
@@ -376,7 +407,7 @@ export class WorkManager {
   /**
    * @summary
    */
-  debugWorkStk = () => {
+  public debugWorkStk = () => {
     if (!this.printWorkStack) return;
 
     console.log('---------- debug work stack ----------');
@@ -388,25 +419,26 @@ export class WorkManager {
 
   /**
    * @param  {string} str
-   * @summary Update input of stack (It could be used when popWork)
+   * @return {void}
+   * @summary Update input of stack (Updated input could be used when popWork)
    */
-  renewInput = (str: string) => {
+  public renewInput = (str: string): void => {
     if (this.getTopWork().type === 'scriptfilter') {
       this.workStk[this.workStk.length - 1].input = str;
     }
   }
 
   /**
-   * @param  {Command|ScriptFilterItem} item
+   * @param  {Command|ScriptFilterItem|PluginItem} item
    * @param  {string} inputStr
    * @param  {ModifierInput} modifier
    * @summary Handler for enter event
    */
-  async commandExcute(
-    item: Command | ScriptFilterItem,
+  public async commandExcute(
+    item: Command | ScriptFilterItem | PluginItem,
     inputStr: string,
     modifier: ModifierInput
-  ) {
+  ): Promise<void> {
     // Ignore this exeution if previous work is pending.
     if (this.workIsPending()) {
       return;
@@ -414,18 +446,32 @@ export class WorkManager {
 
     // If workStk is empty, the args becomes query, otherwise args becomes arg of items
     // If workStk is empty, the actions becomes command, otherwise the top action of the stack is 'actions'.
-    const { args, actions } = this.prepareActions({ item, inputStr });
+    const actions = this.prepareActions({ item, inputStr });
+    const args = this.prepareArgs({ item, inputStr });
+
+    if (this.hasEmptyWorkStk()) {
+      // keyword, scriptfilter, or other trigger
+      this.pushWork({
+        args,
+        input: inputStr,
+        command: item as Command | PluginItem,
+        type: (item as Command | PluginItem).type,
+        bundleId: (item as Command | PluginItem).bundleId!,
+      });
+
+      this.setExecPath(item as Command | PluginItem);
+    }
 
     let actionResult;
     let targetActions = actions;
-    const exists = (arr: any[]) => arr && arr.length > 0;
+    const exists = (arr: any[] | undefined) => arr && arr.length > 0;
 
     // Renew input
     this.renewInput(inputStr);
 
     while (exists(targetActions)) {
       actionResult = handleAction({
-        actions: targetActions,
+        actions: targetActions!,
         queryArgs: args,
         modifiersInput: modifier,
       });
@@ -433,7 +479,7 @@ export class WorkManager {
       targetActions = actionResult.nextActions;
 
       if (exists(targetActions)) {
-        for (const nextAction of targetActions) {
+        for (const nextAction of targetActions!) {
           // 왜 여기에 keyword를 뒀더라..? 생각이 안 남...
           if (
             nextAction.type === 'scriptfilter' ||
@@ -447,7 +493,8 @@ export class WorkManager {
             this.pushWork({
               type: nextAction.type,
               input: nextInput,
-              command: nextAction,
+              // Fix me!! command에 action을 넣는게 맞아?
+              command: nextAction as Command,
               bundleId: this.getTopWork().bundleId,
               args: actionResult.args,
               workProcess: null,
@@ -466,7 +513,6 @@ export class WorkManager {
               return;
             }
           }
-
         }
       }
     }

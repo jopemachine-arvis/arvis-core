@@ -1,9 +1,11 @@
 export interface PluginItem {
   title: string;
+  type: 'keyword';
   valid?: boolean;
   subtitle?: string;
   autocomplete?: string;
-  actionCallback?: (args: any) => void;
+  arg?: string;
+  action?: Action[];
   text?: {
     copy?: string;
     largetype?: string;

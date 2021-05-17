@@ -18,6 +18,6 @@ export const customActions = {
 export const registerCustomAction = (
   type: string,
   callback: (action: Action) => void
-) => {
+): void => {
   customActions[type] = callback;
 };

@@ -85,7 +85,6 @@ export class Store {
     if (this.store.has(key)) {
       return this.store.get(key) as any;
     } else {
-      console.log('map', this.store);
       return defaultValue;
     }
   }
@@ -220,7 +219,6 @@ export class Store {
         }
 
         this.store.set('plugins', newPluginDict);
-        console.log('plugins', this.getPlugins());
 
         if (initializePluginWorkspace) {
           pluginWorkspace.renew(pluginInfoArr);

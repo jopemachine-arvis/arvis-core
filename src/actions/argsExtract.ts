@@ -5,7 +5,7 @@ import { replaceAll } from '../utils';
  * @param  {string} argToExtract
  * @summary Extract the desired string from queryArgs, and assign it to query and $1.
  */
-const argsExtract = (queryArgs: object, argToExtract: string) => {
+const argsExtract = (queryArgs: object, argToExtract: string): object => {
   const result: object = { ...queryArgs };
 
   let targetString = argToExtract;
@@ -26,6 +26,4 @@ const argsExtract = (queryArgs: object, argToExtract: string) => {
   return result;
 };
 
-export {
-  argsExtract
-};
+export { argsExtract };

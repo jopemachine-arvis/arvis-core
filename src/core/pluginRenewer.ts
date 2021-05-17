@@ -11,7 +11,7 @@ const renewPlugins = async ({
 }: {
   initializePluginWorkspace: boolean;
   bundleId?: string;
-}) => {
+}): Promise<any> => {
   const store = Store.getInstance();
   return store.renewPlugins({ initializePluginWorkspace, bundleId });
 };
