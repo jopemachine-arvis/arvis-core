@@ -14,6 +14,7 @@ import { checkFileExists, sleep } from '../utils';
  * @return {Promise<void | Error>}
  */
 const installByPath = async (installedPath: string): Promise<void | Error> => {
+  const store = Store.getInstance();
   const pluginConfFilePath = path.resolve(
     path.normalize(`${installedPath}${path.sep}arvis-plugin.json`)
   );
@@ -58,6 +59,7 @@ const installByPath = async (installedPath: string): Promise<void | Error> => {
     // Makes scripts, binaries of installed paths executable
     chmodr(destinationPath, 0o777, () => {
       pluginConfig.enabled = pluginConfig.enabled ?? true;
+      store.setPlugin(pluginConfig);
       resolve();
     });
   });

@@ -17,7 +17,8 @@ const pluginWorkspace = {
   /**
    * @param  {any[]} pluginInfos
    */
-  renew: async (pluginInfos: any[]) => {
+  renew: (pluginInfos: any[]) => {
+    const newPluginModules = {};
     for (const pluginInfo of pluginInfos) {
       const modulePath = path.normalize(
         `${getPluginInstalledPath(pluginInfo.bundleId)}${path.sep}${
@@ -26,14 +27,15 @@ const pluginWorkspace = {
       );
 
       try {
-        pluginWorkspace.pluginModules[pluginInfo.bundleId] =
-          requireDynamically(modulePath);
+        newPluginModules[pluginInfo.bundleId] = requireDynamically(modulePath);
       } catch (err) {
         console.error(
           `Plugin '${pluginInfo.bundleId}' raised error on require: \n${err}`
         );
       }
     }
+
+    pluginWorkspace.pluginModules = newPluginModules;
     console.log('Updated pluginModules', pluginWorkspace.pluginModules);
   },
 

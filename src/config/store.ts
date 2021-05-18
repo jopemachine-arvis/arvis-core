@@ -90,9 +90,9 @@ export class Store {
   }
 
   private clearWorkflowsInfo() {
-    this.store['commands'] = {};
-    this.store['workflows'] = {};
-    this.store['hotkeys'] = {};
+    this.store.set('commands', {});
+    this.store.set('workflows', {});
+    this.store.set('hotkeys', {});
   }
 
   /**
@@ -227,7 +227,7 @@ export class Store {
         resolve(true);
       });
     });
-  };
+  }
 
   /**
    * @param  {} {}
@@ -262,6 +262,16 @@ export class Store {
    */
   getWorkflow(bundleId: string) {
     return this.getInstalledWorkflows()[bundleId];
+  }
+
+  /**
+   * @param  {any} workflow
+   */
+  setPlugin(plugin: any) {
+    this.store.set('plugins', {
+      ...this.getPlugins(),
+      [plugin.bundleId]: plugin
+    });
   }
 
   /**
