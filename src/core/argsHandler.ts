@@ -27,11 +27,11 @@ const applyArgsToScript = ({
 
 /**
  * @param  {string} scriptStr
- * @param  {any} args
+ * @param  {object} args
  * @return {string}
  * @summary Get args from script in correct order
  */
-const getAppliedArgsFromScript = (scriptStr: string, args: any): string => {
+const getAppliedArgsFromScript = (scriptStr: string, args: object): string => {
   const strArr: string[] = scriptStr.split(' ');
   const argsArr: string[] = new Array(strArr.length);
   argsArr.fill('');
@@ -47,7 +47,7 @@ const getAppliedArgsFromScript = (scriptStr: string, args: any): string => {
     argsArr,
     (ret, inputArg, idx) => {
       if (inputArg === '') return '';
-      return inputArg;
+      return ret + ' ' + inputArg;
     },
     ''
   );
@@ -97,12 +97,21 @@ const extractArgsFromPluginItem = (item: PluginItem): object => {
  */
 const extractArgsFromScriptFilterItem = (
   item: ScriptFilterItem,
-  vars: any
+  vars: object
 ): object => {
   let args = {};
+
   if (item.arg) {
-    item.arg = escapeBraket(item.arg);
-    args = { '{query}': item.arg, $1: item.arg };
+    if (typeof item.arg === 'string') {
+      item.arg = escapeBraket(item.arg);
+      args = { '{query}': item.arg, $1: item.arg };
+    } else {
+      args = { ...item.arg };
+    }
+  }
+
+  if (item.variables) {
+    vars = { ...vars, ...item.variables };
   }
 
   // tslint:disable-next-line: forin

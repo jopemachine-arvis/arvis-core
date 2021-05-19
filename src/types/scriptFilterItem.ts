@@ -1,7 +1,7 @@
 export interface ScriptFilterItem {
   title: string;
-  arg?: any;
-  variables?: any;
+  arg?: object | string;
+  variables?: object;
   valid?: boolean;
   subtitle?: string;
   autocomplete?: string;

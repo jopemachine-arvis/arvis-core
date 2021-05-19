@@ -4,7 +4,8 @@ export interface PluginItem {
   valid?: boolean;
   subtitle?: string;
   autocomplete?: string;
-  arg?: string;
+  arg?: object | string;
+  variables?: object;
   action?: Action[];
   text?: {
     copy?: string;
