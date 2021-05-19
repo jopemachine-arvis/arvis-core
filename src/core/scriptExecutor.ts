@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import execa from '../../execa';
 import {
-  getWorkflowCachePath,
-  getWorkflowDataPath,
+  getExtensionCachePath,
+  getExtensionDataPath,
   getWorkflowInstalledPath,
 } from '../config/path';
 import { WorkManager } from './workManager';
@@ -42,16 +42,16 @@ const execute = ({
 
   const env = {
     arvis_version: 'demo',
-    arvis_workflow_bundleid: bundleId,
-    arvis_workflow_data: getWorkflowDataPath(bundleId),
-    arvis_workflow_cache: getWorkflowCachePath(bundleId),
+    arvis_extension_bundleid: bundleId,
+    arvis_extension_data: getExtensionDataPath(bundleId),
+    arvis_extension_cache: getExtensionCachePath(bundleId),
   };
 
   // Environment variable setting for alfred workflows
   const alfredWorkflowEnv = {
-    alfred_workflow_bundleid: env.arvis_workflow_bundleid,
-    alfred_workflow_cache: env.arvis_workflow_cache,
-    alfred_workflow_data: env.arvis_workflow_data,
+    alfred_workflow_bundleid: env.arvis_extension_bundleid,
+    alfred_workflow_cache: env.arvis_extension_cache,
+    alfred_workflow_data: env.arvis_extension_data,
     alfred_workflow_name: bundleId,
     alfred_workflow_uid: bundleId,
 

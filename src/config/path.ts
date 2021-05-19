@@ -9,9 +9,14 @@ const installedDataPath = envPaths.data;
 const cachePath = envPaths.cache;
 
 /**
- * @description Store workflow's data
+ * @description Store workflow, plugin data
  */
-const workflowDataPath = `${installedDataPath}${path.sep}workflow-data`;
+const extensionDataPath = `${installedDataPath}${path.sep}data`;
+
+/**
+ * @description Store workflow, plugin caches
+ */
+const extensionCachePath = `${cachePath}${path.sep}cache`;
 
 /**
  * @description Store workflow files
@@ -22,11 +27,6 @@ const workflowInstallPath = `${installedDataPath}${path.sep}workflows`;
  * @description Store plugin's files
  */
 const pluginInstallPath = `${installedDataPath}${path.sep}plugins`;
-
-/**
- * @description Store workflow's caches
- */
-const workflowCachePath = `${cachePath}${path.sep}workflow-cache`;
 
 /**
  * @description Store temp files
@@ -40,11 +40,11 @@ const initializePath = async () => {
   if (!(await checkFileExists(workflowInstallPath))) {
     await fse.mkdir(workflowInstallPath, { recursive: true });
   }
-  if (!(await checkFileExists(workflowDataPath))) {
-    await fse.mkdir(workflowDataPath, { recursive: true });
+  if (!(await checkFileExists(extensionDataPath))) {
+    await fse.mkdir(extensionDataPath, { recursive: true });
   }
-  if (!(await checkFileExists(workflowCachePath))) {
-    await fse.mkdir(workflowCachePath, { recursive: true });
+  if (!(await checkFileExists(extensionCachePath))) {
+    await fse.mkdir(extensionCachePath, { recursive: true });
   }
   if (!(await checkFileExists(pluginInstallPath))) {
     await fse.mkdir(pluginInstallPath, { recursive: true });
@@ -57,15 +57,15 @@ const initializePath = async () => {
 /**
  * @param  {string} bundleId
  */
-const getWorkflowDataPath = (bundleId: string) => {
-  return `${workflowDataPath}${path.sep}${bundleId}`;
+const getExtensionDataPath = (bundleId: string) => {
+  return `${extensionDataPath}${path.sep}${bundleId}`;
 };
 
 /**
  * @param  {string} bundleId
  */
-const getWorkflowCachePath = (bundleId: string) => {
-  return `${workflowCachePath}${path.sep}${bundleId}`;
+const getExtensionCachePath = (bundleId: string) => {
+  return `${extensionCachePath}${path.sep}${bundleId}`;
 };
 
 /**
@@ -101,11 +101,11 @@ export {
   installedDataPath,
   workflowInstallPath,
   pluginInstallPath,
+  getExtensionCachePath,
+  getExtensionDataPath,
   getPluginConfigJsonPath,
   getPluginInstalledPath,
-  getWorkflowCachePath,
   getWorkflowConfigJsonPath,
-  getWorkflowDataPath,
   getWorkflowInstalledPath,
   initializePath,
 };
@@ -115,11 +115,11 @@ export default {
   installedDataPath,
   workflowInstallPath,
   pluginInstallPath,
+  getExtensionCachePath,
+  getExtensionDataPath,
   getPluginConfigJsonPath,
   getPluginInstalledPath,
-  getWorkflowCachePath,
   getWorkflowConfigJsonPath,
-  getWorkflowDataPath,
   getWorkflowInstalledPath,
   initializePath,
 };

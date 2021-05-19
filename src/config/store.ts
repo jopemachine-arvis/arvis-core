@@ -44,6 +44,8 @@ const addCommands = (
 ) => {
   const ret = commands;
   for (const commandObj of newCommands) {
+    if (!commandObj.command) continue;
+
     commandObj.bundleId = bundleId;
     const existing = commands[commandObj.command];
 
@@ -57,9 +59,9 @@ const addCommands = (
 export class Store {
   private static instance: Store;
   private store: Map<string, any>;
-  checkStoreIsAvailable?: (available: boolean) => void;
+  public checkStoreIsAvailable?: (available: boolean) => void;
 
-  static getInstance() {
+  public static getInstance() {
     if (!Store.instance) {
       Store.instance = new Store();
     }
@@ -95,12 +97,21 @@ export class Store {
     this.store.set('hotkeys', {});
   }
 
+  private clearPluginsInfo() {
+    this.store.set('plugins', {});
+  }
+
+  public reset() {
+    this.clearWorkflowsInfo();
+    this.clearPluginsInfo();
+  }
+
   /**
    * @param  {string} bundleId
    * @param  {string} outputPath
    * @description Create zip file exporting plugin with bundleId to outputPath
    */
-  exportPlugin(bundleId: string, outputPath: string) {
+  public exportPlugin(bundleId: string, outputPath: string) {
     return zipDirectory(getPluginInstalledPath(bundleId), outputPath);
   }
 
@@ -109,7 +120,7 @@ export class Store {
    * @param  {string} outputPath
    * @description Create zip file exporting workflow with bundleId to outputPath
    */
-  exportWorkflow(bundleId: string, outputPath: string) {
+  public exportWorkflow(bundleId: string, outputPath: string) {
     return zipDirectory(getWorkflowInstalledPath(bundleId), outputPath);
   }
 
@@ -119,7 +130,7 @@ export class Store {
    *          This funtion is called by file watcher if arvis-workflow.json's changes are detected.
    * @description If bundleId is given, renew only that workflow info.
    */
-  async renewWorkflows(bundleId?: string) {
+  public async renewWorkflows(bundleId?: string) {
     return new Promise((resolve, reject) => {
       this.setStoreAvailability(false);
       recursiveReaddir(workflowInstallPath, async (err, files) => {
@@ -175,7 +186,7 @@ export class Store {
    *          This funtion is called by file watcher if arvis-plugin.json's changes are detected.
    * @description If bundleId is given, renew only that plugin info.
    */
-  renewPlugins = async ({
+  public renewPlugins = async ({
     initializePluginWorkspace,
     bundleId,
   }: {
@@ -227,57 +238,57 @@ export class Store {
         resolve(true);
       });
     });
-  }
+  };
 
   /**
    * @param  {} {}
    */
-  getInstalledWorkflows() {
+  public getInstalledWorkflows() {
     return this.getter('workflows', {});
   }
 
   /**
    * @param  {} {}
    */
-  getCommands() {
+  public getCommands() {
     return this.getter('commands', {});
   }
 
   /**
    * @param  {} {}
    */
-  getHotkeys() {
+  public getHotkeys() {
     return this.getter('hotkeys', {});
   }
 
   /**
    * @param  {} {}
    */
-  getPlugins() {
+  public getPlugins() {
     return this.getter('plugins', {});
   }
 
   /**
    * @param  {string} bundleId
    */
-  getWorkflow(bundleId: string) {
+  public getWorkflow(bundleId: string) {
     return this.getInstalledWorkflows()[bundleId];
   }
 
   /**
    * @param  {any} workflow
    */
-  setPlugin(plugin: any) {
+  public setPlugin(plugin: any) {
     this.store.set('plugins', {
       ...this.getPlugins(),
-      [plugin.bundleId]: plugin
+      [plugin.bundleId]: plugin,
     });
   }
 
   /**
    * @param  {any} workflow
    */
-  setWorkflow(workflow: any) {
+  public setWorkflow(workflow: any) {
     // Update workflow installation info
     const installedWorkflows = this.getInstalledWorkflows();
     installedWorkflows[workflow.bundleId] = workflow;
@@ -310,7 +321,7 @@ export class Store {
    * @param  {string} bundleId
    * @summary Called to unInstaller to remove information from the workflow from the Store
    */
-  deleteWorkflow(bundleId: string) {
+  public deleteWorkflow(bundleId: string) {
     // Update workflow installation info
     const installedWorkflows = this.getInstalledWorkflows();
     delete installedWorkflows[bundleId];
