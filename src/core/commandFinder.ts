@@ -8,7 +8,9 @@ import { getWorkflowList } from './workflowList';
  * @description Return commands containing inputStr and plugin execution results
  *              workflowItem has higher display priority than pluginItem
  */
-const findCommands = (inputStr: string): (Command | PluginItem)[] => {
+const findCommands = async (
+  inputStr: string
+): Promise<(Command | PluginItem)[]> => {
   const commands = getCommandList();
 
   const searchResult = [] as any;
@@ -40,7 +42,7 @@ const findCommands = (inputStr: string): (Command | PluginItem)[] => {
     }
   }
 
-  return [...searchResult, ...pluginWorkspace.search(inputStr)];
+  return [...searchResult, ...(await pluginWorkspace.search(inputStr))];
 };
 
 export { findCommands };
