@@ -75,7 +75,8 @@ export class Store {
 
   private setStoreAvailability(available: boolean) {
     if (this.checkStoreIsAvailable) {
-      if (available === false) log(LogType.debug, 'Store is occupied in Arvis now..');
+      if (available === false)
+        log(LogType.debug, 'Store is occupied in Arvis now..');
       this.checkStoreIsAvailable(available);
     }
   }
@@ -149,7 +150,6 @@ export class Store {
           return filePath.endsWith('arvis-workflow.json');
         });
 
-        const workflowInfoArr: any[] = [];
         const readJsonPromises: Promise<any>[] = [];
 
         for (const workflow of files) {
@@ -161,9 +161,11 @@ export class Store {
           }
         }
 
-        for await (const workflowInfo of readJsonPromises) {
-          workflowInfoArr.push(workflowInfo);
-        }
+        const readJsonsResult = await Promise.allSettled(readJsonPromises);
+
+        const workflowInfoArr = readJsonsResult
+          .filter((jsonResult) => jsonResult.status === 'fulfilled')
+          .map((jsonResult) => (jsonResult as any).value);
 
         if (!bundleId) {
           this.clearWorkflowsInfo();
@@ -175,6 +177,12 @@ export class Store {
 
         this.setStoreAvailability(true);
         resolve(true);
+
+        const errorCnt = readJsonsResult.filter(
+          (jsonResult) => jsonResult.status === 'rejected'
+        ).length;
+
+        log(LogType.error, `${errorCnt} workflows throws format error`);
       });
     });
   }
@@ -208,7 +216,6 @@ export class Store {
           return filePath.endsWith('arvis-plugin.json');
         });
 
-        const pluginInfoArr: any[] = [];
         const readJsonPromises: Promise<any>[] = [];
 
         for (const pluginJson of files) {
@@ -220,9 +227,11 @@ export class Store {
           }
         }
 
-        for await (const pluginInfo of readJsonPromises) {
-          pluginInfoArr.push(pluginInfo);
-        }
+        const readJsonsResult = await Promise.allSettled(readJsonPromises);
+
+        const pluginInfoArr = readJsonsResult
+          .filter((jsonResult) => jsonResult.status === 'fulfilled')
+          .map((jsonResult) => (jsonResult as any).value);
 
         const newPluginDict: any = bundleId ? this.getPlugins() : {};
         for (const pluginInfo of pluginInfoArr) {
@@ -236,9 +245,15 @@ export class Store {
         }
         this.setStoreAvailability(true);
         resolve(true);
+
+        const errorCnt = readJsonsResult.filter(
+          (jsonResult) => jsonResult.status === 'rejected'
+        ).length;
+
+        log(LogType.error, `${errorCnt} workflows throws format error`);
       });
     });
-  };
+  }
 
   /**
    * @param  {} {}
