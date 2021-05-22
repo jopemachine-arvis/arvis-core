@@ -182,7 +182,9 @@ export class Store {
           (jsonResult) => jsonResult.status === 'rejected'
         ).length;
 
-        log(LogType.error, `${errorCnt} workflows throws format error`);
+        if (errorCnt !== 0) {
+          log(LogType.error, `${errorCnt} workflows throws format error`);
+        }
       });
     });
   }
@@ -250,7 +252,9 @@ export class Store {
           (jsonResult) => jsonResult.status === 'rejected'
         ).length;
 
-        log(LogType.error, `${errorCnt} workflows throws format error`);
+        if (errorCnt !== 0) {
+          log(LogType.error, `${errorCnt} plugins throws format error`);
+        }
       });
     });
   }
