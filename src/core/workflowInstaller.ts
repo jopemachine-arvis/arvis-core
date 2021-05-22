@@ -5,6 +5,7 @@ import path from 'path';
 import rimraf from 'rimraf';
 import unzipper from 'unzipper';
 import { v4 as uuidv4 } from 'uuid';
+import { log, LogType } from '../config';
 import { getWorkflowInstalledPath, tempPath } from '../config/path';
 import { Store } from '../config/store';
 import { checkFileExists, sleep } from '../utils';
@@ -91,7 +92,7 @@ const install = async (installFile: string): Promise<void | Error> => {
 
   return new Promise(async (resolve, reject) => {
     unzipStream!.on('finish', async () => {
-      console.log('Unzip finished..');
+      log(LogType.debug, 'Unzip finished..');
       // even if the install pipe is finalized, there might be a short time when the file is not created yet.
       // it's not clear, so change below logic if it matters later.
       await sleep(1000);
@@ -141,7 +142,7 @@ const install = async (installFile: string): Promise<void | Error> => {
 const unInstall = async ({ bundleId }: { bundleId: string }): Promise<void> => {
   const store = Store.getInstance();
   const installedDir = getWorkflowInstalledPath(bundleId);
-  console.log(`Uninstalling '${bundleId}'...`);
+  log(LogType.debug, `Uninstalling '${bundleId}'...`);
 
   try {
     rimraf(installedDir, () => {

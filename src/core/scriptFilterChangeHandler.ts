@@ -1,4 +1,5 @@
 import { execute } from '../actions/scriptExecution';
+import { log, LogType } from '../config';
 import '../types';
 import { applyArgsToScript } from './argsHandler';
 import { extractScriptOnThisPlatform } from './scriptExtracter';
@@ -36,7 +37,7 @@ const handleScriptFilterChange = (
   const workManager = WorkManager.getInstance();
 
   if (workManager.printScriptfilter) {
-    console.log('[SF Script]', scriptStr);
+    log(LogType.info, '[SF Script]', scriptStr);
   }
 
   return execute({ bundleId, scriptStr, options });

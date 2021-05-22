@@ -1,3 +1,5 @@
+import { log, LogType } from '../config';
+
 /**
  * @param  {string | object} scriptStrOrDict
  * @return {string} scriptStr
@@ -10,7 +12,7 @@ export const extractScriptOnThisPlatform = (
   // tslint:disable-next-line: no-string-literal
   if (scriptStrOrDict['length']) return scriptStrOrDict as string;
   if (!scriptStrOrDict[process.platform]) {
-    console.error(`Proper script for '${process.platform}' not exist!`);
+    log(LogType.error, `Proper script for '${process.platform}' not exist!`);
     return '';
   }
   return scriptStrOrDict[process.platform];

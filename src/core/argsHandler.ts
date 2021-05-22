@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { log, LogType } from '../config';
 import { escapeBraket, replaceAll } from '../utils';
 import { WorkManager } from './workManager';
 
@@ -73,7 +74,7 @@ const extractArgsFromQuery = (querys: string[]): object => {
 
   if (workManager.printArgs) {
     // Print 'args' to debugging console
-    console.log('[Args]', args);
+    log(LogType.info, '[Args]', args);
   }
 
   return args;
@@ -123,7 +124,7 @@ const extractArgsFromScriptFilterItem = (
 
   if (workManager.printArgs) {
     // Print 'args' to debugging console
-    console.log('[Args]', args);
+    log(LogType.info, '[Args]', args);
   }
 
   return args;

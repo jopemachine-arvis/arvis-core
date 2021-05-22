@@ -13,6 +13,8 @@ const findCommands = async (
 ): Promise<(Command | PluginItem)[]> => {
   const commands = getCommandList();
 
+  if (inputStr === '') return [];
+
   const searchResult = [] as any;
   for (const commandStr of Object.keys(commands)) {
     // e.g when given inputStr is 'en abc' => output: en
@@ -33,10 +35,12 @@ const findCommands = async (
         }
 
         if (enabled) {
-          command.icon = {
-            path: defaultIcon,
-          };
-          searchResult.push(command);
+          searchResult.push({
+            ...command,
+            icon: {
+              path: defaultIcon,
+            },
+          });
         }
       }
     }

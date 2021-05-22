@@ -4,6 +4,7 @@ import path from 'path';
 import recursiveReaddir from 'recursive-readdir';
 import pluginWorkspace from '../core/pluginWorkspace';
 import { zipDirectory } from '../utils/zip';
+import { log, LogType } from './index';
 import {
   getPluginInstalledPath,
   getWorkflowInstalledPath,
@@ -74,7 +75,7 @@ export class Store {
 
   private setStoreAvailability(available: boolean) {
     if (this.checkStoreIsAvailable) {
-      if (available === false) console.log('Store is occupied in Arvis now..');
+      if (available === false) log(LogType.debug, 'Store is occupied in Arvis now..');
       this.checkStoreIsAvailable(available);
     }
   }
@@ -164,7 +165,6 @@ export class Store {
           workflowInfoArr.push(workflowInfo);
         }
 
-        // if (!bundleId) this.store = new Map<string, any>();
         if (!bundleId) {
           this.clearWorkflowsInfo();
         }

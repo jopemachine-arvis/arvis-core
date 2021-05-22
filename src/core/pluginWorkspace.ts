@@ -1,4 +1,5 @@
 import path from 'path';
+import { log, LogType } from '../config';
 import { getPluginInstalledPath } from '../config/path';
 import { getPluginList } from './pluginList';
 
@@ -29,14 +30,15 @@ const pluginWorkspace = {
       try {
         newPluginModules[pluginInfo.bundleId] = requireDynamically(modulePath);
       } catch (err) {
-        console.error(
+        log(
+          LogType.error,
           `Plugin '${pluginInfo.bundleId}' raised error on require: \n${err}`
         );
       }
     }
 
     pluginWorkspace.pluginModules = newPluginModules;
-    console.log('Updated pluginModules', pluginWorkspace.pluginModules);
+    log(LogType.debug, 'Updated pluginModules', pluginWorkspace.pluginModules);
   },
 
   /**
@@ -78,7 +80,8 @@ const pluginWorkspace = {
           pluginOutputItems = [...pluginOutputItems, ...thisPluginOutputItems];
         }
       } catch (err) {
-        console.error(
+        log(
+          LogType.error,
           `Plugin '${pluginBundleId}' raised error on execution: \n${err}`
         );
       }
@@ -87,11 +90,11 @@ const pluginWorkspace = {
     try {
       pluginOutputItems = [
         ...pluginOutputItems,
-        ...((await Promise.all(pluginPromises))[0]),
+        ...(await Promise.all(pluginPromises))[0],
       ];
     } catch (err) {
       // skip async items
-      console.error('Async print error', err);
+      log(LogType.error, 'Async print error', err);
     }
 
     pluginOutputItems.forEach((item) => {

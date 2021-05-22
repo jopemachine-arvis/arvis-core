@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import execa from '../../execa';
 import { scriptFilterExcute } from '../actions/scriptFilter';
+import { log, LogType } from '../config';
 import {
   getPluginInstalledPath,
   getWorkflowInstalledPath,
@@ -400,7 +401,7 @@ export class WorkManager {
         args
       );
     }
-    console.error(`Unsupported type, '${nextAction.type}'`);
+    log(LogType.error, `Unsupported type, '${nextAction.type}'`);
     return 'Unsupported type error';
   }
 
@@ -410,11 +411,11 @@ export class WorkManager {
   public debugWorkStk = () => {
     if (!this.printWorkStack) return;
 
-    console.log('---------- debug work stack ----------');
+    log(LogType.info, '---------- debug work stack ----------');
     for (const item of this.workStk) {
-      console.log(item);
+      log(LogType.info, item);
     }
-    console.log('--------------------------------------');
+    log(LogType.info, '--------------------------------------');
   }
 
   /**

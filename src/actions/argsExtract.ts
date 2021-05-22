@@ -1,3 +1,4 @@
+import { log, LogType } from '../config';
 import { replaceAll } from '../utils';
 
 /**
@@ -16,7 +17,7 @@ const argsExtract = (queryArgs: object, argToExtract: string): object => {
   }
 
   if (targetString === argToExtract) {
-    console.error('Arg selection is wrong');
+    log(LogType.error, 'Arg selection is wrong');
   }
 
   result[`${argToExtract}`] = targetString;

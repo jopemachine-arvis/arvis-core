@@ -2,10 +2,10 @@
 import _ from 'lodash';
 import { xml2json } from 'xml-js';
 import execa, { ExecaError } from '../../execa';
+import { log, LogType } from '../config';
 import { getWorkflowList, WorkManager } from '../core';
 import { extractArgsFromQuery } from '../core/argsHandler';
 import { handleScriptFilterChange } from '../core/scriptFilterChangeHandler';
-
 /**
  * @param  {any} variables
  * @summary Extract variables from xml format's ScriptFilterItem
@@ -108,7 +108,7 @@ function scriptFilterCompleteEventHandler(
   const workManager = WorkManager.getInstance();
   const stdout = parseStdout(scriptFilterResult.stdout);
 
-  workManager.printScriptfilter && console.log('[SF Result]', stdout);
+  workManager.printScriptfilter && log(LogType.info, '[SF Result]', stdout);
 
   const { items, rerun: rerunInterval, variables } = stdout;
 
@@ -149,14 +149,14 @@ function scriptErrorHandler (err: ExecaError) {
   const workManager = WorkManager.getInstance();
 
   if (err.timedOut) {
-    console.error(`Script timeout!\n'${err}`);
+    log(LogType.error, `Script timeout!\n'${err}`);
   } else if (err.isCanceled) {
     // console.log('Command was canceled by other scriptfilter.');
   } else {
     if (workManager.hasEmptyWorkStk()) {
     // console.log('Command was canceled by user.');
     } else {
-      console.error(`${err}`);
+      log(LogType.error, `${err}`);
       workManager.handleWorkflowError(err);
     }
   }

@@ -7,6 +7,7 @@ import {
   customActions,
   openFile,
 } from '../actions';
+import { log, LogType } from '../config';
 import { escapeBraket } from '../utils';
 import { applyArgsToScript } from './argsHandler';
 import { handleModifiers } from './modifierHandler';
@@ -19,25 +20,25 @@ import { WorkManager } from './workManager';
  */
 const scriptErrorHandler = (err: ExecaError) => {
   if (err.timedOut) {
-    console.error(`Script timeout!`);
+    log(LogType.error, `Script timeout!`);
   } else if (err.isCanceled) {
-    console.error(`Script canceled`);
+    log(LogType.error, `Script canceled`);
   } else {
-    console.error(`Script Error\n${err}`);
+    log(LogType.error, `Script Error\n${err}`);
   }
 };
 
 /**
  * @summary
  */
-const printDebuggingLog =
+const printActionDebuggingLog =
   (disabled: boolean) => (color: Function, type: string, text: string) => {
     if (disabled) return;
     if (!color || !type || !text) {
-      console.error(`Error: [${type}] is not properly set up.`);
+      log(LogType.error, `Error: [${type}] is not properly set up.`);
       return;
     }
-    console.log(color(`[Action: ${type}] `), text);
+    log(LogType.info, color(`[Action: ${type}] `), text);
   };
 
 /**
@@ -73,8 +74,8 @@ function handleAction({
       return;
     }
 
-    const log = () => {
-      printDebuggingLog(!workManager.printActionType)(logColor, type, target);
+    const printActionlog = () => {
+      printActionDebuggingLog(!workManager.printActionType)(logColor, type, target);
     };
 
     try {
@@ -89,12 +90,12 @@ function handleAction({
             scriptStr: target,
             options: { all: true },
           });
-          log();
+          printActionlog();
 
           scriptWork
             .then((result: execa.ExecaReturnValue<string>) => {
               if (workManager.printWorkflowOutput) {
-                console.log(`[Output]\n\n ${result.all}`);
+                log(LogType.info, `[Output]\n\n ${result.all}`);
               }
             })
             .catch(scriptErrorHandler);
@@ -109,7 +110,7 @@ function handleAction({
           nextActions = [action];
           // In the case of scriptfilter, you must press return to explicitly execute the action to leave below log.
           // Because otherwise, handleAction is not executed
-          log();
+          printActionlog();
           break;
 
         // Just execute next action
@@ -117,7 +118,7 @@ function handleAction({
           action = action as KeywordAction;
           target = action.command;
           logColor = chalk.blackBright;
-          log();
+          printActionlog();
 
           if (nextActions) {
             nextActions = handleAction({
@@ -133,7 +134,7 @@ function handleAction({
           action = action as HotkeyAction;
           target = action.hotkey;
           logColor = chalk.whiteBright;
-          log();
+          printActionlog();
 
           if (nextActions) {
             nextActions = handleAction({
@@ -151,7 +152,7 @@ function handleAction({
           target = applyArgsToScript({ scriptStr: action.target, queryArgs });
 
           openFile(target);
-          log();
+          printActionlog();
           break;
 
         // Notification (Not implemented on here)
@@ -165,7 +166,7 @@ function handleAction({
           logColor = chalk.greenBright;
           target = applyArgsToScript({ scriptStr: action.text, queryArgs });
           copyToClipboard(target);
-          log();
+          printActionlog();
           break;
 
         // Extract query from args, vars and execute the action.
@@ -177,7 +178,7 @@ function handleAction({
           queryArgs = argsExtract(queryArgs, argToExtract);
           target = queryArgs;
 
-          log();
+          printActionlog();
           if (nextActions) {
             nextActions = handleAction({
               actions: nextActions,
@@ -203,7 +204,7 @@ function handleAction({
             eval(target) === true
               ? action.if.action.then
               : action.if.action.else;
-          log();
+          printActionlog();
 
           if (conditionalAction) {
             nextActions = handleAction({
