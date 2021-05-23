@@ -1,3 +1,4 @@
+// tslint:disable: no-eval
 import path from 'path';
 import { log, LogType } from '../config';
 import { getPluginInstalledPath } from '../config/path';
@@ -5,10 +6,22 @@ import { getPluginList } from './pluginList';
 
 /**
  * @param  {string} modulePath
+ * @summary Remove cache from existing module for module updates, and dynamically require new modules.
+ *          Use eval.
  */
 const requireDynamically = (modulePath: string) => {
   modulePath = modulePath.split('\\').join('/');
-  // tslint:disable-next-line: no-eval
+
+  try {
+    const moduleCache = eval(`require.cache[require.resolve('${modulePath}')]`);
+
+    if (moduleCache) {
+      eval(`delete require.cache[require.resolve('${modulePath}')]`);
+    }
+  } catch (err) {
+    log(LogType.debug, 'plugin module cache not deleted', err);
+  }
+
   return eval(`require('${modulePath}');`);
 };
 
@@ -18,8 +31,9 @@ const pluginWorkspace = {
   /**
    * @param  {any[]} pluginInfos
    */
-  renew: (pluginInfos: any[]) => {
-    const newPluginModules = {};
+  renew: (pluginInfos: any[], bundleId?: string) => {
+    const newPluginModules = bundleId ? pluginWorkspace.pluginModules : {};
+
     for (const pluginInfo of pluginInfos) {
       const modulePath = path.normalize(
         `${getPluginInstalledPath(pluginInfo.bundleId)}${path.sep}${

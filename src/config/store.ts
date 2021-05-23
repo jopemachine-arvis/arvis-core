@@ -183,7 +183,7 @@ export class Store {
         ).length;
 
         if (errorCnt !== 0) {
-          log(LogType.error, `${errorCnt} workflows throws format error`);
+          log(LogType.error, `${errorCnt} workflows throw format errors`);
         }
       });
     });
@@ -243,7 +243,7 @@ export class Store {
         this.store.set('plugins', newPluginDict);
 
         if (initializePluginWorkspace) {
-          pluginWorkspace.renew(pluginInfoArr);
+          pluginWorkspace.renew(pluginInfoArr, bundleId);
         }
         this.setStoreAvailability(true);
         resolve(true);
@@ -253,7 +253,7 @@ export class Store {
         ).length;
 
         if (errorCnt !== 0) {
-          log(LogType.error, `${errorCnt} plugins throws format error`);
+          log(LogType.error, `${errorCnt} plugins throw format errors`);
         }
       });
     });
