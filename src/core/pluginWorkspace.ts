@@ -1,4 +1,5 @@
 // tslint:disable: no-eval
+import _ from 'lodash';
 import path from 'path';
 import { log, LogType } from '../config';
 import { getPluginInstalledPath } from '../config/path';
@@ -16,7 +17,11 @@ const requireDynamically = (modulePath: string) => {
     const moduleCache = eval(`require.cache[require.resolve('${modulePath}')]`);
 
     if (moduleCache) {
-      eval(`delete require.cache[require.resolve('${modulePath}')]`);
+      eval(`
+        Object.keys(require.cache).forEach(function(key) {
+          delete require.cache[key];
+        });
+      `);
     }
   } catch (err) {
     log(LogType.debug, 'plugin module cache not deleted', err);
@@ -104,7 +109,7 @@ const pluginWorkspace = {
     try {
       pluginOutputItems = [
         ...pluginOutputItems,
-        ...(await Promise.all(pluginPromises))[0],
+        ..._.flattenDeep(await Promise.all(pluginPromises))
       ];
     } catch (err) {
       // skip async items
