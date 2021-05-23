@@ -11,6 +11,84 @@
             "required": [
                 "type"
             ],
+            "defaultSnippets": [
+                {
+                    "label": "Keyword",
+                    "body": {
+                        "type": "keyword",
+                        "command": "",
+                        "title": "",
+                        "subtitle": "",
+                        "script": ""
+                    }
+                },
+                {
+                    "label": "Scriptfilter",
+                    "body": {
+                        "type": "scriptfilter",
+                        "command": "",
+                        "title": "",
+                        "subtitle": "",
+                        "script_filter": "",
+                        "running_subtext": "",
+                        "withspace": true
+                    }
+                },
+                {
+                    "label": "Conditional Stmt",
+                    "body": {
+                        "type": "cond",
+                        "modifiers": "normal",
+                        "if": {
+                            "cond": "",
+                            "then": [],
+                            "else": []
+                        }
+                    }
+                },
+                {
+                    "label": "Extract Argument",
+                    "body": {
+                        "type": "args",
+                        "modifiers": "normal",
+                        "arg": "{query}",
+                        "action": []
+                    }
+                },
+                {
+                    "label": "Run Script",
+                    "body": {
+                        "type": "script",
+                        "modifiers": "normal",
+                        "script": ""
+                    }
+                },
+                {
+                    "label": "Open file, url",
+                    "body": {
+                        "type": "open",
+                        "modifiers": "normal",
+                        "target": "{query}"
+                    }
+                },
+                {
+                    "label": "Notify alarm",
+                    "body": {
+                        "type": "notification",
+                        "modifiers": "normal",
+                        "title": "",
+                        "text": ""
+                    }
+                },
+                {
+                    "label": "Copy to clipboard",
+                    "body": {
+                        "type": "clipboard",
+                        "modifiers": "normal",
+                        "text": "{query}"
+                    }
+                }
+            ],
             "properties": {
                 "type": {
                     "$ref": "#/definitions/type",
