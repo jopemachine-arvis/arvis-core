@@ -66,7 +66,7 @@ const pluginWorkspace = {
   search: async (inputStr: string) => {
     let pluginOutputItems: any[] = [];
     // const pluginPromises: object = {};
-    const pluginPromises: Promise<any>[] = [];
+    const asyncPluginWorks: Promise<any>[] = [];
 
     for (const pluginBundleId of Object.keys(pluginWorkspace.pluginModules)) {
       const pluginModule = pluginWorkspace.pluginModules[pluginBundleId];
@@ -74,7 +74,7 @@ const pluginWorkspace = {
         const pluginExecutionResult = (pluginModule as any)(inputStr);
 
         if (pluginExecutionResult.then) {
-          pluginPromises.push(
+          asyncPluginWorks.push(
             new Promise<any>((resolve, reject) => {
               pluginExecutionResult
                 .then((result) => {
@@ -109,7 +109,7 @@ const pluginWorkspace = {
     try {
       pluginOutputItems = [
         ...pluginOutputItems,
-        ..._.flattenDeep(await Promise.all(pluginPromises))
+        ..._.flattenDeep(await Promise.all(asyncPluginWorks)),
       ];
     } catch (err) {
       // skip async items

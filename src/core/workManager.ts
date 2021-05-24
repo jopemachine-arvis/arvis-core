@@ -34,6 +34,10 @@ interface Work {
   items?: ScriptFilterItem[];
 }
 
+/**
+ * @summary Manage the execution of tasks (works)
+ *          In the CUI, GUI, create a singleton object of this class to execute action, scriptfilter
+ */
 export class WorkManager {
   private static instance: WorkManager;
 
@@ -49,7 +53,7 @@ export class WorkManager {
   rerunTimer?: NodeJS.Timeout;
   execPath?: string;
 
-  // For debugging
+  // For debugging, set below variables
   public printActionType?: boolean;
   public printWorkStack?: boolean;
   public printWorkflowOutput?: boolean;
@@ -141,7 +145,7 @@ export class WorkManager {
       !this.onInputShouldBeUpdate ||
       !this.onWorkEndHandler
     ) {
-      throw new Error('renderer update funtions are not set!');
+      throw new Error('Renderer update funtions are not set!');
     }
 
     if (this.hasNestedScriptFilters()) {
@@ -174,7 +178,7 @@ export class WorkManager {
    */
   public setErrorItem = (err: any, errorItems: ScriptFilterItem[]) => {
     if (!this.onItemShouldBeUpdate) {
-      throw new Error('renderer update funtions are not set!');
+      throw new Error('Renderer update funtions are not set!');
     }
 
     if (errorItems.length !== 0) {
@@ -209,7 +213,7 @@ export class WorkManager {
     modifiers: ModifierInput
   ) => {
     if (!this.onItemShouldBeUpdate) {
-      throw new Error('renderer update funtions are not set!');
+      throw new Error('Renderer update funtions are not set!');
     }
     if (
       this.hasEmptyWorkStk() ||
@@ -257,7 +261,7 @@ export class WorkManager {
    */
   public clearModifierOnScriptFilterItem = () => {
     if (!this.onItemShouldBeUpdate) {
-      throw new Error('renderer update funtions are not set!');
+      throw new Error('Renderer update funtions are not set!');
     }
     if (
       this.hasEmptyWorkStk() ||
@@ -307,7 +311,7 @@ export class WorkManager {
     runningSubText: string;
   }) {
     if (!this.onItemShouldBeUpdate) {
-      throw new Error('renderer update funtions are not set!');
+      throw new Error('Renderer update funtions are not set!');
     }
 
     const swap = itemArr;
@@ -453,7 +457,7 @@ export class WorkManager {
       !this.onItemShouldBeUpdate ||
       !this.onWorkEndHandler
     ) {
-      throw new Error('renderer update funtions are not set!');
+      throw new Error('Renderer update funtions are not set!');
     }
 
     // Ignore this exeution if previous work is pending.
@@ -534,7 +538,7 @@ export class WorkManager {
               setKeywordItem(nextAction as KeywordAction);
 
               this.onInputShouldBeUpdate({
-                str: ' ',
+                str: '',
                 needItemsUpdate: false,
               });
             }

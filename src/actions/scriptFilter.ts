@@ -137,7 +137,7 @@ function scriptFilterCompleteEventHandler(
   });
 
   if (!workManager.onItemShouldBeUpdate) {
-    throw new Error('renderer update funtions are not set!');
+    throw new Error('Renderer update funtions are not set!');
   }
 
   workManager.onItemShouldBeUpdate({ items, needIndexInfoClear: true });

@@ -26,7 +26,6 @@ const handleScriptFilterChange = (
     throw new Error(`Command is not scriptfilter! ${command}`);
   }
 
-  // const script = command.script_filter!.split(' ').map(escapeBraket).join(' ');
   const script = command.script_filter!;
 
   const scriptStr = applyArgsToScript({
