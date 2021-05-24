@@ -1,32 +1,18 @@
 import chalk from 'chalk';
 import _ from 'lodash';
-import execa, { ExecaError } from '../../execa';
 import {
-  argsExtract,
-  copyToClipboard,
-  customActions,
-  openFile,
+  argsExtract as argsExtractAction,
+  copyToClipboard as copyToClipboardAction,
+  customActions as customActions,
+  handleScriptAction as handleScriptAction,
+  openFile as openFileAction,
 } from '../actions';
 import { log, LogType } from '../config';
 import { escapeBraket } from '../utils';
 import { applyArgsToScript } from './argsHandler';
 import { handleModifiers } from './modifierHandler';
-import { execute } from './scriptExecutor';
 import { extractScriptOnThisPlatform } from './scriptExtracter';
 import { WorkManager } from './workManager';
-
-/**
- * @param  {ExecaError} err
- */
-const scriptErrorHandler = (err: ExecaError) => {
-  if (err.timedOut) {
-    log(LogType.error, `Script timeout!`);
-  } else if (err.isCanceled) {
-    log(LogType.error, `Script canceled`);
-  } else {
-    log(LogType.error, `Script Error\n${err}`);
-  }
-};
 
 /**
  * @summary
@@ -82,23 +68,10 @@ function handleAction({
       switch (type) {
         case 'script':
           action = action as ScriptAction;
-          logColor = chalk.yellowBright;
           const scriptStr = extractScriptOnThisPlatform(action.script);
           target = applyArgsToScript({ scriptStr, queryArgs });
-          const scriptWork = execute({
-            bundleId: workManager.getTopWork().bundleId,
-            scriptStr: target,
-            options: { all: true },
-          });
-          printActionlog();
 
-          scriptWork
-            .then((result: execa.ExecaReturnValue<string>) => {
-              if (workManager.printWorkflowOutput) {
-                log(LogType.info, `[Output]\n\n ${result.all}`);
-              }
-            })
-            .catch(scriptErrorHandler);
+          handleScriptAction(action, queryArgs);
           break;
 
         // Scriptfilter cannot be processed here because it could be ran in a way other than 'Enter' event
@@ -113,10 +86,9 @@ function handleAction({
           printActionlog();
           break;
 
-        // Just execute next action
-        case 'keyword':
+        case 'keyword-waiting':
           action = action as KeywordAction;
-          target = action.command;
+          target = action.command || action.title;
           logColor = chalk.blackBright;
           printActionlog();
 
@@ -126,6 +98,28 @@ function handleAction({
               queryArgs,
               modifiersInput,
             }).nextActions;
+          }
+          break;
+
+        // Just execute next action if it is trigger.
+        // In case of keyword action, wait for next user input
+        case 'keyword':
+          action = action as KeywordAction;
+          target = action.command || action.title;
+          logColor = chalk.blackBright;
+          printActionlog();
+
+          if (workManager.getTopWork().type === 'keyword') {
+            if (nextActions) {
+              nextActions = handleAction({
+                actions: nextActions,
+                queryArgs,
+                modifiersInput,
+              }).nextActions;
+            }
+          } else {
+            // Wait for next 'action' event
+            nextActions = undefined;
           }
           break;
 
@@ -151,7 +145,7 @@ function handleAction({
           logColor = chalk.blueBright;
           target = applyArgsToScript({ scriptStr: action.target, queryArgs });
 
-          openFile(target);
+          openFileAction(target);
           printActionlog();
           break;
 
@@ -165,7 +159,7 @@ function handleAction({
           action = action as ClipboardAction;
           logColor = chalk.greenBright;
           target = applyArgsToScript({ scriptStr: action.text, queryArgs });
-          copyToClipboard(target);
+          copyToClipboardAction(target);
           printActionlog();
           break;
 
@@ -175,7 +169,7 @@ function handleAction({
           logColor = chalk.blue;
 
           const argToExtract = escapeBraket(action.arg).trim();
-          queryArgs = argsExtract(queryArgs, argToExtract);
+          queryArgs = argsExtractAction(queryArgs, argToExtract);
           target = queryArgs;
 
           printActionlog();

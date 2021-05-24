@@ -6,6 +6,7 @@ import { log, LogType } from '../config';
 import { getWorkflowList, WorkManager } from '../core';
 import { extractArgsFromQuery } from '../core/argsHandler';
 import { handleScriptFilterChange } from '../core/scriptFilterChangeHandler';
+
 /**
  * @param  {any} variables
  * @summary Extract variables from xml format's ScriptFilterItem
@@ -123,6 +124,7 @@ function scriptFilterCompleteEventHandler(
   });
 
   const { bundleId } = workManager.getTopWork();
+  // To do :: If this code could be used in plugin, below codes need to be fixed.
   const workflowDefaultIcon = getWorkflowList()[bundleId].defaultIcon;
 
   items.map((item: ScriptFilterItem) => {

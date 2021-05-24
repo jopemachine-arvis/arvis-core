@@ -3,4 +3,7 @@ export interface KeywordAction {
   command: string;
   action: Action[];
   modifiers?: string;
+  title?: string;
+  subtitle?: string;
+  withspace?: boolean;
 }

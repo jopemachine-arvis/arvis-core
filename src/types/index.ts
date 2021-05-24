@@ -18,14 +18,13 @@ import { PluginItem as _PluginItem } from './pluginItem';
 import { ScriptFilterItem as _ScriptFilterItem } from './scriptFilterItem';
 import { WorkflowConfigFile as _WorkflowConfigFile } from './workflowConfig';
 
-// Need to change below codes to import this code from the CUI and GUI code side
+// To do:: Need to change below codes to import this code from the CUI and GUI code side
 declare global {
   type OpenAction = _OpenAction;
   type ScriptAction = _ScriptAction;
   type ClipboardAction = _ClipboardAction;
   type ScriptFilterAction = _ScriptFilterAction;
-  // NotificationAction is already declared in lib.dom.d.ts(882, 11)
-  type NotiAction = _NotificationAction;
+  type NotiAction = _NotificationAction; // NotificationAction is already declared in lib.dom.d.ts(882, 11)
   type ScriptFilterResult = _ScriptFilterResult;
   type KeywordAction = _KeywordAction;
   type ArgsAction = _ArgsAction;

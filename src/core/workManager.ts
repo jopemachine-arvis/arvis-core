@@ -1,5 +1,8 @@
+// tslint:disable: no-string-literal
+
 import _ from 'lodash';
 import execa from '../../execa';
+import { handleKeywordWaiting, setKeywordItem } from '../actions';
 import { scriptFilterExcute } from '../actions/scriptFilter';
 import { log, LogType } from '../config';
 import {
@@ -166,7 +169,8 @@ export class WorkManager {
   /**
    * @param  {any} err
    * @param  {ScriptFilterItem[]} errorItems
-   * @summary When an error occurs, onItemShouldBeUpdate is called by this method and those error messages are displayed to the user.
+   * @summary When an error occurs, onItemShouldBeUpdate is called by this method
+   *          And those error messages are displayed to the user in the form of items.
    */
   public setErrorItem = (err: any, errorItems: ScriptFilterItem[]) => {
     if (!this.onItemShouldBeUpdate) {
@@ -337,7 +341,7 @@ export class WorkManager {
   }
 
   /**
-   * @param  {Command | ScriptFilterItem} item
+   * @param  {Command | ScriptFilterItem | PluginItem} item
    * @param  {string} inputStr
    */
   public prepareActions = ({
@@ -347,7 +351,6 @@ export class WorkManager {
     item: Command | ScriptFilterItem | PluginItem;
     inputStr: string;
   }) => {
-    // let actions: Action[] | undefined;
     if (this.hasEmptyWorkStk()) {
       return [item] as Action[];
     } else {
@@ -356,8 +359,9 @@ export class WorkManager {
   }
 
   /**
-   * @param  {Command | ScriptFilterItem} item
+   * @param  {Command | ScriptFilterItem | PluginItem} item
    * @param  {string} inputStr
+   * @return {object}
    */
   public prepareArgs = ({
     item,
@@ -365,23 +369,25 @@ export class WorkManager {
   }: {
     item: Command | ScriptFilterItem | PluginItem;
     inputStr: string;
-  }) => {
+  }): object => {
     let args;
 
-    if (this.hasEmptyWorkStk()) {
-      // tslint:disable-next-line: no-string-literal
-      if (item['isPluginItem']) {
-        args = extractArgsFromPluginItem(item as PluginItem);
-      } else {
-        const [_commandTitle, queryStr] = inputStr.split(
-          (item as Command).command!
-        );
+    if (this.hasEmptyWorkStk() && item['isPluginItem']) {
+      args = extractArgsFromPluginItem(item as PluginItem);
+    } else if (this.hasEmptyWorkStk()) {
+      const [_commandTitle, queryStr] = inputStr.split(
+        (item as Command).command!
+      );
 
-        args = extractArgsFromQuery(
-          queryStr ? queryStr.trim().split((item as Command).command!) : []
-        );
-      }
-    } else {
+      args = extractArgsFromQuery(
+        queryStr ? queryStr.trim().split((item as Command).command!) : []
+      );
+    } else if (
+      this.getTopWork().type === 'keyword' ||
+      this.getTopWork().type === 'keyword-waiting'
+    ) {
+      args = extractArgsFromQuery(inputStr.split(' '));
+    } else if (this.getTopWork().type === 'scriptfilter') {
       item = item as ScriptFilterItem;
       const vars = { ...item.variables, ...this.globalVariables! };
       args = extractArgsFromScriptFilterItem(item, vars);
@@ -393,8 +399,9 @@ export class WorkManager {
   /**
    * @param  {Action} nextAction
    * @param  {any} args
+   * @return {string}
    */
-  public getNextActionsInput = (nextAction: Action, args) => {
+  public getNextActionsInput = (nextAction: Action, args: any): string => {
     if (nextAction.type === 'scriptfilter') {
       return getAppliedArgsFromScript(
         extractScriptOnThisPlatform(nextAction.script_filter),
@@ -408,10 +415,10 @@ export class WorkManager {
   /**
    * @summary
    */
-  public debugWorkStk = () => {
+  public debugWorkStk = (): void => {
     if (!this.printWorkStack) return;
 
-    log(LogType.info, '---------- debug work stack ----------');
+    log(LogType.info, '---------- Debug work stack ----------');
     for (const item of this.workStk) {
       log(LogType.info, item);
     }
@@ -440,6 +447,15 @@ export class WorkManager {
     inputStr: string,
     modifier: ModifierInput
   ): Promise<void> {
+    if (
+      !this.onItemPressHandler ||
+      !this.onInputShouldBeUpdate ||
+      !this.onItemShouldBeUpdate ||
+      !this.onWorkEndHandler
+    ) {
+      throw new Error('renderer update funtions are not set!');
+    }
+
     // Ignore this exeution if previous work is pending.
     if (this.workIsPending()) {
       return;
@@ -451,7 +467,7 @@ export class WorkManager {
     const args = this.prepareArgs({ item, inputStr });
 
     if (this.hasEmptyWorkStk()) {
-      // keyword, scriptfilter, or other trigger
+      // type: one of 'keyword', 'scriptfilter', 'hotkey'
       this.pushWork({
         args,
         input: inputStr,
@@ -471,6 +487,12 @@ export class WorkManager {
     this.renewInput(inputStr);
 
     while (exists(targetActions)) {
+      // Handle Keyword action
+      if (targetActions![0].type === 'keyword') {
+        handleKeywordWaiting(targetActions![0] as KeywordAction, args);
+        return;
+      }
+
       actionResult = handleAction({
         actions: targetActions!,
         queryArgs: args,
@@ -481,7 +503,6 @@ export class WorkManager {
 
       if (exists(targetActions)) {
         for (const nextAction of targetActions!) {
-          // 왜 여기에 keyword를 뒀더라..? 생각이 안 남...
           if (
             nextAction.type === 'scriptfilter' ||
             nextAction.type === 'keyword'
@@ -505,23 +526,29 @@ export class WorkManager {
             if (nextAction.type === 'scriptfilter') {
               scriptFilterExcute(nextInput);
 
-              this.onItemPressHandler && this.onItemPressHandler();
-              this.onInputShouldBeUpdate &&
-                this.onInputShouldBeUpdate({
-                  str: nextInput + ' ',
-                  needItemsUpdate: false,
-                });
-              return;
+              this.onInputShouldBeUpdate({
+                str: nextInput + ' ',
+                needItemsUpdate: false,
+              });
+            } else if (nextAction.type === 'keyword') {
+              setKeywordItem(nextAction as KeywordAction);
+
+              this.onInputShouldBeUpdate({
+                str: ' ',
+                needItemsUpdate: false,
+              });
             }
+
+            this.onItemPressHandler();
+            return;
           }
         }
       }
     }
 
     this.clearWorkStack();
-    this.onItemShouldBeUpdate &&
-      this.onItemShouldBeUpdate({ items: [], needIndexInfoClear: true });
-    this.onItemPressHandler && this.onItemPressHandler();
-    this.onWorkEndHandler && this.onWorkEndHandler();
+    this.onItemShouldBeUpdate({ items: [], needIndexInfoClear: true });
+    this.onItemPressHandler();
+    this.onWorkEndHandler();
   }
 }

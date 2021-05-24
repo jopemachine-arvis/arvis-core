@@ -1,11 +1,12 @@
 export const customActions = {
-  'scriptfilter': undefined,
-  'keyword': undefined,
-  'open': undefined,
-  'notification': undefined,
-  'clipboard': undefined,
   'args': undefined,
+  'clipboard': undefined,
   'cond': undefined,
+  'keyword': undefined,
+  'notification': undefined,
+  'open': undefined,
+  'script': undefined,
+  'scriptfilter': undefined,
 };
 
 /**

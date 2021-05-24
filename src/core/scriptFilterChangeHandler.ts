@@ -1,7 +1,7 @@
-import { execute } from '../actions/scriptExecution';
 import { log, LogType } from '../config';
 import '../types';
 import { applyArgsToScript } from './argsHandler';
+import { execute } from './scriptExecutor';
 import { extractScriptOnThisPlatform } from './scriptExtracter';
 import { WorkManager } from './workManager';
 
