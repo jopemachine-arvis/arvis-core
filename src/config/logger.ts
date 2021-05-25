@@ -25,10 +25,19 @@ const setLogLevels = (types: LogType[]) => {
  */
 const log = (type: LogType, message?: any, ...optionalParams: any[]) => {
   if (type === LogType.error) {
-    console.error(message, optionalParams);
+    console.error(message, ...optionalParams);
   } else if (logLevels.includes(type)) {
-    console.log(message, optionalParams);
+    console.log(message, ...optionalParams);
   }
 };
 
-export { LogType, setLogLevels, log };
+/**
+ * @param  {Error} err
+ */
+const trace = (err: Error) => {
+  if (logLevels.includes(LogType.error)) {
+    console.trace(err);
+  }
+};
+
+export { LogType, setLogLevels, log, trace };

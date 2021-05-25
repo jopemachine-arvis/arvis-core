@@ -2,6 +2,7 @@
 import _ from 'lodash';
 import path from 'path';
 import { log, LogType } from '../config';
+import { trace } from '../config/logger';
 import { getPluginInstalledPath } from '../config/path';
 import { getPluginList } from './pluginList';
 
@@ -24,7 +25,7 @@ const requireDynamically = (modulePath: string) => {
       `);
     }
   } catch (err) {
-    log(LogType.debug, 'plugin module cache not deleted', err);
+    log(LogType.debug, 'Plugin module cache not deleted', err);
   }
 
   return eval(`require('${modulePath}');`);
@@ -53,6 +54,8 @@ const pluginWorkspace = {
           LogType.error,
           `Plugin '${pluginInfo.bundleId}' raised error on require: \n${err}`
         );
+
+        trace(err);
       }
     }
 
@@ -65,7 +68,6 @@ const pluginWorkspace = {
    */
   search: async (inputStr: string) => {
     let pluginOutputItems: any[] = [];
-    // const pluginPromises: object = {};
     const asyncPluginWorks: Promise<any>[] = [];
 
     for (const pluginBundleId of Object.keys(pluginWorkspace.pluginModules)) {
@@ -112,7 +114,7 @@ const pluginWorkspace = {
         ..._.flattenDeep(await Promise.all(asyncPluginWorks)),
       ];
     } catch (err) {
-      // skip async items
+      // skip async items on errors
       log(LogType.error, 'Async print error', err);
     }
 
