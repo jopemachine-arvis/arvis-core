@@ -21,22 +21,64 @@ import {
 import { extractScriptOnThisPlatform } from './scriptExtracter';
 
 interface Work {
+  /**
+   * @description Work's type
+   *              Possible value is `keyword`, `keyword-waiting`, `scriptfilter`, `hotkey`
+   */
   type: string;
-  input: string;
-  bundleId: string;
-  args: object | null;
-  command: Command | PluginItem;
 
-  // Used in only type is 'scriptfilter'
+  /**
+   * @description
+   */
+  input: string;
+
+  /**
+   * @description Workflow or plugin's bundleId
+   */
+  bundleId: string;
+
+  /**
+   * @description Applied args
+   */
+  args: object | null;
+
+  /**
+   * @description nextAction to execute
+   */
+  action: Action[] | undefined;
+
+  /**
+   * @description trigger that triggers action.
+   *              starts with command object or pluginItem and becomes scriptFilterItem or action
+   */
+  actionTrigger?: Command | PluginItem | ScriptFilterItem | Action;
+
+  /**
+   * @description Used in only type is 'scriptfilter'
+   *              Indicates whether scriptfilter script is running
+   */
   workCompleted?: boolean;
+
+  /**
+   * @description Used in only type is 'scriptfilter'
+   *              ExecaChildProcess object (promise)
+   */
   workProcess?: execa.ExecaChildProcess | null;
+
+  /**
+   * @description Scriptfilter's rerun interval
+   */
   rerunInterval?: number;
+
+  /**
+   * @description Scriptfilter's script execution result
+   */
   items?: ScriptFilterItem[];
 }
 
 /**
- * @summary Manage the execution of tasks (works)
- *          In the CUI, GUI, create a singleton object of this class to execute action, scriptfilter
+ * @description Manage the execution of tasks (works)
+ *              In the CUI, GUI, create a singleton object of this class to execute action, scriptfilter
  */
 export class WorkManager {
   private static instance: WorkManager;
@@ -347,6 +389,8 @@ export class WorkManager {
   /**
    * @param  {Command | ScriptFilterItem | PluginItem} item
    * @param  {string} inputStr
+   * @description If workStk is empty, return item's action
+   *              otherwise, return nextAction (topWork's action)
    */
   public prepareActions = ({
     item,
@@ -354,11 +398,11 @@ export class WorkManager {
   }: {
     item: Command | ScriptFilterItem | PluginItem;
     inputStr: string;
-  }) => {
+  }): Action[] | undefined => {
     if (this.hasEmptyWorkStk()) {
-      return [item] as Action[];
+      return (item as Command | PluginItem).action;
     } else {
-      return this.getTopWork().command.action;
+      return this.getTopWork().action;
     }
   }
 
@@ -366,6 +410,7 @@ export class WorkManager {
    * @param  {Command | ScriptFilterItem | PluginItem} item
    * @param  {string} inputStr
    * @return {object}
+   * @description Returns args using according args extraction method
    */
   public prepareArgs = ({
     item,
@@ -441,6 +486,102 @@ export class WorkManager {
   }
 
   /**
+   * @param  {} item
+   * @param  {} args
+   * @param  {} targetActions
+   * @param  {} modifier
+   */
+  private handleActionChain = ({
+    item,
+    args,
+    targetActions,
+    modifier,
+  }: {
+    item: Command | ScriptFilterItem | PluginItem;
+    args: object;
+    targetActions: Action[] | undefined;
+    modifier: ModifierInput;
+  }) => {
+    if (
+      !this.onItemPressHandler ||
+      !this.onInputShouldBeUpdate ||
+      !this.onItemShouldBeUpdate ||
+      !this.onWorkEndHandler
+    ) {
+      throw new Error('Renderer update funtions are not set!');
+    }
+
+    let handleActionResult: {
+      nextActions: Action[];
+      args: object;
+    };
+
+    const exists = (arr: any[] | undefined) => arr && arr.length > 0;
+
+    while (exists(targetActions)) {
+      // Handle Keyword Action
+      // Assume
+      if (targetActions![0].type === 'keyword') {
+        handleKeywordWaiting(item, targetActions![0] as KeywordAction, args);
+        return;
+      }
+
+      handleActionResult = handleAction({
+        actions: targetActions!,
+        queryArgs: args,
+        modifiersInput: modifier,
+      });
+
+      targetActions = handleActionResult.nextActions;
+
+      if (exists(targetActions)) {
+        for (const nextAction of targetActions!) {
+          if (
+            nextAction.type === 'scriptfilter' ||
+            nextAction.type === 'keyword'
+          ) {
+            const nextInput = this.getNextActionsInput(
+              nextAction,
+              handleActionResult.args
+            );
+
+            this.pushWork({
+              type: nextAction.type,
+              input: nextInput,
+              action: nextAction.action,
+              actionTrigger: nextAction,
+              bundleId: this.getTopWork().bundleId,
+              args: handleActionResult.args,
+              workProcess: null,
+              workCompleted: false,
+            });
+
+            if (nextAction.type === 'scriptfilter') {
+              scriptFilterExcute(nextInput);
+
+              this.onInputShouldBeUpdate({
+                str: nextInput + ' ',
+                needItemsUpdate: false,
+              });
+
+            } else if (nextAction.type === 'keyword') {
+              setKeywordItem(nextAction as KeywordAction);
+
+              this.onInputShouldBeUpdate({
+                str: '',
+                needItemsUpdate: false,
+              });
+            }
+
+            this.onItemPressHandler();
+            return;
+          }
+        }
+      }
+    }
+  }
+
+  /**
    * @param  {Command|ScriptFilterItem|PluginItem} item
    * @param  {string} inputStr
    * @param  {ModifierInput} modifier
@@ -475,7 +616,8 @@ export class WorkManager {
       this.pushWork({
         args,
         input: inputStr,
-        command: item as Command | PluginItem,
+        action: actions,
+        actionTrigger: item as Command | PluginItem,
         type: (item as Command | PluginItem).type,
         bundleId: (item as Command | PluginItem).bundleId!,
       });
@@ -483,72 +625,10 @@ export class WorkManager {
       this.setExecPath(item as Command | PluginItem);
     }
 
-    let actionResult;
-    let targetActions = actions;
-    const exists = (arr: any[] | undefined) => arr && arr.length > 0;
-
     // Renew input
     this.renewInput(inputStr);
 
-    while (exists(targetActions)) {
-      // Handle Keyword action
-      if (targetActions![0].type === 'keyword') {
-        handleKeywordWaiting(targetActions![0] as KeywordAction, args);
-        return;
-      }
-
-      actionResult = handleAction({
-        actions: targetActions!,
-        queryArgs: args,
-        modifiersInput: modifier,
-      });
-
-      targetActions = actionResult.nextActions;
-
-      if (exists(targetActions)) {
-        for (const nextAction of targetActions!) {
-          if (
-            nextAction.type === 'scriptfilter' ||
-            nextAction.type === 'keyword'
-          ) {
-            const nextInput = this.getNextActionsInput(
-              nextAction,
-              actionResult.args
-            );
-
-            this.pushWork({
-              type: nextAction.type,
-              input: nextInput,
-              // Fix me!! command에 action을 넣는게 맞아?
-              command: nextAction as Command,
-              bundleId: this.getTopWork().bundleId,
-              args: actionResult.args,
-              workProcess: null,
-              workCompleted: false,
-            });
-
-            if (nextAction.type === 'scriptfilter') {
-              scriptFilterExcute(nextInput);
-
-              this.onInputShouldBeUpdate({
-                str: nextInput + ' ',
-                needItemsUpdate: false,
-              });
-            } else if (nextAction.type === 'keyword') {
-              setKeywordItem(nextAction as KeywordAction);
-
-              this.onInputShouldBeUpdate({
-                str: '',
-                needItemsUpdate: false,
-              });
-            }
-
-            this.onItemPressHandler();
-            return;
-          }
-        }
-      }
-    }
+    this.handleActionChain({ item, args, modifier, targetActions: actions });
 
     this.clearWorkStack();
     this.onItemShouldBeUpdate({ items: [], needIndexInfoClear: true });

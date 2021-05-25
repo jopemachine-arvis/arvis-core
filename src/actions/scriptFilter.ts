@@ -184,7 +184,8 @@ async function scriptFilterExcute(
       type: 'scriptfilter',
       // user input string
       input: inputStr,
-      command: commandWhenStackIsEmpty,
+      action: commandWhenStackIsEmpty.action,
+      actionTrigger: commandWhenStackIsEmpty,
       bundleId: commandWhenStackIsEmpty.bundleId!,
       args: null,
       workProcess: null,
@@ -205,7 +206,7 @@ async function scriptFilterExcute(
     clearInterval(workManager.rerunTimer);
   }
 
-  const { bundleId, command, args } = workManager.getTopWork();
+  const { bundleId, actionTrigger, args } = workManager.getTopWork();
 
   const inputStrArr = inputStr.split(' ');
 
@@ -218,7 +219,8 @@ async function scriptFilterExcute(
   const extractedArgs = extractArgsFromQuery(querys);
   const scriptWork: execa.ExecaChildProcess = handleScriptFilterChange(
     bundleId,
-    command,
+    // Assume
+    actionTrigger as (Command | Action | PluginItem),
     extractedArgs
   );
 

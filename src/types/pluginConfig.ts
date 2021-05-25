@@ -11,4 +11,5 @@ export interface PluginConfigFile {
   webaddress?: string;
   version?: string;
   platform?: string[];
+  action: Action[];
 }

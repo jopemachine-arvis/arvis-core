@@ -24,11 +24,9 @@ const cliFunc = async (input: string[], flags: any): Promise<string> => {
     case 'f':
     case 'find':
       return findCommands(input[1]).toString();
-    case 'i-plugin':
     case 'install-plugin':
       await installPlugin(input[1]);
       break;
-    case 'i-workflow':
     case 'install-workflow':
       await installWorkflow(input[1]);
       break;
@@ -38,10 +36,8 @@ const cliFunc = async (input: string[], flags: any): Promise<string> => {
     case 'h':
     case 'hotkeys':
       return findHotkeys();
-    case 'un-workflow':
     case 'uninstall-workflow':
       await uninstallWorkflow({ bundleId: input[1] });
-    case 'un-plugin':
     case 'uninstall-plugin':
       await uninstallPlugin({ bundleId: input[1] });
       break;

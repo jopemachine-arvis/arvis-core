@@ -7,7 +7,7 @@ import '../types';
  * @description Used in only keyword action, not keyword trigger.
  *              Keyword action needs to wait for user input.
  */
-const handleKeywordWaiting = (targetAction: KeywordAction, args: object) => {
+const handleKeywordWaiting = (trigger: Command | PluginItem | ScriptFilterItem, targetAction: KeywordAction, args: object) => {
   if (targetAction.type !== 'keyword') return;
   const workManager = WorkManager.getInstance();
 
@@ -21,7 +21,8 @@ const handleKeywordWaiting = (targetAction: KeywordAction, args: object) => {
       type: 'keyword-waiting',
       args,
       input: '',
-      command: nextAction as Command,
+      action: [nextAction],
+      actionTrigger: trigger,
       bundleId: workManager.getTopWork().bundleId,
     });
 

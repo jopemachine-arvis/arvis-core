@@ -85,10 +85,18 @@ const extractArgsFromQuery = (querys: string[]): object => {
  * @return {object}
  */
 const extractArgsFromPluginItem = (item: PluginItem): object => {
-  return {
-    ['{query}']: item.arg,
-    '$1': item.arg,
-  };
+  let args = {};
+
+  if (item.arg) {
+    if (typeof item.arg === 'string') {
+      item.arg = escapeBraket(item.arg);
+      args = { '{query}': item.arg, $1: item.arg };
+    } else {
+      args = { ...item.arg };
+    }
+  }
+
+  return args;
 };
 
 /**

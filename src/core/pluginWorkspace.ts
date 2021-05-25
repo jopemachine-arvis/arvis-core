@@ -11,7 +11,7 @@ import { getPluginList } from './pluginList';
  * @summary Remove cache from existing module for module updates, and dynamically require new modules.
  *          Use eval.
  */
-const requireDynamically = (modulePath: string) => {
+const requireDynamically = (modulePath: string): any => {
   modulePath = modulePath.split('\\').join('/');
 
   try {
@@ -37,7 +37,7 @@ const pluginWorkspace = {
   /**
    * @param  {any[]} pluginInfos
    */
-  renew: (pluginInfos: any[], bundleId?: string) => {
+  renew: (pluginInfos: any[], bundleId?: string): void => {
     const newPluginModules = bundleId ? pluginWorkspace.pluginModules : {};
 
     for (const pluginInfo of pluginInfos) {
@@ -66,12 +66,14 @@ const pluginWorkspace = {
   /**
    * @param  {string} inputStr
    */
-  search: async (inputStr: string) => {
+  search: async (inputStr: string): Promise<PluginItem[]> => {
     let pluginOutputItems: any[] = [];
     const asyncPluginWorks: Promise<any>[] = [];
 
     for (const pluginBundleId of Object.keys(pluginWorkspace.pluginModules)) {
+      if (!getPluginList()[pluginBundleId].enabled) continue;
       const pluginModule = pluginWorkspace.pluginModules[pluginBundleId];
+
       try {
         const pluginExecutionResult = (pluginModule as any)(inputStr);
 

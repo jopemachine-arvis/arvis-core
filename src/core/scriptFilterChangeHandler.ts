@@ -18,7 +18,7 @@ type ScriptFilterChangeHandlerOption = {
  */
 const handleScriptFilterChange = (
   bundleId: string,
-  command: Command | PluginItem,
+  command: Command | PluginItem | Action,
   queryArgs: object,
   options?: ScriptFilterChangeHandlerOption
 ) => {

@@ -41,7 +41,10 @@ function handleAction({
   actions: Action[];
   queryArgs: object;
   modifiersInput: ModifierInput;
-}) {
+}): {
+  nextActions: Action[];
+  args: object;
+} {
   const workManager = WorkManager.getInstance();
   actions = handleModifiers(actions, modifiersInput);
 
@@ -61,7 +64,11 @@ function handleAction({
     }
 
     const printActionlog = () => {
-      printActionDebuggingLog(!workManager.printActionType)(logColor, type, target);
+      printActionDebuggingLog(!workManager.printActionType)(
+        logColor,
+        type,
+        target
+      );
     };
 
     try {
@@ -69,8 +76,10 @@ function handleAction({
         case 'script':
           action = action as ScriptAction;
           const scriptStr = extractScriptOnThisPlatform(action.script);
+          logColor = chalk.dim;
           target = applyArgsToScript({ scriptStr, queryArgs });
 
+          printActionlog();
           handleScriptAction(action, queryArgs);
           break;
 
@@ -145,8 +154,8 @@ function handleAction({
           logColor = chalk.blueBright;
           target = applyArgsToScript({ scriptStr: action.target, queryArgs });
 
-          openFileAction(target);
           printActionlog();
+          openFileAction(target);
           break;
 
         // Notification (Not implemented on here)
@@ -159,8 +168,8 @@ function handleAction({
           action = action as ClipboardAction;
           logColor = chalk.greenBright;
           target = applyArgsToScript({ scriptStr: action.text, queryArgs });
-          copyToClipboardAction(target);
           printActionlog();
+          copyToClipboardAction(target);
           break;
 
         // Extract query from args, vars and execute the action.

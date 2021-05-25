@@ -6,7 +6,7 @@ import '../types';
  * @param  {ModifierInput} modifiersInput
  * @return {Action[]} modifiers applied actions
  * @description Only one modifier can be accepted for now
- *              Expand this function to handle modifiers array if needed
+ *              To do:: Expand this function to handle modifiers array (multiple modifiers) if needed
  */
 export const handleModifiers = (
   actions: Action[],

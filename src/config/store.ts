@@ -57,6 +57,9 @@ const addCommands = (
   return ret;
 };
 
+/**
+ * @summary
+ */
 export class Store {
   private static instance: Store;
   private store: Map<string, any>;

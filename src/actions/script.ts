@@ -22,7 +22,7 @@ const scriptErrorHandler = (err: ExecaError) => {
  * @param  {ScriptAction} action
  * @param  {object} queryArgs
  */
-const handleScriptAction = (action: ScriptAction, queryArgs: object) => {
+const handleScriptAction = async (action: ScriptAction, queryArgs: object) => {
   const workManager = WorkManager.getInstance();
   const scriptStr = extractScriptOnThisPlatform(action.script);
   const scriptWork = execute({
