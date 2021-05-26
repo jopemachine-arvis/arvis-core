@@ -87,6 +87,45 @@
                     ]
                 }
             ]
+        },
+        {
+            "type": "keyword",
+            "command": "multiple",
+            "title": "Test 4 - muitiple actions",
+            "subtitle": "",
+            "withspace": false,
+            "arg_type": "no",
+            "action": [
+                {
+                    "modifiers": "normal",
+                    "type": "script",
+                    "script": "node createFile.js 'abc'",
+                    "action": [
+                        {
+                            "modifiers": "normal",
+                            "type": "notification",
+                            "title": "File created"
+                        },
+                        {
+                            "modifiers": "normal",
+                            "type": "open",
+                            "title": "https://www.google.co.kr/"
+                        }
+                    ]
+                },
+                {
+                    "modifiers": "normal",
+                    "type": "clipboard",
+                    "text": "def",
+                    "action": [
+                        {
+                            "modifiers": "normal",
+                            "type": "notification",
+                            "title": "Clipboard copied"
+                        }
+                    ]
+                }
+            ]
         }
     ]
 }

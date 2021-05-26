@@ -3,11 +3,11 @@ const {
   installWorkflow,
   uninstallWorkflow,
   scriptFilterExcute,
-} = require('../../../dist/core');
+} = require('../../../../dist/core');
 const path = require('path');
-const { getWorkflowInstalledPath } = require('../../../dist/config/path');
-const { sleep } = require('../../../dist/utils');
-const mockWorkflowInfo = require('../arvis-mock-workflow.json');
+const { getWorkflowInstalledPath } = require('../../../../dist/config/path');
+const { sleep } = require('../../../../dist/utils');
+const mockWorkflowInfo = require('../../arvis-mock-workflow.json');
 
 // Ref:: arvis-mock-workflow: https://github.com/jopemachine/arvis-mock-workflow
 
@@ -16,6 +16,7 @@ describe('commandExecute test', () => {
     jest.setTimeout(30000);
 
     let parentPathArr = __dirname.split(path.sep);
+    parentPathArr.pop();
     parentPathArr.pop();
     const parentPath = parentPathArr.join(path.sep);
 
