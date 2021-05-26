@@ -2,7 +2,7 @@
 import _ from 'lodash';
 import { xml2json } from 'xml-js';
 import execa, { ExecaError } from '../../execa';
-import { log, LogType } from '../config';
+import { log, LogType, pushInputStrLog } from '../config';
 import { getWorkflowList, WorkManager } from '../core';
 import { extractArgsFromQuery } from '../core/argsHandler';
 import { handleScriptFilterChange } from '../core/scriptFilterChangeHandler';
@@ -209,6 +209,7 @@ async function scriptFilterExcute(
       workCompleted: false,
     });
 
+    pushInputStrLog(commandWhenStackIsEmpty.command!);
     workManager.setExecPath(commandWhenStackIsEmpty);
   } else {
     const newScriptFilterNeedsToExecuted =

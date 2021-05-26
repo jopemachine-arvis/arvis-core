@@ -7,7 +7,7 @@ import {
   handleScriptAction as handleScriptAction,
   openFile as openFileAction,
 } from '../actions';
-import { log, LogType } from '../config';
+import { log, LogType, pushActionLog } from '../config';
 import { escapeBraket } from '../utils';
 import { applyArgsToScript } from './argsHandler';
 import { handleModifiers } from './modifierHandler';
@@ -84,6 +84,8 @@ function handleAction({
         target
       );
     };
+
+    pushActionLog(action);
 
     try {
       switch (type) {
@@ -258,6 +260,10 @@ function handleAction({
               modifiersInput,
             }).nextActions;
           }
+          break;
+
+        default:
+          log(LogType.error, 'Error: Not supported type, ' + type);
           break;
       }
     } catch (e) {

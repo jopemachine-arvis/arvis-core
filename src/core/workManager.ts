@@ -4,7 +4,7 @@ import _ from 'lodash';
 import execa from '../../execa';
 import { handleKeywordWaiting, setKeywordItem } from '../actions';
 import { scriptFilterExcute } from '../actions/scriptFilter';
-import { log, LogType } from '../config';
+import { log, LogType, pushInputStrLog } from '../config';
 import {
   getPluginInstalledPath,
   getWorkflowInstalledPath,
@@ -558,7 +558,7 @@ export class WorkManager {
     this.throwErrOnRendererUpdaterNotSet();
 
     let handleActionResult: {
-      nextActions: Action[];
+      nextActions: Action[] | undefined;
       args: object;
     };
 
@@ -580,9 +580,11 @@ export class WorkManager {
 
       targetActions = handleActionResult.nextActions;
 
-      for (const nextAction of targetActions!) {
-        if (this.handleTriggerAction(nextAction, handleActionResult.args))
-          return false;
+      if (exists(targetActions)) {
+        for (const nextAction of targetActions!) {
+          if (this.handleTriggerAction(nextAction, handleActionResult.args))
+            return false;
+        }
       }
     }
 
@@ -624,6 +626,10 @@ export class WorkManager {
       });
 
       this.setExecPath(item as Command | PluginItem);
+
+      if (!item['isPluginItem']) {
+        pushInputStrLog((item as Command).command!);
+      }
     }
 
     // Renew input

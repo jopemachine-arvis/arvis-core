@@ -18,6 +18,8 @@ import { PluginItem as _PluginItem } from './pluginItem';
 import { ScriptFilterItem as _ScriptFilterItem } from './scriptFilterItem';
 import { WorkflowConfigFile as _WorkflowConfigFile } from './workflowConfig';
 
+import { Log as _Log } from './log';
+
 // To do:: Need to change below codes to import this code from the CUI and GUI code side
 declare global {
   type OpenAction = _OpenAction;
@@ -40,6 +42,7 @@ declare global {
     | CondAction
     | NotiAction
     | HotkeyAction;
+  type Log = _Log;
 
   type Keyword = _Keyword;
   type ScriptFilter = _ScriptFilter;

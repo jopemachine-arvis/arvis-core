@@ -20,6 +20,7 @@ import { getWorkflowList } from './workflowList';
 import { renewWorkflows } from './workflowRenewer';
 import { WorkManager } from './workManager';
 
+import * as history from '../config/history';
 import * as logger from '../config/logger';
 import * as path from '../config/path';
 
@@ -35,6 +36,7 @@ export {
   getPluginList,
   getWorkflowList,
   handleAction,
+  history,
   installPlugin,
   installWorkflow,
   logger,
