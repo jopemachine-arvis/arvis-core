@@ -166,6 +166,23 @@ function scriptErrorHandler (err: ExecaError) {
 
 /**
  * @param  {string} inputStr
+ * @param  {string} command
+ */
+const getScriptFilterQuery = (inputStr: string, command: string): string[] => {
+  const workManager = WorkManager.getInstance();
+
+  if (workManager.hasNestedScriptFilters()) {
+    return inputStr.split(' ');
+  } else if (workManager.hasEmptyWorkStk()) {
+    const arr = inputStr.split(command);
+    return arr.slice(1, arr.length);
+  }
+
+  return [];
+};
+
+/**
+ * @param  {string} inputStr
  * @param  {Command} commandWhenStackIsEmpty? command object should be given when stack is empty
  */
 async function scriptFilterExcute(
@@ -210,20 +227,19 @@ async function scriptFilterExcute(
 
   const { bundleId, actionTrigger, args } = workManager.getTopWork();
 
-  // To do:: edit below logic to split command
-  const inputStrArr = inputStr.split(' ');
+  const querys = getScriptFilterQuery(
+    inputStr,
+    commandWhenStackIsEmpty!.command!
+  );
 
   // If the ScriptFilters are nested, the first string element is query.
   // Otherwise, the first string element is command.
-  const querys = workManager.hasNestedScriptFilters()
-    ? inputStrArr
-    : inputStrArr.slice(1, inputStrArr.length);
 
   const extractedArgs = extractArgsFromQuery(querys);
   const scriptWork: execa.ExecaChildProcess = handleScriptFilterChange(
     bundleId,
     // Assume
-    actionTrigger as (Command | Action | PluginItem),
+    actionTrigger as Command | Action | PluginItem,
     extractedArgs
   );
 

@@ -51,7 +51,7 @@ interface Work {
    * @description trigger that triggers action.
    *              starts with command object or pluginItem and becomes scriptFilterItem or action
    */
-  actionTrigger?: Command | PluginItem | ScriptFilterItem | Action;
+  actionTrigger: Command | PluginItem | ScriptFilterItem | Action;
 
   /**
    * @description Used in only type is 'scriptfilter'
@@ -137,6 +137,7 @@ export class WorkManager {
 
   /**
    * @summary
+   * @description cleanup work stack and other infomations
    */
   public clearWorkStack = () => {
     this.workStk.length = 0;
@@ -155,7 +156,7 @@ export class WorkManager {
   }
 
   /**
-   * @summary If workStk is empty, look for command.
+   * @summary
    */
   public hasEmptyWorkStk = () => {
     return this.workStk.length === 0;
@@ -182,24 +183,18 @@ export class WorkManager {
    * @summary If the script filters are nested, return to the previous script filter.
    */
   public popWork = () => {
-    if (
-      !this.onItemShouldBeUpdate ||
-      !this.onInputShouldBeUpdate ||
-      !this.onWorkEndHandler
-    ) {
-      throw new Error('Renderer update funtions are not set!');
-    }
+    this.throwErrOnRendererUpdaterNotSet();
 
     // To do:: Handle keyword, keyword-waiting here..
     if (this.hasNestedScriptFilters()) {
       this.workStk.pop();
       if (this.getTopWork().type !== 'scriptfilter') return;
 
-      this.onItemShouldBeUpdate({
+      this.onItemShouldBeUpdate!({
         items: this.getTopWork().items!,
         needIndexInfoClear: true,
       });
-      this.onInputShouldBeUpdate({
+      this.onInputShouldBeUpdate!({
         str: this.getTopWork().input,
         needItemsUpdate: false,
       });
@@ -207,8 +202,8 @@ export class WorkManager {
       this.debugWorkStk();
     } else {
       this.clearWorkStack();
-      this.onItemShouldBeUpdate({ items: [], needIndexInfoClear: true });
-      this.onWorkEndHandler();
+      this.onItemShouldBeUpdate!({ items: [], needIndexInfoClear: true });
+      this.onWorkEndHandler!();
       return;
     }
   }
@@ -255,9 +250,8 @@ export class WorkManager {
     selectedItemIdx: number,
     modifiers: ModifierInput
   ) => {
-    if (!this.onItemShouldBeUpdate) {
-      throw new Error('Renderer update funtions are not set!');
-    }
+    this.throwErrOnRendererUpdaterNotSet();
+
     if (
       this.hasEmptyWorkStk() ||
       this.getTopWork().type !== 'scriptfilter' ||
@@ -296,16 +290,15 @@ export class WorkManager {
       };
     }
 
-    this.onItemShouldBeUpdate({ items, needIndexInfoClear: false });
+    this.onItemShouldBeUpdate!({ items, needIndexInfoClear: false });
   }
 
   /**
    * @summary
    */
   public clearModifierOnScriptFilterItem = () => {
-    if (!this.onItemShouldBeUpdate) {
-      throw new Error('Renderer update funtions are not set!');
-    }
+    this.throwErrOnRendererUpdaterNotSet();
+
     if (
       this.hasEmptyWorkStk() ||
       this.getTopWork().type !== 'scriptfilter' ||
@@ -314,7 +307,7 @@ export class WorkManager {
       return;
     }
 
-    this.onItemShouldBeUpdate({
+    this.onItemShouldBeUpdate!({
       items: this.getTopWork().items!,
       needIndexInfoClear: false,
     });
@@ -353,9 +346,7 @@ export class WorkManager {
     index: number;
     runningSubText: string;
   }) {
-    if (!this.onItemShouldBeUpdate) {
-      throw new Error('Renderer update funtions are not set!');
-    }
+    this.throwErrOnRendererUpdaterNotSet();
 
     const swap = itemArr;
     swap[index] = {
@@ -363,7 +354,7 @@ export class WorkManager {
       subtitle: runningSubText,
     };
 
-    this.onItemShouldBeUpdate({ items: swap, needIndexInfoClear: true });
+    this.onItemShouldBeUpdate!({ items: swap, needIndexInfoClear: true });
   }
 
   /**
@@ -385,65 +376,6 @@ export class WorkManager {
     this.execPath = item['isPluginItem']
       ? getPluginInstalledPath(item.bundleId!)
       : getWorkflowInstalledPath(item.bundleId!);
-  }
-
-  /**
-   * @param  {Command | ScriptFilterItem | PluginItem} item
-   * @param  {string} inputStr
-   * @description If workStk is empty, return item's action
-   *              otherwise, return nextAction (topWork's action)
-   */
-  public prepareActions = ({
-    item,
-    inputStr,
-  }: {
-    item: Command | ScriptFilterItem | PluginItem;
-    inputStr: string;
-  }): Action[] | undefined => {
-    if (this.hasEmptyWorkStk()) {
-      return (item as Command | PluginItem).action;
-    } else {
-      return this.getTopWork().action;
-    }
-  }
-
-  /**
-   * @param  {Command | ScriptFilterItem | PluginItem} item
-   * @param  {string} inputStr
-   * @return {object}
-   * @description Returns args using according args extraction method
-   */
-  public prepareArgs = ({
-    item,
-    inputStr,
-  }: {
-    item: Command | ScriptFilterItem | PluginItem;
-    inputStr: string;
-  }): object => {
-    let args;
-
-    if (this.hasEmptyWorkStk() && item['isPluginItem']) {
-      args = extractArgsFromPluginItem(item as PluginItem);
-    } else if (this.hasEmptyWorkStk()) {
-      const [_commandTitle, queryStr] = inputStr.split(
-        (item as Command).command!
-      );
-
-      args = extractArgsFromQuery(
-        queryStr ? queryStr.trim().split((item as Command).command!) : []
-      );
-    } else if (
-      this.getTopWork().type === 'keyword' ||
-      this.getTopWork().type === 'keyword-waiting'
-    ) {
-      args = extractArgsFromQuery(inputStr.split(' '));
-    } else if (this.getTopWork().type === 'scriptfilter') {
-      item = item as ScriptFilterItem;
-      const vars = { ...item.variables, ...this.globalVariables! };
-      args = extractArgsFromScriptFilterItem(item, vars);
-    }
-
-    return args;
   }
 
   /**
@@ -487,11 +419,130 @@ export class WorkManager {
   }
 
   /**
+   * @param  {Command | ScriptFilterItem | PluginItem} item
+   * @description If workStk is empty, return item's action
+   *              otherwise, return nextAction (topWork's action)
+   */
+  private prepareNextActions = ({
+    item,
+  }: {
+    item: Command | ScriptFilterItem | PluginItem;
+  }): Action[] | undefined => {
+    if (this.hasEmptyWorkStk()) {
+      return (item as Command | PluginItem).action;
+    } else {
+      return this.getTopWork().action;
+    }
+  }
+
+  /**
+   * @param  {Command | ScriptFilterItem | PluginItem} item
+   * @param  {string} inputStr
+   * @return {object}
+   * @description Returns args using according args extraction method
+   */
+  private prepareArgs = ({
+    item,
+    inputStr,
+  }: {
+    item: Command | ScriptFilterItem | PluginItem;
+    inputStr: string;
+  }): object => {
+    let args;
+
+    if (this.hasEmptyWorkStk() && item['isPluginItem']) {
+      args = extractArgsFromPluginItem(item as PluginItem);
+    } else if (this.hasEmptyWorkStk()) {
+      const [_commandTitle, queryStr] = inputStr.split(
+        (item as Command).command!
+      );
+
+      args = extractArgsFromQuery(
+        queryStr ? queryStr.trim().split((item as Command).command!) : []
+      );
+    } else if (
+      this.getTopWork().type === 'keyword' ||
+      this.getTopWork().type === 'keyword-waiting'
+    ) {
+      args = extractArgsFromQuery(inputStr.split(' '));
+    } else if (this.getTopWork().type === 'scriptfilter') {
+      item = item as ScriptFilterItem;
+      const vars = { ...item.variables, ...this.globalVariables! };
+      args = extractArgsFromScriptFilterItem(item, vars);
+    }
+
+    return args;
+  }
+
+  /**
+   * @param  {}
+   */
+  private throwErrOnRendererUpdaterNotSet = () => {
+    if (
+      !this.onItemPressHandler ||
+      !this.onInputShouldBeUpdate ||
+      !this.onItemShouldBeUpdate ||
+      !this.onWorkEndHandler
+    ) {
+      throw new Error('Renderer update funtions are not set!');
+    }
+  }
+
+  /**
+   * @param  {Action} nextAction
+   * @param  {object} args
+   * @description This function handle Trigger as Actions.
+   *              Which means keyword, scriptfilter.
+   *              If one of those would be Action, force users to enter input and enter again.
+   *              If nextAction is not Trigger, return false.
+   */
+  private handleTriggerAction = (nextAction: Action, args: object): boolean => {
+    this.throwErrOnRendererUpdaterNotSet();
+
+    if (nextAction.type === 'scriptfilter' || nextAction.type === 'keyword') {
+      const nextInput = this.getNextActionsInput(nextAction, args);
+
+      this.pushWork({
+        type: nextAction.type,
+        input: nextInput,
+        action: nextAction.action,
+        actionTrigger: nextAction,
+        bundleId: this.getTopWork().bundleId,
+        args,
+        workProcess: null,
+        workCompleted: false,
+      });
+
+      if (nextAction.type === 'scriptfilter') {
+        scriptFilterExcute(nextInput);
+
+        this.onInputShouldBeUpdate!({
+          str: nextInput + ' ',
+          needItemsUpdate: false,
+        });
+      } else if (nextAction.type === 'keyword') {
+        setKeywordItem(nextAction as KeywordAction);
+
+        this.onInputShouldBeUpdate!({
+          str: '',
+          needItemsUpdate: false,
+        });
+      }
+
+      this.onItemPressHandler!();
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
    * @param  {} item
    * @param  {} args
    * @param  {} targetActions
    * @param  {} modifier
-   * @returns {boolean} If return false, commandExcute quits
+   * @returns {boolean} If return false, commandExcute quits to enable users to give more input
+   * @description Handle Multiple Actions, Process a sequence of actions that follow back.
    */
   private handleActionChain = ({
     item,
@@ -504,14 +555,7 @@ export class WorkManager {
     targetActions: Action[] | undefined;
     modifier: ModifierInput;
   }): boolean => {
-    if (
-      !this.onItemPressHandler ||
-      !this.onInputShouldBeUpdate ||
-      !this.onItemShouldBeUpdate ||
-      !this.onWorkEndHandler
-    ) {
-      throw new Error('Renderer update funtions are not set!');
-    }
+    this.throwErrOnRendererUpdaterNotSet();
 
     let handleActionResult: {
       nextActions: Action[];
@@ -536,49 +580,9 @@ export class WorkManager {
 
       targetActions = handleActionResult.nextActions;
 
-      if (exists(targetActions)) {
-        for (const nextAction of targetActions!) {
-          if (
-            nextAction.type === 'scriptfilter' ||
-            nextAction.type === 'keyword'
-          ) {
-            const nextInput = this.getNextActionsInput(
-              nextAction,
-              handleActionResult.args
-            );
-
-            this.pushWork({
-              type: nextAction.type,
-              input: nextInput,
-              action: nextAction.action,
-              actionTrigger: nextAction,
-              bundleId: this.getTopWork().bundleId,
-              args: handleActionResult.args,
-              workProcess: null,
-              workCompleted: false,
-            });
-
-            if (nextAction.type === 'scriptfilter') {
-              scriptFilterExcute(nextInput);
-
-              this.onInputShouldBeUpdate({
-                str: nextInput + ' ',
-                needItemsUpdate: false,
-              });
-
-            } else if (nextAction.type === 'keyword') {
-              setKeywordItem(nextAction as KeywordAction);
-
-              this.onInputShouldBeUpdate({
-                str: '',
-                needItemsUpdate: false,
-              });
-            }
-
-            this.onItemPressHandler();
-            return false;
-          }
-        }
+      for (const nextAction of targetActions!) {
+        if (this.handleTriggerAction(nextAction, handleActionResult.args))
+          return false;
       }
     }
 
@@ -596,14 +600,7 @@ export class WorkManager {
     inputStr: string,
     modifier: ModifierInput
   ): Promise<void> {
-    if (
-      !this.onItemPressHandler ||
-      !this.onInputShouldBeUpdate ||
-      !this.onItemShouldBeUpdate ||
-      !this.onWorkEndHandler
-    ) {
-      throw new Error('Renderer update funtions are not set!');
-    }
+    this.throwErrOnRendererUpdaterNotSet();
 
     // Ignore this exeution if previous work is pending.
     if (this.workIsPending()) {
@@ -612,7 +609,7 @@ export class WorkManager {
 
     // If workStk is empty, the args becomes query, otherwise args becomes arg of items
     // If workStk is empty, the actions becomes command, otherwise the top action of the stack is 'actions'.
-    const actions = this.prepareActions({ item, inputStr });
+    const actions = this.prepareNextActions({ item });
     const args = this.prepareArgs({ item, inputStr });
 
     if (this.hasEmptyWorkStk()) {
@@ -632,14 +629,15 @@ export class WorkManager {
     // Renew input
     this.renewInput(inputStr);
 
-    if (!this.handleActionChain({ item, args, modifier, targetActions: actions })) {
+    if (
+      !this.handleActionChain({ item, args, modifier, targetActions: actions })
+    ) {
       return;
     }
 
-    console.log('clear!');
     this.clearWorkStack();
-    this.onItemShouldBeUpdate({ items: [], needIndexInfoClear: true });
-    this.onItemPressHandler();
-    this.onWorkEndHandler();
+    this.onItemShouldBeUpdate!({ items: [], needIndexInfoClear: true });
+    this.onItemPressHandler!();
+    this.onWorkEndHandler!();
   }
 }
