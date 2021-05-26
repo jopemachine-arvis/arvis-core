@@ -30,6 +30,7 @@ const printActionDebuggingLog =
 /**
  * @param  {string} typeName
  * @param  {string[]} requiredAttributes
+ * @description If there is no required attribute in the execution of the action, it throws an error.
  */
 const throwReqAttrNotExtErr = (
   typeName: string,
@@ -229,7 +230,10 @@ function handleAction({
         case 'cond':
           action = action as CondAction;
           if (!action.if) throwReqAttrNotExtErr(type, ['if']);
-          if (!action.if.cond) throwReqAttrNotExtErr('if', ['cond']);
+          if (!action.if.cond || !action.if.action)
+            throwReqAttrNotExtErr('if', ['cond', 'action']);
+          if (!action.if.action.then)
+            throwReqAttrNotExtErr('action of cond type', ['then']);
 
           logColor = chalk.magentaBright;
 

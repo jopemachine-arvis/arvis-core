@@ -13,13 +13,22 @@
             ],
             "defaultSnippets": [
                 {
+                    "label": "Hotkey",
+                    "body": {
+                        "type": "hotkey",
+                        "hotkey": "",
+                        "action": []
+                    }
+                },
+                {
                     "label": "Keyword",
                     "body": {
                         "type": "keyword",
                         "command": "",
                         "title": "",
                         "subtitle": "",
-                        "script": ""
+                        "script": "",
+                        "action": []
                     }
                 },
                 {
@@ -31,11 +40,12 @@
                         "subtitle": "",
                         "script_filter": "",
                         "running_subtext": "",
-                        "withspace": true
+                        "withspace": true,
+                        "action": []
                     }
                 },
                 {
-                    "label": "Conditional Stmt",
+                    "label": "Conditional",
                     "body": {
                         "type": "cond",
                         "modifiers": "normal",
@@ -47,7 +57,7 @@
                     }
                 },
                 {
-                    "label": "Extract Argument",
+                    "label": "Argument",
                     "body": {
                         "type": "args",
                         "modifiers": "normal",
@@ -56,7 +66,7 @@
                     }
                 },
                 {
-                    "label": "Run Script",
+                    "label": "Script",
                     "body": {
                         "type": "script",
                         "modifiers": "normal",
@@ -64,7 +74,7 @@
                     }
                 },
                 {
-                    "label": "Open file, url",
+                    "label": "Open",
                     "body": {
                         "type": "open",
                         "modifiers": "normal",
@@ -72,7 +82,7 @@
                     }
                 },
                 {
-                    "label": "Notify alarm",
+                    "label": "Notification",
                     "body": {
                         "type": "notification",
                         "modifiers": "normal",
@@ -81,7 +91,7 @@
                     }
                 },
                 {
-                    "label": "Copy to clipboard",
+                    "label": "Clipboard",
                     "body": {
                         "type": "clipboard",
                         "modifiers": "normal",
