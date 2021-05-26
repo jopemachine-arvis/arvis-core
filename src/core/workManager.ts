@@ -380,7 +380,7 @@ export class WorkManager {
   /**
    * @param  {PluginItem|Command} item
    */
-  private setExecPath = (item: PluginItem | Command) => {
+  public setExecPath = (item: PluginItem | Command) => {
     // tslint:disable-next-line: no-string-literal
     this.execPath = item['isPluginItem']
       ? getPluginInstalledPath(item.bundleId!)
@@ -491,6 +491,7 @@ export class WorkManager {
    * @param  {} args
    * @param  {} targetActions
    * @param  {} modifier
+   * @returns {boolean} If return false, commandExcute quits
    */
   private handleActionChain = ({
     item,
@@ -502,7 +503,7 @@ export class WorkManager {
     args: object;
     targetActions: Action[] | undefined;
     modifier: ModifierInput;
-  }) => {
+  }): boolean => {
     if (
       !this.onItemPressHandler ||
       !this.onInputShouldBeUpdate ||
@@ -524,7 +525,7 @@ export class WorkManager {
       // Assume
       if (targetActions![0].type === 'keyword') {
         handleKeywordWaiting(item, targetActions![0] as KeywordAction, args);
-        return;
+        return false;
       }
 
       handleActionResult = handleAction({
@@ -575,11 +576,13 @@ export class WorkManager {
             }
 
             this.onItemPressHandler();
-            return;
+            return false;
           }
         }
       }
     }
+
+    return true;
   }
 
   /**
@@ -629,8 +632,11 @@ export class WorkManager {
     // Renew input
     this.renewInput(inputStr);
 
-    this.handleActionChain({ item, args, modifier, targetActions: actions });
+    if (!this.handleActionChain({ item, args, modifier, targetActions: actions })) {
+      return;
+    }
 
+    console.log('clear!');
     this.clearWorkStack();
     this.onItemShouldBeUpdate({ items: [], needIndexInfoClear: true });
     this.onItemPressHandler();

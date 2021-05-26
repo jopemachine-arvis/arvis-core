@@ -53,6 +53,40 @@
                     ]
                 }
             ]
+        },
+        {
+            "type": "scriptfilter",
+            "command": "scriptFilterOverlay",
+            "title": "Test 3 - scriptfilter + scriptfilter",
+            "script_filter": "node scriptfilter.js {query}",
+            "running_subtext": "Searching...",
+            "withspace": true,
+            "arg_type": "optional",
+            "action": [
+                {
+                    "type": "scriptfilter",
+                    "arg": "{query}",
+                    "script_filter": "node scriptfilter.js {query}",
+                    "running_subtext": "Searching...",
+                    "withspace": true,
+                    "action": [
+                        {
+                            "type": "scriptfilter",
+                            "arg": "{query}",
+                            "script_filter": "node scriptfilter.js {query}",
+                            "running_subtext": "Searching...",
+                            "withspace": true,
+                            "action": [
+                                {
+                                    "modifiers": "normal",
+                                    "type": "script",
+                                    "script": "node createFile.js"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
         }
     ]
 }

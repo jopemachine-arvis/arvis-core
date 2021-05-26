@@ -191,6 +191,8 @@ async function scriptFilterExcute(
       workProcess: null,
       workCompleted: false,
     });
+
+    workManager.setExecPath(commandWhenStackIsEmpty);
   } else {
     const newScriptFilterNeedsToExecuted =
       workManager.getTopWork().type === 'scriptfilter' &&
@@ -208,6 +210,7 @@ async function scriptFilterExcute(
 
   const { bundleId, actionTrigger, args } = workManager.getTopWork();
 
+  // To do:: edit below logic to split command
   const inputStrArr = inputStr.split(' ');
 
   // If the ScriptFilters are nested, the first string element is query.
