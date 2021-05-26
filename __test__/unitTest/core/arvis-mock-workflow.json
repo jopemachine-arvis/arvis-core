@@ -1,0 +1,58 @@
+{
+    "$schema": "some_schema_file_path",
+    "createdby": "jopemachine",
+    "name": "mock-workflow",
+    "enabled": true,
+    "bundleId": "arvis-mock-workflow",
+    "commands": [
+        {
+            "type": "keyword",
+            "command": "createFile",
+            "title": "Test 1 - keyword-script",
+            "subtitle": "",
+            "withspace": false,
+            "arg_type": "no",
+            "action": [
+                {
+                    "modifiers": "normal",
+                    "type": "script",
+                    "script": "node createFile.js"
+                }
+            ]
+        },
+        {
+            "type": "scriptfilter",
+            "command": "scriptFilter",
+            "title": "Test 2 - scriptfilter + if",
+            "script_filter": "node scriptfilter.js {query}",
+            "running_subtext": "Searching...",
+            "withspace": true,
+            "arg_type": "optional",
+            "action": [
+                {
+                    "modifiers": "normal",
+                    "type": "args",
+                    "arg": "{query}",
+                    "action": [
+                        {
+                            "modifiers": "normal",
+                            "type": "cond",
+                            "if": {
+                                "cond": "5 <= 10",
+                                "action": {
+                                    "then": [
+                                        {
+                                            "modifiers": "normal",
+                                            "type": "script",
+                                            "script": "node createFile.js {query}"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

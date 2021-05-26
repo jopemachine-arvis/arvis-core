@@ -190,6 +190,7 @@ export class WorkManager {
       throw new Error('Renderer update funtions are not set!');
     }
 
+    // To do:: Handle keyword, keyword-waiting here..
     if (this.hasNestedScriptFilters()) {
       this.workStk.pop();
       if (this.getTopWork().type !== 'scriptfilter') return;

@@ -27,8 +27,8 @@ const execute = ({
   scriptStr: string;
   options?: ScriptExecuterOption;
 }): execa.ExecaChildProcess<string> => {
-
   let { execPath } = WorkManager.getInstance();
+
   // Assume workflow's hotkey script execution
   if (!execPath) execPath = getWorkflowInstalledPath(bundleId);
 
