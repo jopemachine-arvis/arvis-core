@@ -16,7 +16,7 @@ Note that `arvis-core-nodejs` are replaced with `arvis-nodejs` in `arvis`.
 
 The arvis history log the action logs and query logs in the path below.
 
-* Linux: `~/.config/arvis-core-nodejs` (or `$XDG_CONFIG_HOME/MyApp-nodejs`)
+* Linux: `~/.config/arvis-core-nodejs` (or `$XDG_CONFIG_HOME/arvis-core-nodejs`)
 * macOS: `~/Library/Preferences/arvis-core-nodejs`
 * Windows: `%APPDATA%\arvis-core-nodejs\Config` (for example, `C:\Users\USERNAME\AppData\Roaming\arvis-core-nodejs\Config`)
 
