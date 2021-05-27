@@ -1,5 +1,6 @@
 import Conf from 'conf';
 import '../types';
+import { log, LogType } from './logger';
 
 const schema = {
   logs: {
@@ -9,6 +10,10 @@ const schema = {
   maxCount: {
     type: 'number',
     default: 100,
+  },
+  actionTypesToLog: {
+    type: 'array',
+    default: ['script', 'clipboard', 'open'],
   },
 } as const;
 
@@ -64,6 +69,8 @@ export const pushInputStrLog = (inputStr: string): void => {
  * @param  {Action} action
  */
 export const pushActionLog = (action: Action): void => {
+  const availableTypes: string[] = getActionTypesToLog();
+  if (!availableTypes.includes(action.type)) return;
   const logs: Log[] = getLogs();
 
   logs.push({
@@ -73,7 +80,8 @@ export const pushActionLog = (action: Action): void => {
   });
 
   conf.set('logs', logs);
-  console.log('Print!!!!!!!!!', logs)
+
+  log(LogType.debug, 'Current logs', logs);
 };
 
 /**
@@ -81,4 +89,18 @@ export const pushActionLog = (action: Action): void => {
  */
 export const initHistory = (): void => {
   conf.set('logs', []);
+};
+
+/**
+ * @param  {string[]} types
+ */
+export const setActionTypesToLog = (types: string[]): void => {
+  conf.set('actionTypesToLog', types);
+};
+
+/**
+ * @summary
+ */
+export const getActionTypesToLog = (): string[] => {
+  return conf.get('actionTypesToLog') as string[];
 };

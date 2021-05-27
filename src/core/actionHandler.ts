@@ -37,7 +37,7 @@ const throwReqAttrNotExtErr = (
   requiredAttributes: string[]
 ) => {
   throw new Error(
-    `'${typeName}' type should have '${requiredAttributes.join(' ')}'attribute`
+    `'${typeName}' type should have '${requiredAttributes.join(' ')}' attribute`
   );
 };
 
@@ -139,13 +139,13 @@ function handleAction({
         // In case of keyword action, wait for next user input
         case 'keyword':
           action = action as KeywordAction;
-          if (!action.command) throwReqAttrNotExtErr(type, ['command | title']);
+          if (!action.command && !action.title)
+            throwReqAttrNotExtErr(type, ['command | title']);
 
           target = action.command || action.title;
           logColor = chalk.blackBright;
 
           printActionlog();
-
           if (workManager.getTopWork().type === 'keyword') {
             if (nextAction) {
               nextAction = handleAction({
@@ -160,7 +160,7 @@ function handleAction({
           }
           break;
 
-        // Just execute next action
+        // Push the work and execute next action
         case 'hotkey':
           action = action as HotkeyAction;
           if (!action.hotkey) throwReqAttrNotExtErr(type, ['hotkey']);

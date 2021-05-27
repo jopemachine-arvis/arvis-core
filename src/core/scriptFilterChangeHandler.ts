@@ -26,7 +26,7 @@ const handleScriptFilterChange = (
     throw new Error(`Command is not scriptfilter! ${command}`);
   }
 
-  const script = command.script_filter!;
+  const script = (command as ScriptFilterAction).script_filter!;
 
   const scriptStr = applyArgsToScript({
     scriptStr: extractScriptOnThisPlatform(script),

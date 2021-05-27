@@ -7,18 +7,15 @@ import { NotificationAction as _NotificationAction } from './actions/notificatio
 import { OpenAction as _OpenAction } from './actions/openAction';
 import { ScriptAction as _ScriptAction } from './actions/scriptAction';
 import { ScriptFilterAction as _ScriptFilterAction } from './actions/scriptFilterAction';
-import { ScriptFilterResult as _ScriptFilterResult } from './scriptFilterResult';
 
 import { Command as _Command } from './command';
-import { Keyword as _Keyword } from './inputs/keyword';
-import { ScriptFilter as _ScriptFilter } from './inputs/scriptFilter';
+import { Log as _Log } from './log';
 import { ModifierInput as _ModifierInput } from './modifierInput';
 import { PluginConfigFile as _PluginConfigFile } from './pluginConfig';
 import { PluginItem as _PluginItem } from './pluginItem';
 import { ScriptFilterItem as _ScriptFilterItem } from './scriptFilterItem';
+import { ScriptFilterResult as _ScriptFilterResult } from './scriptFilterResult';
 import { WorkflowConfigFile as _WorkflowConfigFile } from './workflowConfig';
-
-import { Log as _Log } from './log';
 
 // To do:: Need to change below codes to import this code from the CUI and GUI code side
 declare global {
@@ -43,9 +40,6 @@ declare global {
     | NotiAction
     | HotkeyAction;
   type Log = _Log;
-
-  type Keyword = _Keyword;
-  type ScriptFilter = _ScriptFilter;
 
   type Command = _Command;
   type PluginItem = _PluginItem;

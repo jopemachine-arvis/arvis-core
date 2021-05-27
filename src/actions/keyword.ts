@@ -7,8 +7,12 @@ import '../types';
  * @description Used in only keyword action, not keyword trigger.
  *              Keyword action needs to wait for user input.
  */
-const handleKeywordWaiting = (trigger: Command | PluginItem | ScriptFilterItem, targetAction: KeywordAction, args: object) => {
-  if (targetAction.type !== 'keyword') return;
+const handleKeywordWaiting = (
+  trigger: Command | PluginItem | ScriptFilterItem,
+  targetAction: KeywordAction,
+  args: object
+): boolean => {
+  if (targetAction.type !== 'keyword') return false;
   const workManager = WorkManager.getInstance();
 
   // Assume nested keyword not happen
@@ -34,8 +38,9 @@ const handleKeywordWaiting = (trigger: Command | PluginItem | ScriptFilterItem, 
         str: '',
         needItemsUpdate: false,
       });
-    return;
+    return true;
   }
+  return false;
 };
 
 /**
@@ -46,7 +51,8 @@ const setKeywordItem = (item: KeywordAction) => {
   const workManager = WorkManager.getInstance();
 
   // To do :: If this code could be used in plugin, below codes need to be fixed.
-  const workflowDefaultIcon = getWorkflowList()[workManager.getTopWork().bundleId].defaultIcon;
+  const workflowDefaultIcon =
+    getWorkflowList()[workManager.getTopWork().bundleId].defaultIcon;
 
   workManager.onItemShouldBeUpdate &&
     workManager.onItemShouldBeUpdate({
@@ -56,7 +62,7 @@ const setKeywordItem = (item: KeywordAction) => {
           subtitle: item.subtitle,
           bundleId: workManager.getTopWork().bundleId,
           icon: {
-            path: workflowDefaultIcon
+            path: workflowDefaultIcon,
           },
         },
       ],

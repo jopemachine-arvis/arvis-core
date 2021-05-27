@@ -1,13 +1,4 @@
-export const customActions = {
-  'args': undefined,
-  'clipboard': undefined,
-  'cond': undefined,
-  'keyword': undefined,
-  'notification': undefined,
-  'open': undefined,
-  'script': undefined,
-  'scriptfilter': undefined,
-};
+export const customActions = {};
 
 /**
  * @param  {string} type

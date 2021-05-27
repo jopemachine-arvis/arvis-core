@@ -1,6 +1,7 @@
 import '..';
 
 export interface HotkeyAction {
+  bundleId: string;
   type: 'hotkey';
   hotkey: string;
   action: Action[];

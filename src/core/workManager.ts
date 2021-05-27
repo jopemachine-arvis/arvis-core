@@ -386,7 +386,9 @@ export class WorkManager {
   public getNextActionsInput = (nextAction: Action, args: any): string => {
     if (nextAction.type === 'scriptfilter') {
       return getAppliedArgsFromScript(
-        extractScriptOnThisPlatform(nextAction.script_filter),
+        extractScriptOnThisPlatform(
+          (nextAction as ScriptFilterAction).script_filter
+        ),
         args
       );
     }
@@ -448,30 +450,44 @@ export class WorkManager {
     item: Command | ScriptFilterItem | PluginItem;
     inputStr: string;
   }): object => {
-    let args;
-
+    // Plugin Trigger
     if (this.hasEmptyWorkStk() && item['isPluginItem']) {
-      args = extractArgsFromPluginItem(item as PluginItem);
-    } else if (this.hasEmptyWorkStk()) {
+      return extractArgsFromPluginItem(item as PluginItem);
+    }
+
+    // Workflow Trigger: Hotkey
+    else if (this.hasEmptyWorkStk() && item['type'] === 'hotkey') {
+      return {};
+    }
+
+    // Workflow Trigger: Keyword, scriptfilter
+    if (this.hasEmptyWorkStk()) {
       const [_commandTitle, queryStr] = inputStr.split(
         (item as Command).command!
       );
 
-      args = extractArgsFromQuery(
+      return extractArgsFromQuery(
         queryStr ? queryStr.trim().split((item as Command).command!) : []
       );
-    } else if (
+    }
+
+    // Handle Keyword-waiting
+    if (
       this.getTopWork().type === 'keyword' ||
       this.getTopWork().type === 'keyword-waiting'
     ) {
-      args = extractArgsFromQuery(inputStr.split(' '));
-    } else if (this.getTopWork().type === 'scriptfilter') {
-      item = item as ScriptFilterItem;
-      const vars = { ...item.variables, ...this.globalVariables! };
-      args = extractArgsFromScriptFilterItem(item, vars);
+      return extractArgsFromQuery(inputStr.split(' '));
     }
 
-    return args;
+    // Handle scriptfilter action
+    if (this.getTopWork().type === 'scriptfilter') {
+      item = item as ScriptFilterItem;
+      const vars = { ...item.variables, ...this.globalVariables! };
+      return extractArgsFromScriptFilterItem(item, vars);
+    }
+
+    log(LogType.error, 'Args type infer failed');
+    return {};
   }
 
   /**
@@ -505,7 +521,7 @@ export class WorkManager {
       this.pushWork({
         type: nextAction.type,
         input: nextInput,
-        action: nextAction.action,
+        action: (nextAction as ScriptFilterAction | KeywordAction).action,
         actionTrigger: nextAction,
         bundleId: this.getTopWork().bundleId,
         args,
@@ -537,10 +553,6 @@ export class WorkManager {
   }
 
   /**
-   * @param  {} item
-   * @param  {} args
-   * @param  {} targetActions
-   * @param  {} modifier
    * @returns {boolean} If return false, commandExcute quits to enable users to give more input
    * @description Handle Multiple Actions, Process a sequence of actions that follow back.
    */
@@ -565,8 +577,10 @@ export class WorkManager {
     while (targetActions && targetActions.length > 0) {
       // Handle Keyword Action
       // Assume
-      if (targetActions![0].type === 'keyword') {
-        handleKeywordWaiting(item, targetActions![0] as KeywordAction, args);
+      if (
+        targetActions![0].type === 'keyword' &&
+        handleKeywordWaiting(item, targetActions![0] as KeywordAction, args)
+      ) {
         return false;
       }
 
@@ -593,27 +607,20 @@ export class WorkManager {
    * @param  {Command|ScriptFilterItem|PluginItem} item
    * @param  {string} inputStr
    * @param  {ModifierInput} modifier
-   * @summary Handler for enter event
+   * @summary Handle command item properly
    */
   public async commandExcute(
     item: Command | ScriptFilterItem | PluginItem,
     inputStr: string,
     modifier: ModifierInput
   ): Promise<void> {
-    this.throwErrOnRendererUpdaterNotSet();
-
-    // Ignore this exeution if previous work is pending.
-    if (this.workIsPending()) {
-      return;
-    }
-
     // If workStk is empty, the args becomes query, otherwise args becomes arg of items
     // If workStk is empty, the actions becomes command, otherwise the top action of the stack is 'actions'.
     const actions = this.prepareNextActions({ item });
     const args = this.prepareArgs({ item, inputStr });
 
     if (this.hasEmptyWorkStk()) {
-      // type: one of 'keyword', 'scriptfilter', 'hotkey'
+      // Trigger Type: one of 'keyword', 'scriptfilter'
       this.pushWork({
         args,
         input: inputStr,
@@ -638,6 +645,28 @@ export class WorkManager {
     ) {
       return;
     }
+  }
+
+  /**
+   * @param  {Command|ScriptFilterItem|PluginItem} item
+   * @param  {string} inputStr
+   * @param  {ModifierInput} modifier
+   * @summary Handler for enter event.
+   *          Handle command item properly and call renderer update functions
+   */
+  public async handleItemPressEvent(
+    item: Command | ScriptFilterItem | PluginItem,
+    inputStr: string,
+    modifier: ModifierInput
+  ): Promise<void> {
+    this.throwErrOnRendererUpdaterNotSet();
+
+    // Ignore this exeution if previous work is pending.
+    if (this.workIsPending()) {
+      return;
+    }
+
+    await this.commandExcute(item, inputStr, modifier);
 
     this.clearWorkStack();
     this.onItemShouldBeUpdate!({ items: [], needIndexInfoClear: true });

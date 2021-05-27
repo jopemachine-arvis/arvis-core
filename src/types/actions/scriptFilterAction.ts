@@ -1,7 +1,7 @@
 import '../';
 
 export interface ScriptFilterAction {
-  type: ScriptFilter;
+  type: 'scriptfilter';
   script_filter: string | object;
   action: Action[];
   withspace?: boolean;
