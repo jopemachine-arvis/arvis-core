@@ -562,9 +562,7 @@ export class WorkManager {
       args: object;
     };
 
-    const exists = (arr: any[] | undefined) => arr && arr.length > 0;
-
-    while (exists(targetActions)) {
+    while (targetActions && targetActions.length > 0) {
       // Handle Keyword Action
       // Assume
       if (targetActions![0].type === 'keyword') {
@@ -580,7 +578,7 @@ export class WorkManager {
 
       targetActions = handleActionResult.nextActions;
 
-      if (exists(targetActions)) {
+      if (targetActions) {
         for (const nextAction of targetActions!) {
           if (this.handleTriggerAction(nextAction, handleActionResult.args))
             return false;

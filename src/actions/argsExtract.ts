@@ -4,7 +4,7 @@ import { replaceAll } from '../utils';
 /**
  * @param  {object} queryArgs
  * @param  {string} argToExtract
- * @summary Extract the desired string from queryArgs, and assign it to query and $1.
+ * @summary Extract the desired string from queryArgs, and assign it to 'query'.
  */
 const argsExtract = (queryArgs: object, argToExtract: string): object => {
   const result: object = { ...queryArgs };
@@ -17,12 +17,11 @@ const argsExtract = (queryArgs: object, argToExtract: string): object => {
   }
 
   if (targetString === argToExtract) {
-    log(LogType.error, 'Arg selection is wrong');
+    log(LogType.info, 'Arg selection could be wrong. {query} not changed.');
   }
 
-  result[`${argToExtract}`] = targetString;
+  // result[`${argToExtract}`] = targetString;
   result[`{query}`] = targetString;
-  result[`$1`] = targetString;
 
   return result;
 };

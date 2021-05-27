@@ -166,15 +166,16 @@ function scriptErrorHandler (err: ExecaError) {
 
 /**
  * @param  {string} inputStr
- * @param  {string} command
+ * @param  {string|undefined} command
  */
-const getScriptFilterQuery = (inputStr: string, command: string): string[] => {
+const getScriptFilterQuery = (inputStr: string, command: string | undefined): string[] => {
   const workManager = WorkManager.getInstance();
 
   if (workManager.hasNestedScriptFilters()) {
     return inputStr.split(' ');
   } else if (workManager.hasEmptyWorkStk()) {
-    const arr = inputStr.split(command);
+    // assert(command);
+    const arr = inputStr.split(command!);
     return arr.slice(1, arr.length);
   }
 
@@ -230,7 +231,7 @@ async function scriptFilterExcute(
 
   const querys = getScriptFilterQuery(
     inputStr,
-    commandWhenStackIsEmpty!.command!
+    commandWhenStackIsEmpty ? commandWhenStackIsEmpty!.command : undefined
   );
 
   // If the ScriptFilters are nested, the first string element is query.

@@ -63,14 +63,16 @@ function handleAction({
   actions = handleModifiers(actions, modifiersInput);
 
   let target;
-  let nextActions: Action[] | undefined = [];
+  let nextActions: Action[] = [];
 
   _.map(actions, (action) => {
     const type = action.type.toLowerCase();
     let logColor;
+    let nextAction: Action[] | undefined;
 
     // tslint:disable-next-line: no-string-literal
-    nextActions = action['action'];
+    // nextActions = action['action'];
+    nextAction = action['action'];
 
     if (customActions[action.type]) {
       customActions[action.type](action);
@@ -110,7 +112,7 @@ function handleAction({
 
           logColor = chalk.redBright;
           target = action.script_filter;
-          nextActions = [action];
+          nextAction = [action];
 
           // In the case of scriptfilter, you must press return to explicitly execute the action to leave below log.
           // Because otherwise, handleAction is not executed
@@ -124,9 +126,9 @@ function handleAction({
 
           printActionlog();
 
-          if (nextActions) {
-            nextActions = handleAction({
-              actions: nextActions,
+          if (nextAction) {
+            nextAction = handleAction({
+              actions: nextAction,
               queryArgs,
               modifiersInput,
             }).nextActions;
@@ -145,16 +147,16 @@ function handleAction({
           printActionlog();
 
           if (workManager.getTopWork().type === 'keyword') {
-            if (nextActions) {
-              nextActions = handleAction({
-                actions: nextActions,
+            if (nextAction) {
+              nextAction = handleAction({
+                actions: nextAction,
                 queryArgs,
                 modifiersInput,
               }).nextActions;
             }
           } else {
             // Wait for next 'action' event
-            nextActions = undefined;
+            nextAction = undefined;
           }
           break;
 
@@ -168,9 +170,9 @@ function handleAction({
 
           printActionlog();
 
-          if (nextActions) {
-            nextActions = handleAction({
-              actions: nextActions,
+          if (nextAction) {
+            nextAction = handleAction({
+              actions: nextAction,
               queryArgs,
               modifiersInput,
             }).nextActions;
@@ -218,9 +220,9 @@ function handleAction({
           target = queryArgs;
 
           printActionlog();
-          if (nextActions) {
-            nextActions = handleAction({
-              actions: nextActions,
+          if (nextAction) {
+            nextAction = handleAction({
+              actions: nextAction,
               queryArgs,
               modifiersInput,
             }).nextActions;
@@ -254,7 +256,7 @@ function handleAction({
           printActionlog();
 
           if (conditionalAction) {
-            nextActions = handleAction({
+            nextAction = handleAction({
               actions: conditionalAction,
               queryArgs,
               modifiersInput,
@@ -268,6 +270,10 @@ function handleAction({
       }
     } catch (e) {
       log(LogType.error, e);
+    }
+
+    if (nextAction) {
+      nextActions = [...nextActions, ...nextAction];
     }
   });
 
