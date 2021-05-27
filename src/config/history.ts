@@ -53,7 +53,9 @@ const getLogs = (): Log[] => {
 /**
  * @param  {string} inputStr
  */
-export const pushInputStrLog = (inputStr: string): void => {
+export const pushInputStrLog = (inputStr: string | undefined): void => {
+  if (!inputStr || inputStr === '') return;
+
   const logs: Log[] = getLogs();
 
   logs.push({

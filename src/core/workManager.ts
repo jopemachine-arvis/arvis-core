@@ -608,12 +608,14 @@ export class WorkManager {
    * @param  {string} inputStr
    * @param  {ModifierInput} modifier
    * @summary Handle command item properly
+   * @returns {boolean} If return value is true, no need more user input
+   *                    If return value is false, need more user input
    */
   public async commandExcute(
     item: Command | ScriptFilterItem | PluginItem,
     inputStr: string,
     modifier: ModifierInput
-  ): Promise<void> {
+  ): Promise<boolean> {
     // If workStk is empty, the args becomes query, otherwise args becomes arg of items
     // If workStk is empty, the actions becomes command, otherwise the top action of the stack is 'actions'.
     const actions = this.prepareNextActions({ item });
@@ -643,8 +645,10 @@ export class WorkManager {
     if (
       !this.handleActionChain({ item, args, modifier, targetActions: actions })
     ) {
-      return;
+      return false;
     }
+
+    return true;
   }
 
   /**
@@ -666,11 +670,11 @@ export class WorkManager {
       return;
     }
 
-    await this.commandExcute(item, inputStr, modifier);
-
-    this.clearWorkStack();
-    this.onItemShouldBeUpdate!({ items: [], needIndexInfoClear: true });
-    this.onItemPressHandler!();
-    this.onWorkEndHandler!();
+    if (await this.commandExcute(item, inputStr, modifier)) {
+      this.clearWorkStack();
+      this.onItemShouldBeUpdate!({ items: [], needIndexInfoClear: true });
+      this.onItemPressHandler!();
+      this.onWorkEndHandler!();
+    }
   }
 }

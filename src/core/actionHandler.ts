@@ -42,6 +42,23 @@ const throwReqAttrNotExtErr = (
 };
 
 /**
+ * @param  {Action} action
+ */
+const resolveActionType = (action: Action) => {
+  const workManager = WorkManager.getInstance();
+
+  if (
+    !workManager.hasEmptyWorkStk() &&
+    workManager.getTopWork().type === 'keyword-waiting' &&
+    action.type.toLowerCase() === 'keyword'
+  ) {
+    return 'keyword-waiting-resolve';
+  } else {
+    return action.type.toLowerCase();
+  }
+};
+
+/**
  * @param  {Action[]} actions
  * @param  {object} queryArgs
  * @param  {ModifierInput} modifiersInput
@@ -66,7 +83,8 @@ function handleAction({
   let nextActions: Action[] = [];
 
   _.map(actions, (action) => {
-    const type = action.type.toLowerCase();
+    const type = resolveActionType(action);
+
     let logColor;
     let nextAction: Action[] | undefined;
 
@@ -119,9 +137,9 @@ function handleAction({
           printActionlog();
           break;
 
-        case 'keyword-waiting':
+        case 'keyword-waiting-resolve':
           action = action as KeywordAction;
-          target = '';
+          target = action.title;
           logColor = chalk.blackBright;
 
           printActionlog();
