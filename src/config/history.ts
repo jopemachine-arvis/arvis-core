@@ -21,6 +21,7 @@ const conf = new Conf({
   schema,
   clearInvalidConfig: true,
   configName: 'arvis-history',
+  projectName: 'arvis-core'
 });
 
 /**
