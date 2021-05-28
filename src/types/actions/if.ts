@@ -1,5 +1,5 @@
 import '..';
-import { ConditionalAction } from './ConditionalAction';
+import { ConditionalAction } from './conditionalAction';
 
 export interface If {
   cond: string;

@@ -1,7 +1,7 @@
 import { ArgsAction as _ArgsAction } from './actions/argsAction';
 import { ClipboardAction as _ClipboardAction } from './actions/clipboardAction';
 import { CondAction as _CondAction } from './actions/condAction';
-import { HotkeyAction as _HotkeyAction } from './actions/HotkeyAction';
+import { HotkeyAction as _HotkeyAction } from './actions/hotkeyAction';
 import { KeywordAction as _KeywordAction } from './actions/keywordAction';
 import { NotificationAction as _NotificationAction } from './actions/notificationAction';
 import { OpenAction as _OpenAction } from './actions/openAction';
