@@ -111,7 +111,7 @@ export class WorkManager {
     items,
     needIndexInfoClear,
   }: {
-    items: ScriptFilterItem[];
+    items: (ScriptFilterItem | Command)[];
     needIndexInfoClear: boolean;
   }) => void;
 
@@ -338,23 +338,22 @@ export class WorkManager {
    * @param  {string} runningSubText
    */
   public setRunningText({
-    itemArr,
-    index,
-    runningSubText,
+    selectedItem,
   }: {
-    itemArr: any[];
-    index: number;
-    runningSubText: string;
+    selectedItem: Command;
   }) {
     this.throwErrOnRendererUpdaterNotSet();
 
-    const swap = itemArr;
-    swap[index] = {
-      ...itemArr[index],
-      subtitle: runningSubText,
+    selectedItem = {
+      ...selectedItem,
+      title: selectedItem.title,
+      subtitle: selectedItem.running_subtext ?? '',
     };
 
-    this.onItemShouldBeUpdate!({ items: swap, needIndexInfoClear: true });
+    this.onItemShouldBeUpdate!({
+      items: [selectedItem],
+      needIndexInfoClear: true,
+    });
   }
 
   /**
