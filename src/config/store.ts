@@ -62,6 +62,8 @@ const addCommands = (
  */
 export class Store {
   private static instance: Store;
+  public static onStoreUpdate?: (available: boolean) => void;
+
   private store: Map<string, any>;
   public checkStoreIsAvailable?: (available: boolean) => void;
 
@@ -77,6 +79,8 @@ export class Store {
   }
 
   private setStoreAvailability(available: boolean) {
+    Store.onStoreUpdate && Store.onStoreUpdate(available);
+
     if (this.checkStoreIsAvailable) {
       if (available === false)
         log(LogType.debug, 'Store is occupied in Arvis now..');

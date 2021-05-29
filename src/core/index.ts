@@ -20,6 +20,7 @@ import { getWorkflowList } from './workflowList';
 import { renewWorkflows } from './workflowRenewer';
 import { WorkManager } from './workManager';
 
+import { Store } from '../config';
 import * as history from '../config/history';
 import * as logger from '../config/logger';
 import * as path from '../config/path';
@@ -46,6 +47,7 @@ export {
   renewWorkflows,
   scriptFilterExcute,
   setStoreAvailabiltyChecker,
+  Store,
   uninstallPlugin,
   uninstallWorkflow,
   WorkManager,
