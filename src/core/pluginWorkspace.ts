@@ -1,7 +1,7 @@
 // tslint:disable: no-eval
 import _ from 'lodash';
 import path from 'path';
-import { log, LogType } from '../config';
+import { getHistory, log, LogType } from '../config';
 import { trace } from '../config/logger';
 import { getPluginInstalledPath } from '../config/path';
 import { getPluginList } from './pluginList';
@@ -75,7 +75,10 @@ const pluginWorkspace = {
       const pluginModule = pluginWorkspace.pluginModules[pluginBundleId];
 
       try {
-        const pluginExecutionResult = (pluginModule as any)(inputStr);
+        const pluginExecutionResult = (pluginModule as any)(
+          inputStr,
+          getHistory()
+        );
 
         if (pluginExecutionResult.then) {
           asyncPluginWorks.push(
@@ -95,7 +98,11 @@ const pluginWorkspace = {
             })
           );
         } else {
-          const thisPluginOutputItems = (pluginModule as any)(inputStr).items;
+          const thisPluginOutputItems = (pluginModule as any)(
+            inputStr,
+            getHistory()
+          ).items;
+
           thisPluginOutputItems.forEach(
             (item) => (item.bundleId = pluginBundleId)
           );

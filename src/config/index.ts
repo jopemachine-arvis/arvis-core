@@ -1,6 +1,7 @@
 import getHelpStr from './getHelpStr';
 import {
   getHistory,
+  getHistoryFilePath,
   initHistory,
   pushActionLog,
   pushInputStrLog,
@@ -13,6 +14,7 @@ import { Store } from './store';
 export {
   getHelpStr,
   getHistory,
+  getHistoryFilePath,
   initHistory,
   log,
   LogType,

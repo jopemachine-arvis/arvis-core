@@ -1,6 +1,7 @@
 import envPathsGenerator from 'env-paths';
 import fse from 'fs-extra';
 import path from 'path';
+import { getHistoryFilePath } from '../config';
 import { checkFileExists } from '../utils';
 
 const envPaths = envPathsGenerator('arvis');
@@ -55,6 +56,13 @@ const initializePath = async () => {
 };
 
 /**
+ * @summary
+ */
+const getExtensionHistoryPath = () => {
+  return getHistoryFilePath();
+};
+
+/**
  * @param  {string} bundleId
  */
 const getExtensionDataPath = (bundleId: string) => {
@@ -103,6 +111,7 @@ export {
   pluginInstallPath,
   getExtensionCachePath,
   getExtensionDataPath,
+  getExtensionHistoryPath,
   getPluginConfigJsonPath,
   getPluginInstalledPath,
   getWorkflowConfigJsonPath,

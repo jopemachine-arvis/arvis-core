@@ -3,6 +3,7 @@ import execa from '../../execa';
 import {
   getExtensionCachePath,
   getExtensionDataPath,
+  getExtensionHistoryPath,
   getWorkflowInstalledPath,
 } from '../config/path';
 import { WorkManager } from './workManager';
@@ -45,6 +46,7 @@ const execute = ({
     arvis_extension_bundleid: bundleId,
     arvis_extension_data: getExtensionDataPath(bundleId),
     arvis_extension_cache: getExtensionCachePath(bundleId),
+    arvis_extension_history: getExtensionHistoryPath(),
   };
 
   // Environment variable setting for alfred workflows

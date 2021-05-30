@@ -107,3 +107,10 @@ export const setActionTypesToLog = (types: string[]): void => {
 export const getActionTypesToLog = (): string[] => {
   return conf.get('actionTypesToLog') as string[];
 };
+
+/**
+ * @summary
+ */
+export const getHistoryFilePath = (): string => {
+  return conf.path;
+};
