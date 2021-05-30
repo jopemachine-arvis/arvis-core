@@ -18,7 +18,9 @@ import {
   extractArgsFromScriptFilterItem,
   getAppliedArgsFromScript,
 } from './argsHandler';
+import { getPluginList } from './pluginList';
 import { extractScriptOnThisPlatform } from './scriptExtracter';
+import { getWorkflowList } from './workflowList';
 
 interface Work {
   /**
@@ -93,7 +95,12 @@ export class WorkManager {
   workStk: Work[];
   globalVariables?: object;
   rerunTimer?: NodeJS.Timeout;
-  execPath?: string;
+
+  extensionInfo?: {
+    execPath?: string;
+    name?: string;
+    version?: string;
+  };
 
   // For debugging, set below variables
   public printActionType?: boolean;
@@ -143,7 +150,6 @@ export class WorkManager {
     this.workStk.length = 0;
     this.globalVariables = {};
     this.rerunTimer = undefined;
-    this.execPath = undefined;
   }
 
   /**
@@ -370,11 +376,20 @@ export class WorkManager {
   /**
    * @param  {PluginItem|Command} item
    */
-  public setExecPath = (item: PluginItem | Command) => {
-    // tslint:disable-next-line: no-string-literal
-    this.execPath = item['isPluginItem']
-      ? getPluginInstalledPath(item.bundleId!)
-      : getWorkflowInstalledPath(item.bundleId!);
+  public setExtensionInfo = (item: PluginItem | Command) => {
+    if (item['isPluginItem']) {
+      this.extensionInfo = {
+        execPath: getPluginInstalledPath(item.bundleId!),
+        name: getPluginList()[item.bundleId!].name,
+        version: getPluginList()[item.bundleId!].version,
+      };
+    } else {
+      this.extensionInfo = {
+        execPath: getWorkflowInstalledPath(item.bundleId!),
+        name: getWorkflowList()[item.bundleId!].name,
+        version: getWorkflowList()[item.bundleId!].version,
+      };
+    }
   }
 
   /**
@@ -631,7 +646,7 @@ export class WorkManager {
         bundleId: (item as Command | PluginItem).bundleId!,
       });
 
-      this.setExecPath(item as Command | PluginItem);
+      this.setExtensionInfo(item as Command | PluginItem);
 
       if (!item['isPluginItem']) {
         pushInputStrLog((item as Command).command!);

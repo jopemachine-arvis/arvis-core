@@ -212,7 +212,7 @@ async function scriptFilterExcute(
     });
 
     pushInputStrLog(commandWhenStackIsEmpty.command!);
-    workManager.setExecPath(commandWhenStackIsEmpty);
+    workManager.setExtensionInfo(commandWhenStackIsEmpty);
   } else {
     const newScriptFilterNeedsToExecuted =
       workManager.getTopWork().type === 'scriptfilter' &&

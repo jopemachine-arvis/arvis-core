@@ -28,10 +28,7 @@ const execute = ({
   scriptStr: string;
   options?: ScriptExecuterOption;
 }): execa.ExecaChildProcess<string> => {
-  let { execPath } = WorkManager.getInstance();
-
-  // Assume workflow's hotkey script execution
-  if (!execPath) execPath = getWorkflowInstalledPath(bundleId);
+  const { execPath, name, version } = WorkManager.getInstance().extensionInfo!;
 
   let all;
   let timeout;
@@ -43,6 +40,8 @@ const execute = ({
 
   const env = {
     arvis_version: 'demo',
+    arvis_extension_version: name ?? '',
+    arvis_extension_name: version ?? '',
     arvis_extension_bundleid: bundleId,
     arvis_extension_data: getExtensionDataPath(bundleId),
     arvis_extension_cache: getExtensionCachePath(bundleId),
@@ -78,7 +77,8 @@ const execute = ({
     all,
     buffer: true,
     cleanup: true,
-    cwd: execPath,
+    // Assume workflow's hotkey script execution if execPath not exist
+    cwd: execPath ?? getWorkflowInstalledPath(bundleId),
     encoding: 'utf8',
     extendEnv: true,
     killSignal: 'SIGTERM',
