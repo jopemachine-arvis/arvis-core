@@ -18,13 +18,13 @@ import { WorkManager } from './workManager';
  * @summary
  */
 const printActionDebuggingLog =
-  (disabled: boolean) => (color: Function, type: string, text: string) => {
+  (disabled: boolean) => (action: Action, color: Function) => {
     if (disabled) return;
-    if (!color || !type || !text) {
-      log(LogType.error, `Error: [${type}] is not properly set up.`);
+    if (!color || !action) {
+      log(LogType.error, `Error: [${action.type}] is not properly set up.`);
       return;
     }
-    log(LogType.info, color(`[Action: ${type}] `), text);
+    log(LogType.info, color(`[Action: ${action.type}] `), action);
   };
 
 /**
@@ -89,21 +89,12 @@ function handleAction({
     let nextAction: Action[] | undefined;
 
     // tslint:disable-next-line: no-string-literal
-    // nextActions = action['action'];
     nextAction = action['action'];
 
     if (customActions[action.type]) {
       customActions[action.type](action);
       return;
     }
-
-    const printActionlog = () => {
-      printActionDebuggingLog(!workManager.printActionType)(
-        logColor,
-        type,
-        target
-      );
-    };
 
     pushActionLog(action);
 
@@ -117,7 +108,10 @@ function handleAction({
           logColor = chalk.dim;
           target = applyArgsToScript({ scriptStr, queryArgs });
 
-          printActionlog();
+          printActionDebuggingLog(!workManager.printActionType)(
+            action,
+            logColor
+          );
           handleScriptAction(action, queryArgs);
           break;
 
@@ -128,13 +122,8 @@ function handleAction({
           if (!action.script_filter)
             throwReqAttrNotExtErr(type, ['script_filter']);
 
-          logColor = chalk.redBright;
           target = action.script_filter;
           nextAction = [action];
-
-          // In the case of scriptfilter, you must press return to explicitly execute the action to leave below log.
-          // Because otherwise, handleAction is not executed
-          printActionlog();
           break;
 
         case 'keyword-waiting-resolve':
@@ -142,7 +131,10 @@ function handleAction({
           target = action.title;
           logColor = chalk.blackBright;
 
-          printActionlog();
+          printActionDebuggingLog(!workManager.printActionType)(
+            action,
+            logColor
+          );
 
           if (nextAction) {
             nextAction = handleAction({
@@ -163,7 +155,11 @@ function handleAction({
           target = action.command || action.title;
           logColor = chalk.blackBright;
 
-          printActionlog();
+          printActionDebuggingLog(!workManager.printActionType)(
+            action,
+            logColor
+          );
+
           if (workManager.getTopWork().type === 'keyword') {
             if (nextAction) {
               nextAction = handleAction({
@@ -186,7 +182,10 @@ function handleAction({
           target = action.hotkey;
           logColor = chalk.whiteBright;
 
-          printActionlog();
+          printActionDebuggingLog(!workManager.printActionType)(
+            action,
+            logColor
+          );
 
           if (nextAction) {
             nextAction = handleAction({
@@ -205,7 +204,11 @@ function handleAction({
           logColor = chalk.blueBright;
 
           target = applyArgsToScript({ scriptStr: action.target, queryArgs });
-          printActionlog();
+          printActionDebuggingLog(!workManager.printActionType)(
+            action,
+            logColor
+          );
+
           openFileAction(target);
           break;
 
@@ -222,7 +225,11 @@ function handleAction({
           logColor = chalk.greenBright;
 
           target = applyArgsToScript({ scriptStr: action.text, queryArgs });
-          printActionlog();
+          printActionDebuggingLog(!workManager.printActionType)(
+            action,
+            logColor
+          );
+
           copyToClipboardAction(target);
           break;
 
@@ -237,7 +244,11 @@ function handleAction({
           queryArgs = argsExtractAction(queryArgs, argToExtract);
           target = queryArgs;
 
-          printActionlog();
+          printActionDebuggingLog(!workManager.printActionType)(
+            action,
+            logColor
+          );
+
           if (nextAction) {
             nextAction = handleAction({
               actions: nextAction,
@@ -271,7 +282,11 @@ function handleAction({
             eval(target) === true
               ? action.if.action.then
               : action.if.action.else;
-          printActionlog();
+
+          printActionDebuggingLog(!workManager.printActionType)(
+            action,
+            logColor
+          );
 
           if (conditionalAction) {
             nextAction = handleAction({

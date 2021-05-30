@@ -1,4 +1,5 @@
 // tslint:disable: no-string-literal
+import chalk from 'chalk';
 import _ from 'lodash';
 import { xml2json } from 'xml-js';
 import execa, { ExecaError } from '../../execa';
@@ -252,6 +253,14 @@ async function scriptFilterExcute(
   scriptWork
     .then((result) => {
       if (workManager.getTopWork().workProcess === scriptWork) {
+
+        workManager.printActionType &&
+          log(
+            LogType.info,
+            chalk.redBright(`[Action: scriptfilter] `),
+            workManager.getTopWork().actionTrigger
+          );
+
         scriptFilterCompleteEventHandler(result);
         if (workManager.getTopWork().rerunInterval) {
           // Run recursive every rerunInterval
