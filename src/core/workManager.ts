@@ -108,6 +108,7 @@ export class WorkManager {
   public printWorkflowOutput?: boolean;
   public printArgs?: boolean;
   public printScriptfilter?: boolean;
+  public printPluginItems?: boolean;
 
   public maxRetrieveCount?: number;
 

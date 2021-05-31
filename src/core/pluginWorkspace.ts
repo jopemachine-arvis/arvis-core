@@ -5,6 +5,7 @@ import { getHistory, log, LogType } from '../config';
 import { trace } from '../config/logger';
 import { getPluginInstalledPath } from '../config/path';
 import { getPluginList } from './pluginList';
+import { WorkManager } from './workManager';
 
 /**
  * @param  {string} modulePath
@@ -117,18 +118,34 @@ const pluginWorkspace = {
       }
     }
 
-    try {
-      pluginOutputItems = [
-        ...pluginOutputItems,
-        ..._.flattenDeep(await Promise.all(asyncPluginWorks)),
-      ];
-    } catch (err) {
+    const asyncPluginResults = await Promise.allSettled(asyncPluginWorks);
+    const success = asyncPluginResults
+      .filter((result) => result.status === 'fulfilled')
+      .map((item) => (item as any).value);
+
+    const failures = asyncPluginResults
+      .filter((result) => result.status === 'rejected')
+      .map((item) => (item as any).value);
+
+    const asyncPrintResult = _.flattenDeep(success);
+
+    pluginOutputItems = [
+      ...pluginOutputItems,
+      ...asyncPrintResult,
+    ];
+
+    if (WorkManager.getInstance().printPluginItems) {
+      log(LogType.info, `Plugin Items: ${pluginOutputItems}`);
+    }
+
+    if (failures.length !== 0) {
       // skip async items on errors
-      log(LogType.error, 'Async print error', err);
+      log(LogType.error, 'Async plugin runtime errors occur', failures);
     }
 
     pluginOutputItems.forEach((item) => {
       item.isPluginItem = true;
+      // pluginItem is treated like keyword
       item.type = 'keyword';
       item.command = item.title;
       item.action = getPluginList()[item.bundleId].action;
