@@ -1,4 +1,4 @@
-import alfredWorkflowPlistConvert from 'arvis-plist-converter';
+import alfredWorkflowPlistConvert from '@jopemachine/arvis-plist-converter';
 import chmodr from 'chmodr';
 import * as fse from 'fs-extra';
 import path from 'path';
