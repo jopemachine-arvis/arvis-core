@@ -129,13 +129,19 @@ const pluginWorkspace = {
 
     const asyncPrintResult = _.flattenDeep(success);
 
-    pluginOutputItems = [
-      ...pluginOutputItems,
-      ...asyncPrintResult,
-    ];
+    pluginOutputItems = [...pluginOutputItems, ...asyncPrintResult]
+      .filter((item) => item !== null && item !== undefined)
+      .map((item) => {
+        item.isPluginItem = true;
+        // pluginItem is treated like keyword
+        item.type = 'keyword';
+        item.command = item.title;
+        item.action = getPluginList()[item.bundleId].action;
+        return item;
+      });
 
     if (WorkManager.getInstance().printPluginItems) {
-      log(LogType.info, `Plugin Items: ${pluginOutputItems}`);
+      log(LogType.info, 'Plugin Items: ', pluginOutputItems);
     }
 
     if (failures.length !== 0) {
@@ -143,13 +149,6 @@ const pluginWorkspace = {
       log(LogType.error, 'Async plugin runtime errors occur', failures);
     }
 
-    pluginOutputItems.forEach((item) => {
-      item.isPluginItem = true;
-      // pluginItem is treated like keyword
-      item.type = 'keyword';
-      item.command = item.title;
-      item.action = getPluginList()[item.bundleId].action;
-    });
     return pluginOutputItems;
   },
 };
