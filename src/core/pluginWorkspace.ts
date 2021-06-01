@@ -59,7 +59,7 @@ const pluginWorkspace = {
       );
 
       try {
-        const envs = getEnvs(pluginInfo.bundleId);
+        const envs = getEnvs({ bundleId: pluginInfo.bundleId });
         newPluginModules[pluginInfo.bundleId] = requireDynamically(
           modulePath,
           envs
