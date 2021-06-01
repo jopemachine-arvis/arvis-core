@@ -133,15 +133,16 @@ const pluginWorkspace = {
     }
 
     const asyncPluginResults = await Promise.allSettled(asyncPluginWorks);
-    const success = asyncPluginResults
+
+    const successes = asyncPluginResults
       .filter((result) => result.status === 'fulfilled')
       .map((item) => (item as any).value);
 
-    const failures = asyncPluginResults
+    const errors = asyncPluginResults
       .filter((result) => result.status === 'rejected')
-      .map((item) => (item as any).value);
+      .map((item) => (item as any).reason);
 
-    const asyncPrintResult = _.flattenDeep(success);
+    const asyncPrintResult = _.flattenDeep(successes);
 
     pluginOutputItems = [...pluginOutputItems, ...asyncPrintResult]
       .filter((item) => item !== null && item !== undefined)
@@ -158,9 +159,11 @@ const pluginWorkspace = {
       log(LogType.info, 'Plugin Items: ', pluginOutputItems);
     }
 
-    if (failures.length !== 0) {
+    if (errors.length !== 0) {
       // skip async items on errors
-      log(LogType.error, 'Async plugin runtime errors occur', failures);
+      for (const error of errors) {
+        log(LogType.error, 'Async plugin runtime errors occur\n', error);
+      }
     }
 
     return pluginOutputItems;
