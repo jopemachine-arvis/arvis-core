@@ -178,6 +178,7 @@ export class Store {
           this.clearWorkflowsInfo();
         }
 
+        this.store.set('hotkeys', {});
         for (const workflowInfo of workflowInfoArr) {
           this.setWorkflow(workflowInfo);
         }
