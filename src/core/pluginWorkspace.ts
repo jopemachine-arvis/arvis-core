@@ -1,7 +1,7 @@
 // tslint:disable: no-eval
 import _ from 'lodash';
 import path from 'path';
-import { getHistory, log, LogType } from '../config';
+import { getEnvs, getHistory, log, LogType } from '../config';
 import { trace } from '../config/logger';
 import { getPluginInstalledPath } from '../config/path';
 import { getPluginList } from './pluginList';
@@ -12,11 +12,13 @@ import { WorkManager } from './workManager';
  * @summary Remove cache from existing module for module updates, and dynamically require new modules.
  *          Use eval.
  */
-const requireDynamically = (modulePath: string): any => {
+const requireDynamically = (modulePath: string, envs: object = {}): any => {
   modulePath = modulePath.split('\\').join('/');
 
   try {
-    const moduleCache = eval(`require.cache[require.resolve('${modulePath}')]`);
+    const moduleCache = eval(`
+      require.cache[require.resolve('${modulePath}')];
+    `);
 
     if (moduleCache) {
       eval(`
@@ -29,7 +31,15 @@ const requireDynamically = (modulePath: string): any => {
     log(LogType.debug, 'Plugin module cache not deleted', err);
   }
 
-  return eval(`require('${modulePath}');`);
+  return eval(`
+    const envs = JSON.parse('${JSON.stringify(envs)}');
+
+    Object.keys(envs).forEach(function(env) {
+      process.env[env] = envs[env];
+    });
+
+    require('${modulePath}');
+  `);
 };
 
 const pluginWorkspace = {
@@ -49,7 +59,11 @@ const pluginWorkspace = {
       );
 
       try {
-        newPluginModules[pluginInfo.bundleId] = requireDynamically(modulePath);
+        const envs = getEnvs(pluginInfo.bundleId);
+        newPluginModules[pluginInfo.bundleId] = requireDynamically(
+          modulePath,
+          envs
+        );
       } catch (err) {
         log(
           LogType.error,
