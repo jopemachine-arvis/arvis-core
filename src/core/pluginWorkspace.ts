@@ -90,10 +90,10 @@ const pluginWorkspace = {
       const pluginModule = pluginWorkspace.pluginModules[pluginBundleId];
 
       try {
-        const pluginExecutionResult = (pluginModule as any)(
+        const pluginExecutionResult = (pluginModule as any)({
           inputStr,
-          getHistory()
-        );
+          history: getHistory(),
+        });
 
         if (pluginExecutionResult.then) {
           asyncPluginWorks.push(
@@ -113,10 +113,10 @@ const pluginWorkspace = {
             })
           );
         } else {
-          const thisPluginOutputItems = (pluginModule as any)(
+          const thisPluginOutputItems = (pluginModule as any)({
             inputStr,
-            getHistory()
-          ).items;
+            history: getHistory(),
+          }).items;
 
           thisPluginOutputItems.forEach(
             (item) => (item.bundleId = pluginBundleId)
@@ -160,7 +160,6 @@ const pluginWorkspace = {
     }
 
     if (errors.length !== 0) {
-      // skip async items on errors
       for (const error of errors) {
         log(LogType.error, 'Async plugin runtime errors occur\n', error);
       }
