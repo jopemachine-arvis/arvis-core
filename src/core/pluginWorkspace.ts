@@ -90,7 +90,7 @@ const pluginWorkspace = {
       const pluginModule = pluginWorkspace.pluginModules[pluginBundleId];
 
       try {
-        const pluginExecutionResult = (pluginModule as any)({
+        const pluginExecutionResult = (pluginModule as Function)({
           inputStr,
           history: getHistory(),
         });
@@ -113,7 +113,7 @@ const pluginWorkspace = {
             })
           );
         } else {
-          const thisPluginOutputItems = (pluginModule as any)({
+          const thisPluginOutputItems = (pluginModule as Function)({
             inputStr,
             history: getHistory(),
           }).items;

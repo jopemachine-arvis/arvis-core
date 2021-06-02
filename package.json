@@ -1,13 +1,15 @@
 {
   "name": "@jopemachine/arvis-core",
-  "version": "0.0.3",
+  "version": "0.0.6",
   "description": "Core part of Arvis, Designed as a core module of the CUI and GUI.",
   "main": "dist/index.js",
   "bin": "dist/main.js",
   "files": [
     "dist/**",
+    "execa/**",
     "LICENSE",
-    "README.md"
+    "README.md",
+    "package.json"
   ],
   "scripts": {
     "test": "jest --verbose ./__test__/unit",
