@@ -1,4 +1,5 @@
 import { handleAction } from './actionHandler';
+import { checkUpdatableExtensions } from './checkUpdatableExtensions';
 import { findCommands } from './commandFinder';
 import { getCommandList } from './commandList';
 import { findHotkeys } from './hotkeyFinder';
@@ -28,6 +29,7 @@ import * as path from '../config/path';
 import { registerCustomAction, scriptFilterExcute } from '../actions';
 
 export {
+  checkUpdatableExtensions,
   execute,
   exportPlugin,
   exportWorkflow,
