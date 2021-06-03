@@ -59,7 +59,7 @@ const setKeywordItem = (item: KeywordAction) => {
       items: [
         {
           title: item.title ?? '',
-          subtitle: item.subtitle,
+          subtitle: item.subtitle ?? '',
           bundleId: workManager.getTopWork().bundleId,
           icon: {
             path: workflowDefaultIcon,

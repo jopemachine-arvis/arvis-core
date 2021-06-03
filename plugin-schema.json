@@ -3,7 +3,9 @@
     "type": "object",
     "additionalProperties": false,
     "required": [
-        "bundleId"
+        "name",
+        "createdby",
+        "action"
     ],
     "definitions": {
         "command": {
@@ -214,17 +216,6 @@
     "properties": {
         "$schema": {
             "type": "string"
-        },
-        "bundleId": {
-            "type": "string",
-            "description": "Plugin's unique bundleId (name)",
-            "markdownDescription": "Plugin's unique bundleId (name)",
-            "defaultSnippets": [
-                {
-                    "label": "Plugin's unique bundleId (name)",
-                    "body": ""
-                }
-            ]
         },
         "createdby": {
             "type": "string",

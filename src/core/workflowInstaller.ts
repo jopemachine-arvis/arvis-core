@@ -9,6 +9,7 @@ import { log, LogType } from '../config';
 import { getWorkflowInstalledPath, tempPath } from '../config/path';
 import { Store } from '../config/store';
 import { checkFileExists, sleep } from '../utils';
+import { getBundleId } from './getBundleId';
 
 /**
  * @param  {string} installedPath
@@ -16,9 +17,7 @@ import { checkFileExists, sleep } from '../utils';
  */
 const installByPath = async (installedPath: string): Promise<void | Error> => {
   const store = Store.getInstance();
-  const workflowConfFilePath = path.resolve(
-    path.normalize(`${installedPath}${path.sep}arvis-workflow.json`)
-  );
+  const workflowConfFilePath = path.resolve(installedPath, 'arvis-workflow.json');
 
   return new Promise(async (resolve, reject) => {
     let workflowConfig: WorkflowConfigFile;
@@ -29,8 +28,13 @@ const installByPath = async (installedPath: string): Promise<void | Error> => {
       return;
     }
 
-    if (!workflowConfig.bundleId || workflowConfig.bundleId === '') {
-      reject(new Error('Invalid workflow - bundleId is not set'));
+    if (
+      !workflowConfig.createdby ||
+      workflowConfig.createdby === '' ||
+      !workflowConfig.name ||
+      workflowConfig.name === ''
+    ) {
+      reject(new Error('Invalid workflow - "createdby" or "name" is not set'));
       return;
     }
 
@@ -38,14 +42,16 @@ const installByPath = async (installedPath: string): Promise<void | Error> => {
       workflowConfig.platform &&
       !workflowConfig.platform.includes(process.platform)
     ) {
-      reject(new Error(`This workflows not supports '${process.platform}'`));
+      reject(new Error(`This workflow not supports '${process.platform}'`));
       return;
     }
 
     const arr = workflowConfFilePath.split(path.sep);
     const workflowConfDirPath = arr.slice(0, arr.length - 1).join(path.sep);
 
-    const destinationPath = getWorkflowInstalledPath(workflowConfig.bundleId);
+    const destinationPath = getWorkflowInstalledPath(
+      getBundleId(workflowConfig.createdby, workflowConfig.name)
+    );
 
     if (await checkFileExists(destinationPath)) {
       await fse.remove(destinationPath);
@@ -82,7 +88,7 @@ const install = async (installFile: string): Promise<void | Error> => {
     // Create temporary folder and delete it after installtion
     const temporaryFolderName = uuidv4();
 
-    extractedPath = `${tempPath}${path.sep}${temporaryFolderName}`;
+    extractedPath = path.resolve(tempPath, temporaryFolderName);
     unzipStream = fse
       .createReadStream(installFile)
       .pipe(unzipper.Extract({ path: extractedPath }));
@@ -98,8 +104,12 @@ const install = async (installFile: string): Promise<void | Error> => {
       await sleep(1000);
 
       const innerPath = zipFileName.split('.')[0];
-      const plistPath = `${extractedPath}${path.sep}info.plist`;
-      const arvisWorkflowConfigPath = `${extractedPath}${path.sep}arvis-workflow.json`;
+      const plistPath = path.resolve(extractedPath, 'info.plist');
+      const arvisWorkflowConfigPath = path.resolve(
+        extractedPath,
+        'arvis-workflow.json'
+      );
+
       // Supports both compressed with folder and compressed without folders
       const containedInfoPlist = await checkFileExists(plistPath);
       const containedWorkflowConf = await checkFileExists(

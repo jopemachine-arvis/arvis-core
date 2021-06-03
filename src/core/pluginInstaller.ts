@@ -9,6 +9,7 @@ import { getPluginInstalledPath, tempPath } from '../config/path';
 import { Store } from '../config/store';
 import '../types';
 import { checkFileExists, sleep } from '../utils';
+import { getBundleId } from './getBundleId';
 
 /**
  * @param  {string} installedPath
@@ -16,9 +17,7 @@ import { checkFileExists, sleep } from '../utils';
  */
 const installByPath = async (installedPath: string): Promise<void | Error> => {
   const store = Store.getInstance();
-  const pluginConfFilePath = path.resolve(
-    path.normalize(`${installedPath}${path.sep}arvis-plugin.json`)
-  );
+  const pluginConfFilePath = path.resolve(installedPath, 'arvis-plugin.json');
 
   return new Promise(async (resolve, reject) => {
     let pluginConfig: PluginConfigFile;
@@ -29,8 +28,13 @@ const installByPath = async (installedPath: string): Promise<void | Error> => {
       return;
     }
 
-    if (!pluginConfig.bundleId || pluginConfig.bundleId === '') {
-      reject(new Error('Invalid plugin - bundleId is not set'));
+    if (
+      !pluginConfig.createdby ||
+      pluginConfig.createdby === '' ||
+      !pluginConfig.name ||
+      pluginConfig.name === ''
+    ) {
+      reject(new Error('Invalid plugin - "createdby" or "name" is not set'));
       return;
     }
 
@@ -38,14 +42,16 @@ const installByPath = async (installedPath: string): Promise<void | Error> => {
       pluginConfig.platform &&
       !pluginConfig.platform.includes(process.platform)
     ) {
-      reject(new Error(`This plugins not supports '${process.platform}'`));
+      reject(new Error(`This plugin not supports '${process.platform}'`));
       return;
     }
 
     const arr = pluginConfFilePath.split(path.sep);
     const pluginConfDirPath = arr.slice(0, arr.length - 1).join(path.sep);
 
-    const destinationPath = getPluginInstalledPath(pluginConfig.bundleId);
+    const destinationPath = getPluginInstalledPath(
+      getBundleId(pluginConfig.createdby, pluginConfig.name)
+    );
 
     if (await checkFileExists(destinationPath)) {
       await fse.remove(destinationPath);
@@ -79,7 +85,7 @@ const install = async (installFile: string): Promise<void | Error> => {
     // Create temporary folder and delete it after installtion
     const temporaryFolderName = uuidv4();
 
-    extractedPath = `${tempPath}${path.sep}${temporaryFolderName}`;
+    extractedPath = path.resolve(tempPath, temporaryFolderName);
     unzipStream = fse
       .createReadStream(installFile)
       .pipe(unzipper.Extract({ path: extractedPath }));
@@ -95,7 +101,7 @@ const install = async (installFile: string): Promise<void | Error> => {
       await sleep(1000);
 
       const innerPath = zipFileName.split('.')[0];
-      const arvisPluginConfigPath = `${extractedPath}${path.sep}arvis-plugin.json`;
+      const arvisPluginConfigPath = path.resolve(extractedPath, 'arvis-plugin.json');
       // Supports both compressed with folder and compressed without folders
       const containedWorkflowConf = await checkFileExists(
         arvisPluginConfigPath

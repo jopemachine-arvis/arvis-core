@@ -1,12 +1,11 @@
 import '.';
 
 export interface WorkflowConfigFile {
-  bundleId: string;
   commands: Command[];
-  name?: string;
+  name: string;
+  createdby: string;
   enabled?: boolean;
   category?: string;
-  createdby?: string;
   description?: string;
   readme?: string;
   webaddress?: string;

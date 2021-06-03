@@ -1,11 +1,10 @@
 import '.';
 
 export interface PluginConfigFile {
-  bundleId: string;
-  name?: string;
+  name: string;
+  createdby: string;
   enabled?: boolean;
   category?: string;
-  createdby?: string;
   description?: string;
   readme?: string;
   webaddress?: string;

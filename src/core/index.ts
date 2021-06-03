@@ -2,6 +2,7 @@ import { handleAction } from './actionHandler';
 import { checkUpdatableExtensions } from './checkUpdatableExtensions';
 import { findCommands } from './commandFinder';
 import { getCommandList } from './commandList';
+import { getBundleId } from './getBundleId';
 import { findHotkeys } from './hotkeyFinder';
 import { exportPlugin } from './pluginExporter';
 import {
@@ -35,6 +36,7 @@ export {
   exportWorkflow,
   findCommands,
   findHotkeys,
+  getBundleId,
   getCommandList,
   getPluginList,
   getWorkflowList,

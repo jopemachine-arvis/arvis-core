@@ -3,7 +3,8 @@
     "type": "object",
     "additionalProperties": false,
     "required": [
-        "bundleId",
+        "name",
+        "createdby",
         "commands"
     ],
     "definitions": {
@@ -231,17 +232,6 @@
     "properties": {
         "$schema": {
             "type": "string"
-        },
-        "bundleId": {
-            "type": "string",
-            "description": "Workflow's unique bundleId (name)",
-            "markdownDescription": "Workflow's unique bundleId (name)",
-            "defaultSnippets": [
-                {
-                    "label": "Workflow's unique bundleId (name)",
-                    "body": ""
-                }
-            ]
         },
         "createdby": {
             "type": "string",

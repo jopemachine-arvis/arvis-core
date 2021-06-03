@@ -2,6 +2,7 @@ import fse from 'fs-extra';
 import _ from 'lodash';
 import path from 'path';
 import recursiveReaddir from 'recursive-readdir';
+import { getBundleId } from '../core';
 import pluginWorkspace from '../core/pluginWorkspace';
 import { zipDirectory } from '../utils/zip';
 import { log, LogType } from './index';
@@ -180,7 +181,12 @@ export class Store {
 
         this.store.set('hotkeys', {});
         for (const workflowInfo of workflowInfoArr) {
-          this.setWorkflow(workflowInfo);
+          const extensionBundleId = getBundleId(
+            workflowInfo.createdby,
+            workflowInfo.name
+          );
+
+          this.setWorkflow({ bundleId: extensionBundleId, ...workflowInfo });
         }
 
         this.setStoreAvailability(true);
@@ -243,9 +249,18 @@ export class Store {
           .filter((jsonResult) => jsonResult.status === 'fulfilled')
           .map((jsonResult) => (jsonResult as any).value);
 
+        pluginInfoArr.forEach((pluginInfo) => {
+          pluginInfo.bundleId = getBundleId(
+            pluginInfo.createdby,
+            pluginInfo.name
+          );
+        });
+
         const newPluginDict: any = bundleId ? this.getPlugins() : {};
+
         for (const pluginInfo of pluginInfoArr) {
-          newPluginDict[pluginInfo.bundleId] = pluginInfo;
+          newPluginDict[getBundleId(pluginInfo.createdby, pluginInfo.name)] =
+            pluginInfo;
         }
 
         this.store.set('plugins', newPluginDict);
@@ -253,6 +268,7 @@ export class Store {
         if (initializePluginWorkspace) {
           pluginWorkspace.renew(pluginInfoArr, bundleId);
         }
+
         this.setStoreAvailability(true);
         resolve(true);
 
@@ -308,23 +324,26 @@ export class Store {
   public setPlugin(plugin: any) {
     this.store.set('plugins', {
       ...this.getPlugins(),
-      [plugin.bundleId]: plugin,
+      [getBundleId(plugin.createdby, plugin.name)]: plugin,
     });
   }
 
   /**
+   *
    * @param  {any} workflow
    */
   public setWorkflow(workflow: any) {
+    const bundleId = getBundleId(workflow.createdby, workflow.name);
+
     // Update workflow installation info
     const installedWorkflows = this.getInstalledWorkflows();
-    installedWorkflows[workflow.bundleId] = workflow;
+    installedWorkflows[bundleId] = workflow;
     this.store.set('workflows', installedWorkflows);
 
     // Update available commands
     let commands = this.getCommands();
-    commands = removeOldCommand(commands, workflow.bundleId);
-    commands = addCommands(commands, workflow.commands, workflow.bundleId);
+    commands = removeOldCommand(commands, bundleId);
+    commands = addCommands(commands, workflow.commands, bundleId);
     this.store.set('commands', commands);
 
     // Update available hotkeys
@@ -335,7 +354,7 @@ export class Store {
 
     hotkeys = _.map(hotkeys, (command) => {
       return {
-        bundleId: workflow.bundleId,
+        bundleId,
         ...command,
       };
     });

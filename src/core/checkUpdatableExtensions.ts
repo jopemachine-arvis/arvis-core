@@ -27,7 +27,7 @@ export const checkUpdatableExtensions = async (
               updatable.push({
                 current: jsonData.version,
                 latest: jsonData.latest,
-                name: jsonData.name || jsonData.bundleId,
+                name: jsonData.name,
               });
             }
           }
