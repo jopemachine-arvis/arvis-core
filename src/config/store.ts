@@ -215,7 +215,7 @@ export class Store {
     bundleId,
   }: {
     initializePluginWorkspace: boolean;
-    bundleId?: string;
+    bundleId?: string | undefined;
   }) => {
     return new Promise((resolve, reject) => {
       this.setStoreAvailability(false);
@@ -322,9 +322,10 @@ export class Store {
    * @param  {any} workflow
    */
   public setPlugin(plugin: any) {
+    const bundleId = getBundleId(plugin.createdby, plugin.name);
     this.store.set('plugins', {
       ...this.getPlugins(),
-      [getBundleId(plugin.createdby, plugin.name)]: plugin,
+      [bundleId]: { bundleId, ...plugin },
     });
   }
 
@@ -337,7 +338,11 @@ export class Store {
 
     // Update workflow installation info
     const installedWorkflows = this.getInstalledWorkflows();
-    installedWorkflows[bundleId] = workflow;
+    installedWorkflows[bundleId] = {
+      bundleId,
+      ...workflow
+    };
+
     this.store.set('workflows', installedWorkflows);
 
     // Update available commands
