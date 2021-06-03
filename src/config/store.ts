@@ -83,8 +83,6 @@ export class Store {
     Store.onStoreUpdate && Store.onStoreUpdate(available);
 
     if (this.checkStoreIsAvailable) {
-      if (available === false)
-        log(LogType.debug, 'Store is occupied in Arvis now..');
       this.checkStoreIsAvailable(available);
     }
   }
@@ -197,7 +195,7 @@ export class Store {
         ).length;
 
         if (errorCnt !== 0) {
-          log(LogType.error, `${errorCnt} workflows throw format errors`);
+          log(LogType.error, `${errorCnt} workflows have format errors`);
         }
       });
     });
@@ -277,7 +275,7 @@ export class Store {
         ).length;
 
         if (errorCnt !== 0) {
-          log(LogType.error, `${errorCnt} plugins throw format errors`);
+          log(LogType.error, `${errorCnt} plugins have format errors`);
         }
       });
     });

@@ -24,7 +24,8 @@ const execute = ({
   scriptStr: string;
   options?: ScriptExecuterOption;
 }): execa.ExecaChildProcess<string> => {
-  const { execPath, name, version } = WorkManager.getInstance().extensionInfo!;
+  const { execPath, name, version, type } =
+    WorkManager.getInstance().extensionInfo!;
 
   let all;
   let timeout;
@@ -46,7 +47,6 @@ const execute = ({
     // Assume workflow's hotkey script execution if execPath not exist
     cwd: execPath ?? getWorkflowInstalledPath(bundleId),
     encoding: 'utf8',
-    env: getEnvs({ bundleId, name, version }),
     extendEnv: true,
     killSignal: 'SIGTERM',
     maxBuffer,
@@ -55,6 +55,12 @@ const execute = ({
     shell: false,
     timeout,
     windowsHide: true,
+    env: getEnvs({
+      extensionType: type,
+      bundleId,
+      name: name ?? '',
+      version: version ?? '',
+    }),
   });
 };
 

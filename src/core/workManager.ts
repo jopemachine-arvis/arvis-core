@@ -94,12 +94,13 @@ export class WorkManager {
 
   workStk: Work[];
   globalVariables?: object;
-  rerunTimer?: NodeJS.Timeout;
+  rerunTimer?: NodeJS.Timeout | undefined;
 
   extensionInfo?: {
     execPath?: string;
     name?: string;
     version?: string;
+    type: 'workflow' | 'plugin',
   };
 
   // For debugging, set below variables
@@ -383,12 +384,14 @@ export class WorkManager {
         execPath: getPluginInstalledPath(item.bundleId!),
         name: getPluginList()[item.bundleId!].name,
         version: getPluginList()[item.bundleId!].version,
+        type: 'plugin',
       };
     } else {
       this.extensionInfo = {
         execPath: getWorkflowInstalledPath(item.bundleId!),
         name: getWorkflowList()[item.bundleId!].name,
         version: getWorkflowList()[item.bundleId!].version,
+        type: 'workflow',
       };
     }
   }

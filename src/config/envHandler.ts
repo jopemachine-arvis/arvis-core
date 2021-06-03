@@ -5,10 +5,12 @@ import {
 } from './path';
 
 const getEnvs = ({
+  extensionType,
   bundleId,
   name,
   version,
 }: {
+  extensionType: 'workflow' | 'plugin',
   bundleId: string;
   name?: string;
   version?: string;

@@ -9,7 +9,7 @@ const schema = {
   },
   maxCount: {
     type: 'number',
-    default: 100,
+    default: 500,
   },
   actionTypesToLog: {
     type: 'array',
