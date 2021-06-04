@@ -17,50 +17,55 @@ import { WorkManager } from './workManager';
 /**
  * @summary
  */
-const printActionDebuggingLogOnCUI =
-  (disabled: boolean) => (action: Action, color: Function) => {
-    if (disabled) return;
-    if (!color || !action) {
-      log(LogType.error, `Error: [${action.type}] is not properly set up.`);
-      return;
-    }
-    log(LogType.info, color(`[Action: ${action.type}] `), action);
-  };
+const printActionDebuggingLogOnCUI = (
+  action: Action,
+  color: Function,
+  extra: any
+) => {
+  log(LogType.info, color(`[Action: ${action.type}] `), action, extra);
+};
 
 /**
  * @summary
  */
-const printActionDebuggingLogOnGUI =
-  (disabled: boolean) => (action: Action, color: string) => {
-    if (disabled) return;
-    if (!color || !action) {
-      log(LogType.error, `Error: [${action.type}] is not properly set up.`);
-      return;
-    }
-    log(LogType.info, `[Action: %c${action.type}%c] `, `color: ${color}`, 'color: unset', action);
-  };
-
-/**
- * @summary
- */
-const printActionDebuggingLog =
-  (disabled: boolean) =>
-  ({
-    cuiColorApplier,
-    guiColor,
+const printActionDebuggingLogOnGUI = (
+  action: Action,
+  color: string,
+  extra: any
+) => {
+  log(
+    LogType.info,
+    `%c[Action: ${action.type}]%c `,
+    `color: ${color}`,
+    'color: unset',
     action,
-  }: {
-    cuiColorApplier: Function;
-    guiColor: string;
-    action: Action;
-  }) => {
-    const workManager = WorkManager.getInstance();
-    if (workManager.loggerColorType === 'cui') {
-      printActionDebuggingLogOnCUI(disabled)(action, cuiColorApplier);
-    } else if (workManager.loggerColorType === 'gui') {
-      printActionDebuggingLogOnGUI(disabled)(action, guiColor);
-    }
-  };
+    extra
+  );
+};
+
+/**
+ * @summary
+ */
+const printActionDebuggingLog = ({
+  cuiColorApplier,
+  guiColor,
+  action,
+  extra = '',
+}: {
+  cuiColorApplier: Function;
+  guiColor: string;
+  action: Action;
+  extra?: any;
+}) => {
+  const workManager = WorkManager.getInstance();
+  if (!workManager.printActionType) return;
+
+  if (workManager.loggerColorType === 'cui') {
+    printActionDebuggingLogOnCUI(action, cuiColorApplier, extra);
+  } else if (workManager.loggerColorType === 'gui') {
+    printActionDebuggingLogOnGUI(action, guiColor, extra);
+  }
+};
 
 /**
  * @param  {string} typeName
@@ -120,7 +125,6 @@ function handleAction({
   _.map(actions, (action) => {
     const type = resolveActionType(action);
 
-    let logColor;
     let nextAction: Action[] | undefined;
 
     // tslint:disable-next-line: no-string-literal
@@ -142,10 +146,11 @@ function handleAction({
           const scriptStr = extractScriptOnThisPlatform(action.script);
           target = applyArgsToScript({ scriptStr, queryArgs });
 
-          printActionDebuggingLog(!workManager.printActionType)({
+          printActionDebuggingLog({
             action,
             cuiColorApplier: chalk.redBright,
-            guiColor: 'red'
+            guiColor: 'red',
+            extra: `Script executed: ${target}`,
           });
           handleScriptAction(action, queryArgs);
           break;
@@ -165,10 +170,10 @@ function handleAction({
           action = action as KeywordAction;
           target = action.title;
 
-          printActionDebuggingLog(!workManager.printActionType)({
+          printActionDebuggingLog({
             action,
             cuiColorApplier: chalk.yellowBright,
-            guiColor: 'yellow'
+            guiColor: 'black',
           });
 
           if (nextAction) {
@@ -189,10 +194,10 @@ function handleAction({
 
           target = action.command || action.title;
 
-          printActionDebuggingLog(!workManager.printActionType)({
+          printActionDebuggingLog({
             action,
             cuiColorApplier: chalk.yellowBright,
-            guiColor: 'yellow'
+            guiColor: 'black',
           });
 
           if (workManager.getTopWork().type === 'keyword') {
@@ -216,10 +221,10 @@ function handleAction({
 
           target = action.hotkey;
 
-          printActionDebuggingLog(!workManager.printActionType)({
+          printActionDebuggingLog({
             action,
             cuiColorApplier: chalk.whiteBright,
-            guiColor: 'white'
+            guiColor: 'white',
           });
 
           if (nextAction) {
@@ -238,10 +243,11 @@ function handleAction({
 
           target = applyArgsToScript({ scriptStr: action.target, queryArgs });
 
-          printActionDebuggingLog(!workManager.printActionType)({
+          printActionDebuggingLog({
             action,
             cuiColorApplier: chalk.blueBright,
-            guiColor: 'blue'
+            guiColor: 'blue',
+            extra: `Open target: ${target}`,
           });
 
           openFileAction(target);
@@ -259,10 +265,11 @@ function handleAction({
 
           target = applyArgsToScript({ scriptStr: action.text, queryArgs });
 
-          printActionDebuggingLog(!workManager.printActionType)({
+          printActionDebuggingLog({
             action,
             cuiColorApplier: chalk.greenBright,
-            guiColor: 'green'
+            guiColor: 'green',
+            extra: `Copied string: ${target}`,
           });
 
           copyToClipboardAction(target);
@@ -277,10 +284,10 @@ function handleAction({
           queryArgs = argsExtractAction(queryArgs, argToExtract);
           target = queryArgs;
 
-          printActionDebuggingLog(!workManager.printActionType)({
+          printActionDebuggingLog({
             action,
             cuiColorApplier: chalk.blueBright,
-            guiColor: 'blue'
+            guiColor: 'blue',
           });
 
           if (nextAction) {
@@ -302,8 +309,6 @@ function handleAction({
           if (!action.if.action.then)
             throwReqAttrNotExtErr('action of cond type', ['then']);
 
-          logColor = chalk.magentaBright;
-
           target = applyArgsToScript({
             scriptStr: action.if.cond,
             queryArgs,
@@ -311,16 +316,17 @@ function handleAction({
           });
 
           // To do:: Fix below logic safely
-          const conditionalAction =
-            // tslint:disable-next-line: no-eval
-            eval(target) === true
-              ? action.if.action.then
-              : action.if.action.else;
+          // tslint:disable-next-line: no-eval
+          const isTrue = eval(target) === true;
+          const conditionalAction = isTrue
+            ? action.if.action.then
+            : action.if.action.else;
 
-          printActionDebuggingLog(!workManager.printActionType)({
+          printActionDebuggingLog({
             action,
             cuiColorApplier: chalk.magentaBright,
-            guiColor: 'magenta'
+            guiColor: 'magenta',
+            extra: `'cond' is evaluated by ${isTrue}`,
           });
 
           if (conditionalAction) {

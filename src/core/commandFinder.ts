@@ -26,8 +26,8 @@ const findCommands = async (
 
     if (isForwardCandidates || isBackwardCandidates) {
       for (const command of commands[commandStr]) {
-        const { bundleId } = command;
-        const { defaultIcon, enabled, arg_type } = getWorkflowList()[bundleId];
+        const { bundleId, arg_type } = command;
+        const { defaultIcon, enabled } = getWorkflowList()[bundleId];
 
         // Except if arg_type is 'no' and query exists
         if (arg_type === 'no' && inputStr !== commandStr) {

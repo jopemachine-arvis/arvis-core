@@ -159,7 +159,7 @@ function scriptErrorHandler (err: ExecaError) {
     if (workManager.hasEmptyWorkStk()) {
     // console.log('Command was canceled by user.');
     } else {
-      log(LogType.error, `${err}`);
+      log(LogType.error, err);
       workManager.handleWorkflowError(err);
     }
   }
@@ -254,12 +254,23 @@ async function scriptFilterExcute(
     .then((result) => {
       if (workManager.getTopWork().workProcess === scriptWork) {
 
-        workManager.printActionType &&
-          log(
-            LogType.info,
-            chalk.redBright(`[Action: scriptfilter] `),
-            workManager.getTopWork().actionTrigger
-          );
+        if (workManager.printActionType) {
+          if (workManager.loggerColorType === 'gui') {
+            log(
+              LogType.info,
+              `%c[Action: scriptfilter]%c `,
+              'color: red',
+              'color: unset',
+              workManager.getTopWork().actionTrigger
+            );
+          } else {
+            log(
+              LogType.info,
+              chalk.redBright(`[Action: scriptfilter] `),
+              workManager.getTopWork().actionTrigger
+            );
+          }
+        }
 
         scriptFilterCompleteEventHandler(result);
         if (workManager.getTopWork().rerunInterval) {

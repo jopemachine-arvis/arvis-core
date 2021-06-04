@@ -1,4 +1,5 @@
 import { handleAction } from './actionHandler';
+import { shouldExecuteCommand } from './argTypeHandler';
 import { checkUpdatableExtensions } from './checkUpdatableExtensions';
 import { findCommands } from './commandFinder';
 import { getCommandList } from './commandList';
@@ -51,6 +52,7 @@ export {
   renewWorkflows,
   scriptFilterExcute,
   setStoreAvailabiltyChecker,
+  shouldExecuteCommand,
   Store,
   uninstallPlugin,
   uninstallWorkflow,

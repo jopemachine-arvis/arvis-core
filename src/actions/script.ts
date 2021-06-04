@@ -34,7 +34,9 @@ const handleScriptAction = async (action: ScriptAction, queryArgs: object) => {
   return scriptWork
     .then((result: execa.ExecaReturnValue<string>) => {
       if (workManager.printWorkflowOutput) {
-        log(LogType.info, `[Output]\n\n ${result.all}`);
+        if (result.all && result.all.trim() !== '') {
+          log(LogType.info, `[Script output]\n\n ${result.all}`);
+        }
       }
     })
     .catch(scriptErrorHandler);

@@ -9,6 +9,7 @@ export interface Command {
   script_filter?: string | object;
   running_subtext?: string;
   withspace?: boolean;
-  type: "keyword" | "scriptfilter" | "hotkey";
+  arg_type?: 'required' | 'optional' | 'no';
+  type: 'keyword' | 'scriptfilter' | 'hotkey';
   action?: Action[];
 }
