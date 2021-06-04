@@ -1,6 +1,6 @@
 {
   "name": "@jopemachine/arvis-core",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Core part of Arvis, Designed as a core module of the CUI and GUI.",
   "main": "dist/index.js",
   "bin": "dist/main.js",

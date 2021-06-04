@@ -17,7 +17,7 @@ import { WorkManager } from './workManager';
 /**
  * @summary
  */
-const printActionDebuggingLog =
+const printActionDebuggingLogOnCUI =
   (disabled: boolean) => (action: Action, color: Function) => {
     if (disabled) return;
     if (!color || !action) {
@@ -25,6 +25,41 @@ const printActionDebuggingLog =
       return;
     }
     log(LogType.info, color(`[Action: ${action.type}] `), action);
+  };
+
+/**
+ * @summary
+ */
+const printActionDebuggingLogOnGUI =
+  (disabled: boolean) => (action: Action, color: string) => {
+    if (disabled) return;
+    if (!color || !action) {
+      log(LogType.error, `Error: [${action.type}] is not properly set up.`);
+      return;
+    }
+    log(LogType.info, `[Action: %c${action.type}%c] `, `color: ${color}`, 'color: unset', action);
+  };
+
+/**
+ * @summary
+ */
+const printActionDebuggingLog =
+  (disabled: boolean) =>
+  ({
+    cuiColorApplier,
+    guiColor,
+    action,
+  }: {
+    cuiColorApplier: Function;
+    guiColor: string;
+    action: Action;
+  }) => {
+    const workManager = WorkManager.getInstance();
+    if (workManager.loggerColorType === 'cui') {
+      printActionDebuggingLogOnCUI(disabled)(action, cuiColorApplier);
+    } else if (workManager.loggerColorType === 'gui') {
+      printActionDebuggingLogOnGUI(disabled)(action, guiColor);
+    }
   };
 
 /**
@@ -105,13 +140,13 @@ function handleAction({
           if (!action.script) throwReqAttrNotExtErr(type, ['script']);
 
           const scriptStr = extractScriptOnThisPlatform(action.script);
-          logColor = chalk.dim;
           target = applyArgsToScript({ scriptStr, queryArgs });
 
-          printActionDebuggingLog(!workManager.printActionType)(
+          printActionDebuggingLog(!workManager.printActionType)({
             action,
-            logColor
-          );
+            cuiColorApplier: chalk.redBright,
+            guiColor: 'red'
+          });
           handleScriptAction(action, queryArgs);
           break;
 
@@ -129,12 +164,12 @@ function handleAction({
         case 'keyword-waiting-resolve':
           action = action as KeywordAction;
           target = action.title;
-          logColor = chalk.blackBright;
 
-          printActionDebuggingLog(!workManager.printActionType)(
+          printActionDebuggingLog(!workManager.printActionType)({
             action,
-            logColor
-          );
+            cuiColorApplier: chalk.yellowBright,
+            guiColor: 'yellow'
+          });
 
           if (nextAction) {
             nextAction = handleAction({
@@ -153,12 +188,12 @@ function handleAction({
             throwReqAttrNotExtErr(type, ['command | title']);
 
           target = action.command || action.title;
-          logColor = chalk.blackBright;
 
-          printActionDebuggingLog(!workManager.printActionType)(
+          printActionDebuggingLog(!workManager.printActionType)({
             action,
-            logColor
-          );
+            cuiColorApplier: chalk.yellowBright,
+            guiColor: 'yellow'
+          });
 
           if (workManager.getTopWork().type === 'keyword') {
             if (nextAction) {
@@ -180,12 +215,12 @@ function handleAction({
           if (!action.hotkey) throwReqAttrNotExtErr(type, ['hotkey']);
 
           target = action.hotkey;
-          logColor = chalk.whiteBright;
 
-          printActionDebuggingLog(!workManager.printActionType)(
+          printActionDebuggingLog(!workManager.printActionType)({
             action,
-            logColor
-          );
+            cuiColorApplier: chalk.whiteBright,
+            guiColor: 'white'
+          });
 
           if (nextAction) {
             nextAction = handleAction({
@@ -201,13 +236,13 @@ function handleAction({
           action = action as OpenAction;
           if (!action.target) throwReqAttrNotExtErr(type, ['target']);
 
-          logColor = chalk.blueBright;
-
           target = applyArgsToScript({ scriptStr: action.target, queryArgs });
-          printActionDebuggingLog(!workManager.printActionType)(
+
+          printActionDebuggingLog(!workManager.printActionType)({
             action,
-            logColor
-          );
+            cuiColorApplier: chalk.blueBright,
+            guiColor: 'blue'
+          });
 
           openFileAction(target);
           break;
@@ -222,13 +257,13 @@ function handleAction({
           action = action as ClipboardAction;
           if (!action.text) throwReqAttrNotExtErr(type, ['text']);
 
-          logColor = chalk.greenBright;
-
           target = applyArgsToScript({ scriptStr: action.text, queryArgs });
-          printActionDebuggingLog(!workManager.printActionType)(
+
+          printActionDebuggingLog(!workManager.printActionType)({
             action,
-            logColor
-          );
+            cuiColorApplier: chalk.greenBright,
+            guiColor: 'green'
+          });
 
           copyToClipboardAction(target);
           break;
@@ -238,16 +273,15 @@ function handleAction({
           action = action as ArgsAction;
           if (!action.arg) throwReqAttrNotExtErr(type, ['arg']);
 
-          logColor = chalk.blue;
-
           const argToExtract = escapeBraket(action.arg).trim();
           queryArgs = argsExtractAction(queryArgs, argToExtract);
           target = queryArgs;
 
-          printActionDebuggingLog(!workManager.printActionType)(
+          printActionDebuggingLog(!workManager.printActionType)({
             action,
-            logColor
-          );
+            cuiColorApplier: chalk.blueBright,
+            guiColor: 'blue'
+          });
 
           if (nextAction) {
             nextAction = handleAction({
@@ -283,10 +317,11 @@ function handleAction({
               ? action.if.action.then
               : action.if.action.else;
 
-          printActionDebuggingLog(!workManager.printActionType)(
+          printActionDebuggingLog(!workManager.printActionType)({
             action,
-            logColor
-          );
+            cuiColorApplier: chalk.magentaBright,
+            guiColor: 'magenta'
+          });
 
           if (conditionalAction) {
             nextAction = handleAction({

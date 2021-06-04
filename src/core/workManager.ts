@@ -110,6 +110,7 @@ export class WorkManager {
   public printArgs?: boolean;
   public printScriptfilter?: boolean;
   public printPluginItems?: boolean;
+  public loggerColorType?: 'cui' | 'gui' = 'cui';
 
   public maxRetrieveCount?: number;
 
