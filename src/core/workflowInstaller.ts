@@ -1,3 +1,4 @@
+import { validate } from '@jopemachine/arvis-extension-validator';
 import alfredWorkflowPlistConvert from '@jopemachine/arvis-plist-converter';
 import chmodr from 'chmodr';
 import * as fse from 'fs-extra';
@@ -28,13 +29,16 @@ const installByPath = async (installedPath: string): Promise<void | Error> => {
       return;
     }
 
-    if (
-      !workflowConfig.createdby ||
-      workflowConfig.createdby === '' ||
-      !workflowConfig.name ||
-      workflowConfig.name === ''
-    ) {
-      reject(new Error('Invalid workflow - "createdby" or "name" is not set'));
+    const { errors, valid } = validate(workflowConfig, 'workflow');
+
+    if (!valid) {
+      reject(
+        new Error(
+          `arvis-workflow.json format is invalid\n${errors
+            .map((error) => error.message)
+            .join('\n')}`
+        )
+      );
       return;
     }
 

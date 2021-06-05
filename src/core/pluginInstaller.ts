@@ -1,3 +1,4 @@
+import { validate } from '@jopemachine/arvis-extension-validator';
 import chmodr from 'chmodr';
 import * as fse from 'fs-extra';
 import path from 'path';
@@ -28,13 +29,16 @@ const installByPath = async (installedPath: string): Promise<void | Error> => {
       return;
     }
 
-    if (
-      !pluginConfig.createdby ||
-      pluginConfig.createdby === '' ||
-      !pluginConfig.name ||
-      pluginConfig.name === ''
-    ) {
-      reject(new Error('Invalid plugin - "createdby" or "name" is not set'));
+    const { errors, valid } = validate(pluginConfig, 'plugin');
+
+    if (!valid) {
+      reject(
+        new Error(
+          `arvis-plugin.json format is invalid\n${errors
+            .map((error) => error.message)
+            .join('\n')}`
+        )
+      );
       return;
     }
 
