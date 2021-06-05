@@ -31,7 +31,9 @@ const xmlExtractGlobalVars = (variables: any) => {
  * @param  {any} xmlScriptFilterItem
  * @summary Convert xml format's ScriptFilterItem to json format's ScriptFilterItem
  */
-const xmlScriptFilterItemToJsonScriptFilterItem = (xmlScriptFilterItem: any) => {
+const xmlScriptFilterItemToJsonScriptFilterItem = (
+  xmlScriptFilterItem: any
+) => {
   const extractValue = (obj: object | undefined, key: string) => {
     if (obj) return obj[key];
     return undefined;
@@ -41,9 +43,12 @@ const xmlScriptFilterItemToJsonScriptFilterItem = (xmlScriptFilterItem: any) => 
   // * Attributes
   eachItem['uid'] = extractValue(xmlScriptFilterItem._attributes, 'uid');
   eachItem['arg'] = extractValue(xmlScriptFilterItem._attributes, 'arg');
-  eachItem['autocomplete'] = extractValue(xmlScriptFilterItem._attributes, 'autocomplete');
-  eachItem["valid"] = extractValue(xmlScriptFilterItem._attributes, "valid");
-  eachItem["type"] = extractValue(xmlScriptFilterItem._attributes, "type");
+  eachItem['autocomplete'] = extractValue(
+    xmlScriptFilterItem._attributes,
+    'autocomplete'
+  );
+  eachItem['valid'] = extractValue(xmlScriptFilterItem._attributes, 'valid');
+  eachItem['type'] = extractValue(xmlScriptFilterItem._attributes, 'type');
 
   // * Elements
   eachItem['title'] = extractValue(xmlScriptFilterItem.title, '_text');
@@ -53,11 +58,14 @@ const xmlScriptFilterItemToJsonScriptFilterItem = (xmlScriptFilterItem: any) => 
   eachItem['mod'] = {};
   eachItem['text'] = {
     copy: extractValue(xmlScriptFilterItem.text, '_text'),
-    largetype: ''
+    largetype: '',
   };
-  eachItem['quicklookurl'] = extractValue(xmlScriptFilterItem.quicklookurl, '_text');
+  eachItem['quicklookurl'] = extractValue(
+    xmlScriptFilterItem.quicklookurl,
+    '_text'
+  );
   eachItem['icon'] = {
-    path: extractValue(xmlScriptFilterItem.icon, '_text')
+    path: extractValue(xmlScriptFilterItem.icon, '_text'),
   };
 
   return eachItem;
@@ -66,9 +74,9 @@ const xmlScriptFilterItemToJsonScriptFilterItem = (xmlScriptFilterItem: any) => 
 /**
  * @param  {string} stdout
  */
-const parseStdout = (stdout: string): ScriptFilterResult => {
-  try {
-    if (stdout.startsWith('<?xml')) {
+const parseStdin = (stdout: string, stderr: string): ScriptFilterResult => {
+  if (stdout.startsWith('<?xml')) {
+    try {
       let target = JSON.parse(
         xml2json(stdout, { compact: true, ignoreDeclaration: true })
       );
@@ -92,11 +100,19 @@ const parseStdout = (stdout: string): ScriptFilterResult => {
         variables,
         rerun,
       };
-    } else {
-      return JSON.parse(stdout) as ScriptFilterResult;
+    } catch (err) {
+      throw new Error(
+        `XML Script format error! ${err}\n\nstdout: ${stdout}\n\nstderr: ${stderr}`
+      );
     }
-  } catch (err) {
-    throw new Error(`XML Script format error! ${err}\n\nstdout: ${stdout}`);
+  } else {
+    try {
+      return JSON.parse(stdout) as ScriptFilterResult;
+    } catch (err) {
+      throw new Error(
+        `JSON Script format error! ${err}\n\nstdout: ${stdout}\n\nstderr: ${stderr}\n`
+      );
+    }
   }
 };
 
@@ -108,7 +124,10 @@ function scriptFilterCompleteEventHandler(
   scriptFilterResult: execa.ExecaReturnValue<string>
 ) {
   const workManager = WorkManager.getInstance();
-  const stdout = parseStdout(scriptFilterResult.stdout);
+  const stdout = parseStdin(
+    scriptFilterResult.stdout,
+    scriptFilterResult.stderr
+  );
 
   workManager.printScriptfilter && log(LogType.info, '[SF Result]', stdout);
 
@@ -148,7 +167,7 @@ function scriptFilterCompleteEventHandler(
  * @param  {ExecaError} err
  * @description Handler when scriptfilter's script fails
  */
-function scriptErrorHandler (err: ExecaError) {
+function scriptErrorHandler(err: ExecaError) {
   const workManager = WorkManager.getInstance();
 
   if (err.timedOut) {
@@ -157,7 +176,7 @@ function scriptErrorHandler (err: ExecaError) {
     // console.log('Command was canceled by other scriptfilter.');
   } else {
     if (workManager.hasEmptyWorkStk()) {
-    // console.log('Command was canceled by user.');
+      // console.log('Command was canceled by user.');
     } else {
       log(LogType.error, err);
       workManager.handleWorkflowError(err);
@@ -170,7 +189,11 @@ function scriptErrorHandler (err: ExecaError) {
  * @param  {string|undefined} command
  * @param  {boolean} withspace
  */
-const getScriptFilterQuery = (inputStr: string, command: string | undefined, withspace: boolean): string[] => {
+const getScriptFilterQuery = (
+  inputStr: string,
+  command: string | undefined,
+  withspace: boolean
+): string[] => {
   const workManager = WorkManager.getInstance();
 
   const getQuery = () => {
@@ -247,11 +270,7 @@ async function scriptFilterExcute(
     ? commandWhenStackIsEmpty!.command
     : (workManager.getTopWork().actionTrigger as Command).command;
 
-  const querys = getScriptFilterQuery(
-    inputStr,
-    command,
-    withspace
-  );
+  const querys = getScriptFilterQuery(inputStr, command, withspace);
 
   // If the ScriptFilters are nested, the first string element is query.
   // Otherwise, the first string element is command.

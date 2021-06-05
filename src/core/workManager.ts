@@ -237,6 +237,7 @@ export class WorkManager {
       this.onItemShouldBeUpdate({
         items: [
           {
+            bundleId: 'error',
             valid: false,
             title: err.name,
             subtitle: err.message,
