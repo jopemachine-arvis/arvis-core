@@ -22,7 +22,7 @@ const execute = ({
 }: {
   bundleId: string;
   scriptStr: string;
-  options?: ScriptExecuterOption;
+  options?: ScriptExecuterOption | undefined;
 }): execa.ExecaChildProcess<string> => {
   const { execPath, name, version, type } =
     WorkManager.getInstance().extensionInfo!;

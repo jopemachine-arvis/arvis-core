@@ -1,5 +1,6 @@
 // tslint:disable: no-eval
 import _ from 'lodash';
+import PCancelable from 'p-cancelable';
 import path from 'path';
 import { getEnvs, getHistory, log, LogType } from '../config';
 import { trace } from '../config/logger';
@@ -9,8 +10,9 @@ import { WorkManager } from './workManager';
 
 /**
  * @param  {string} modulePath
- * @summary Remove cache from existing module for module updates, and dynamically require new modules.
- *          Use eval.
+ * @summary Remove cache from existing module for module updates,
+ *          Add environment variables,
+ *          And dynamically require new modules using eval.
  */
 const requireDynamically = (modulePath: string, envs: object = {}): any => {
   modulePath = modulePath.split('\\').join('/');
@@ -42,8 +44,30 @@ const requireDynamically = (modulePath: string, envs: object = {}): any => {
   `);
 };
 
-const pluginWorkspace = {
+interface PluginWorkspace {
+  pluginModules: object;
+  asyncWorks: PCancelable<any>[];
+  asyncPluginTimer: number;
+  setAsyncPluginTimer: (timer: number) => void;
+  getAsyncWork: (
+    pluginBundleId: string,
+    asyncPluginPromise: Promise<any>
+  ) => PCancelable<any>;
+  renew: (pluginInfos: any[], bundleId?: string) => void;
+  search: (inputStr: string) => Promise<PluginItem[]>;
+  cancelPrevious: () => void;
+}
+
+const pluginWorkspace: PluginWorkspace = {
   pluginModules: {},
+
+  asyncWorks: [],
+
+  asyncPluginTimer: 100,
+
+  setAsyncPluginTimer: (timer: number): void => {
+    pluginWorkspace.asyncPluginTimer = timer;
+  },
 
   /**
    * @param  {any[]} pluginInfos
@@ -63,7 +87,7 @@ const pluginWorkspace = {
           extensionType: 'plugin',
           bundleId: pluginInfo.bundleId,
           name: pluginInfo.name,
-          version: pluginInfo.version
+          version: pluginInfo.version,
         });
 
         newPluginModules[pluginInfo.bundleId] = requireDynamically(
@@ -84,12 +108,59 @@ const pluginWorkspace = {
     log(LogType.debug, 'Updated pluginModules', pluginWorkspace.pluginModules);
   },
 
+  cancelPrevious: (): void => {
+    _.map(pluginWorkspace.asyncWorks, (work) => {
+      if (!work.isCanceled) {
+        work.cancel();
+      }
+    });
+  },
+
+  getAsyncWork: (pluginBundleId, asyncPluginPromise): PCancelable<any> => {
+    const work = new PCancelable<any>((resolve, reject, onCancel) => {
+      const timer = setTimeout(
+        () => resolve([]),
+        pluginWorkspace.asyncPluginTimer
+      );
+
+      onCancel(() => {
+        resolve([]);
+      });
+
+      asyncPluginPromise
+        .then((result) => {
+          clearTimeout(timer);
+          if (!result.items || !result.items.length) resolve([]);
+
+          resolve(
+            result.items.map((item) => {
+              item.bundleId = pluginBundleId;
+              return item;
+            })
+          );
+        })
+        .catch(reject);
+    });
+
+    work.catch((err) => {
+      if (work.isCanceled) {
+        return;
+      } else {
+        throw err;
+      }
+    });
+
+    return work;
+  },
+
   /**
    * @param  {string} inputStr
    */
   search: async (inputStr: string): Promise<PluginItem[]> => {
+    pluginWorkspace.cancelPrevious();
+
     let pluginOutputItems: any[] = [];
-    const asyncPluginWorks: Promise<any>[] = [];
+    const asyncPluginWorks: PCancelable<any>[] = [];
 
     for (const pluginBundleId of Object.keys(pluginWorkspace.pluginModules)) {
       if (!getPluginList()[pluginBundleId].enabled) continue;
@@ -103,20 +174,7 @@ const pluginWorkspace = {
 
         if (pluginExecutionResult.then) {
           asyncPluginWorks.push(
-            new Promise<any>((resolve, reject) => {
-              pluginExecutionResult
-                .then((result) => {
-                  if (!result.items || !result.items.length) resolve([]);
-
-                  resolve(
-                    result.items.map((item) => {
-                      item.bundleId = pluginBundleId;
-                      return item;
-                    })
-                  );
-                })
-                .catch(reject);
-            })
+            pluginWorkspace.getAsyncWork(pluginBundleId, pluginExecutionResult)
           );
         } else {
           const thisPluginOutputItems = (pluginModule as Function)({
@@ -138,6 +196,8 @@ const pluginWorkspace = {
       }
     }
 
+    pluginWorkspace.asyncWorks = asyncPluginWorks;
+
     const asyncPluginResults = await Promise.allSettled(asyncPluginWorks);
 
     const successes = asyncPluginResults
@@ -146,7 +206,8 @@ const pluginWorkspace = {
 
     const errors = asyncPluginResults
       .filter((result) => result.status === 'rejected')
-      .map((item) => (item as any).reason);
+      .map((item) => (item as any).reason)
+      .filter((error) => error.name !== 'CancelError');
 
     const asyncPrintResult = _.flattenDeep(successes);
 

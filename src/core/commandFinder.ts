@@ -18,9 +18,8 @@ const findCommands = async (
   const searchResult = [] as any;
   for (const commandStr of Object.keys(commands)) {
     // e.g when given inputStr is 'en abc' => output: en
-    const isBackwardCandidates =
-      inputStr.split(commandStr).length > 1 &&
-      inputStr.startsWith(commandStr + ' ');
+    const isBackwardCandidates = inputStr.startsWith(commandStr);
+
     // e.g. when given inputStr is 'en' => output: en, enc, enct..
     const isForwardCandidates = commandStr.startsWith(inputStr.trimRight());
 
@@ -30,7 +29,11 @@ const findCommands = async (
         const { defaultIcon, enabled } = getWorkflowList()[bundleId];
 
         // Except if arg_type is 'no' and query exists
-        if (arg_type === 'no' && inputStr !== commandStr) {
+        if (
+          arg_type === 'no' &&
+          isBackwardCandidates &&
+          inputStr !== commandStr
+        ) {
           break;
         }
 

@@ -1,3 +1,7 @@
+/**
+ * @param  {{item:any;inputStr:string;}}
+ * @description Return true if item should be executed depending on arg_type
+ */
 export const shouldExecuteCommand = ({
   item,
   inputStr,

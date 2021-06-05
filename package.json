@@ -1,6 +1,6 @@
 {
   "name": "@jopemachine/arvis-core",
-  "version": "0.1.15",
+  "version": "0.1.26",
   "description": "Core part of Arvis, Designed as a core module of the CUI and GUI.",
   "main": "dist/index.js",
   "bin": "dist/main.js",
@@ -29,6 +29,9 @@
     "email": "jopemachine@gmail.com"
   },
   "license": "MIT",
+  "engines": {
+    "node": ">=12.x"
+  },
   "bugs": {
     "url": "https://github.com/jopemachine/arvis-core/issues"
   },
@@ -63,6 +66,7 @@
     "lodash": "^4.17.21",
     "meow": "^9.0.0",
     "open": "^8.0.4",
+    "p-cancelable": "^2.1.1",
     "readdirp": "^3.6.0",
     "recursive-readdir": "^2.2.2",
     "rimraf": "^3.0.2",

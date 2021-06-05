@@ -168,16 +168,23 @@ function scriptErrorHandler (err: ExecaError) {
 /**
  * @param  {string} inputStr
  * @param  {string|undefined} command
+ * @param  {boolean} withspace
  */
-const getScriptFilterQuery = (inputStr: string, command: string | undefined): string[] => {
+const getScriptFilterQuery = (inputStr: string, command: string | undefined, withspace: boolean): string[] => {
   const workManager = WorkManager.getInstance();
+
+  const getQuery = () => {
+    // assert(command);
+    const arr = inputStr.split(withspace ? command! + ' ' : command!);
+    return arr.slice(1, arr.length);
+  };
 
   if (workManager.hasNestedScriptFilters()) {
     return inputStr.split(' ');
   } else if (workManager.hasEmptyWorkStk()) {
-    // assert(command);
-    const arr = inputStr.split(command!);
-    return arr.slice(1, arr.length);
+    return getQuery();
+  } else if (workManager.getTopWork().type === 'scriptfilter') {
+    return getQuery();
   }
 
   return [];
@@ -230,14 +237,24 @@ async function scriptFilterExcute(
 
   const { bundleId, actionTrigger, args } = workManager.getTopWork();
 
+  const withspace = commandWhenStackIsEmpty
+    ? commandWhenStackIsEmpty.withspace ?? true
+    : workManager.getTopWork().actionTrigger['withspace'];
+
+  // 중첩된 스크립트 필터의 경우 command가 필요 없을 것임.
+  // 만약 필요하다면 firstTrigger를 따로 저장해놔야 할 수 있음
+  const command = commandWhenStackIsEmpty
+    ? commandWhenStackIsEmpty!.command
+    : (workManager.getTopWork().actionTrigger as Command).command;
+
   const querys = getScriptFilterQuery(
     inputStr,
-    commandWhenStackIsEmpty ? commandWhenStackIsEmpty!.command : undefined
+    command,
+    withspace
   );
 
   // If the ScriptFilters are nested, the first string element is query.
   // Otherwise, the first string element is command.
-
   const extractedArgs = extractArgsFromQuery(querys);
   const scriptWork: execa.ExecaChildProcess = handleScriptFilterChange(
     bundleId,
@@ -253,7 +270,6 @@ async function scriptFilterExcute(
   scriptWork
     .then((result) => {
       if (workManager.getTopWork().workProcess === scriptWork) {
-
         if (workManager.printActionType) {
           if (workManager.loggerColorType === 'gui') {
             log(
