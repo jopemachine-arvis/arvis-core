@@ -106,7 +106,7 @@ export class WorkManager {
   // For debugging, set below variables
   public printActionType?: boolean;
   public printWorkStack?: boolean;
-  public printWorkflowOutput?: boolean;
+  public printScriptOutput?: boolean;
   public printArgs?: boolean;
   public printScriptfilter?: boolean;
   public printPluginItems?: boolean;

@@ -33,7 +33,7 @@ const handleScriptAction = async (action: ScriptAction, queryArgs: object) => {
 
   return scriptWork
     .then((result: execa.ExecaReturnValue<string>) => {
-      if (workManager.printWorkflowOutput) {
+      if (workManager.printScriptOutput) {
         if (result.all && result.all.trim() !== '') {
           log(LogType.info, `[Script output]\n\n ${result.all}`);
         }

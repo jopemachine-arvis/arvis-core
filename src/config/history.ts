@@ -84,7 +84,7 @@ export const pushActionLog = (action: Action): void => {
 
   conf.set('logs', logs);
 
-  log(LogType.debug, 'Current logs', logs);
+  log(LogType.silly, 'Current logs', logs);
 };
 
 /**
