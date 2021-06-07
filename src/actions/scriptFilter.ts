@@ -198,8 +198,9 @@ const getScriptFilterQuery = (
 
   const getQuery = () => {
     // assert(command);
-    const arr = inputStr.split(withspace ? command! + ' ' : command!);
-    return arr.slice(1, arr.length);
+    const targetCommand = withspace ? command! + ' ' : command!;
+    const arr = inputStr.split(targetCommand);
+    return arr.slice(1, arr.length).join(targetCommand).split(' ');
   };
 
   if (workManager.hasNestedScriptFilters()) {

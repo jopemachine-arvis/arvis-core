@@ -93,7 +93,11 @@ const execa = (file, args, options) => {
 
   let spawned;
   try {
+    const start = Date.now();
     spawned = childProcess.spawn(parsed.file, parsed.args, parsed.options);
+    // Check below time in Bigsur. It should be around 10ms, but it's around 300ms now on only Macos Bigsur.
+    // https://github.com/electron/electron/issues/26143
+    console.log(`spawn time: ${Date.now() - start}`);
   } catch (error) {
     // Ensure the returned error is always both a promise and a child process
     const dummySpawned = new childProcess.ChildProcess();
