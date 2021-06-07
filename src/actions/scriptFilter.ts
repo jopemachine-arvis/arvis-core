@@ -2,7 +2,7 @@
 import chalk from 'chalk';
 import _ from 'lodash';
 import { xml2json } from 'xml-js';
-import execa, { ExecaError } from '../../execa';
+import execa from '../../execa';
 import { log, LogType, pushInputStrLog } from '../config';
 import { getWorkflowList, WorkManager } from '../core';
 import { extractArgsFromQuery } from '../core/argsHandler';
