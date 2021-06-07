@@ -100,7 +100,7 @@ export class WorkManager {
     execPath?: string;
     name?: string;
     version?: string;
-    type: 'workflow' | 'plugin',
+    type: 'workflow' | 'plugin';
   };
 
   // For debugging, set below variables
@@ -223,27 +223,47 @@ export class WorkManager {
    * @summary When an error occurs, onItemShouldBeUpdate is called by this method
    *          And those error messages are displayed to the user in the form of items.
    */
-  public setErrorItem = (err: any, errorItems: ScriptFilterItem[]) => {
+  public setErrorItem = ({
+    error,
+    errorItems,
+    options,
+  }: {
+    error?: any;
+    errorItems?: ScriptFilterItem[];
+    options?: { extractJson?: boolean } | undefined;
+  }) => {
     if (!this.onItemShouldBeUpdate) {
       throw new Error('Renderer update funtions are not set!');
     }
 
-    if (errorItems.length !== 0) {
-      this.onItemShouldBeUpdate({
-        items: errorItems,
-        needIndexInfoClear: true,
-      });
+    if (options && options.extractJson === true) {
+      if (errorItems) {
+        this.onItemShouldBeUpdate({
+          items: errorItems,
+          needIndexInfoClear: true,
+        });
+      } else {
+        throw new Error(
+          '"options.extractJson" is set but errorItems is not given.'
+        );
+      }
     } else {
+      if (!error) {
+        throw new Error(
+          '"options.extractJson" is false but error is not given.'
+        );
+      }
+
       this.onItemShouldBeUpdate({
         items: [
           {
             bundleId: 'error',
             valid: false,
-            title: err.name,
-            subtitle: err.message,
+            title: error.name,
+            subtitle: error.message,
             text: {
-              copy: err.message,
-              largetype: err.message,
+              copy: error.message,
+              largetype: error.message,
             },
           },
         ],
@@ -326,7 +346,10 @@ export class WorkManager {
   /**
    * @param  {any} err
    */
-  public handleWorkflowError = (err: any) => {
+  public handleScriptFilterError = (
+    err: any,
+    options?: { extractJson?: boolean } | undefined
+  ) => {
     const possibleJsons = extractJson(err.toString());
     const errors = possibleJsons.filter((item) => item.items);
 
@@ -339,7 +362,7 @@ export class WorkManager {
       []
     );
 
-    this.setErrorItem(err, errorItems);
+    this.setErrorItem({ error: err, errorItems, options });
   }
 
   /**
@@ -347,11 +370,7 @@ export class WorkManager {
    * @param  {number} index
    * @param  {string} runningSubText
    */
-  public setRunningText({
-    selectedItem,
-  }: {
-    selectedItem: Command;
-  }) {
+  public setRunningText({ selectedItem }: { selectedItem: Command }) {
     this.throwErrOnRendererUpdaterNotSet();
 
     selectedItem = {

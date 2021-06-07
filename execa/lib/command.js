@@ -1,5 +1,5 @@
 'use strict';
-const SPACES_REGEXP = /\B["']\b[^"'\n]*\b["']\B|\S+/g;
+const COMMAND_TOKEN_REGEXP = /\B["']\b[^"'\n]*\b["']\B|\S+/g;
 
 const joinCommand = (file, args = []) => {
 	if (!Array.isArray(args)) {
@@ -12,7 +12,7 @@ const joinCommand = (file, args = []) => {
 // Handle `execa.command()`
 const parseCommand = command => {
 	const tokens = [];
-	const tokenGen = command.match(new RegExp(SPACES_REGEXP));
+	const tokenGen = command.match(new RegExp(COMMAND_TOKEN_REGEXP));
 	for (const token of tokenGen) {
 		tokens.push(token);
 	}

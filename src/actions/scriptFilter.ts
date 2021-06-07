@@ -72,9 +72,33 @@ const xmlScriptFilterItemToJsonScriptFilterItem = (
 };
 
 /**
+ * @summary
+ */
+const printActionLog = () => {
+  const workManager = WorkManager.getInstance();
+  if (workManager.printActionType) {
+    if (workManager.loggerColorType === 'gui') {
+      log(
+        LogType.info,
+        `%c[Action: scriptfilter]%c `,
+        'color: red',
+        'color: unset',
+        workManager.getTopWork().actionTrigger
+      );
+    } else {
+      log(
+        LogType.info,
+        chalk.redBright(`[Action: scriptfilter] `),
+        workManager.getTopWork().actionTrigger
+      );
+    }
+  }
+};
+
+/**
  * @param  {string} stdout
  */
-const parseStdin = (stdout: string, stderr: string): ScriptFilterResult => {
+const parseStdio = (stdout: string, stderr: string): ScriptFilterResult => {
   if (stdout.startsWith('<?xml')) {
     try {
       let target = JSON.parse(
@@ -101,17 +125,21 @@ const parseStdin = (stdout: string, stderr: string): ScriptFilterResult => {
         rerun,
       };
     } catch (err) {
-      throw new Error(
-        `XML Script format error! ${err}\n\nstdout: ${stdout}\n\nstderr: ${stderr}`
+      const error = new Error(
+        `XML Scriptfilter format error!\n${err}\n\nstdout: ${stdout}\n\nstderr: ${stderr}\n`
       );
+      error['extractJson'] = false;
+      throw error;
     }
   } else {
     try {
       return JSON.parse(stdout) as ScriptFilterResult;
     } catch (err) {
-      throw new Error(
-        `JSON Script format error! ${err}\n\nstdout: ${stdout}\n\nstderr: ${stderr}\n`
+      const error = new Error(
+        `JSON Scriptfilter format error!\n${err}\n\nstdout: ${stdout}\n\nstderr: ${stderr}\n`
       );
+      error['extractJson'] = false;
+      throw error;
     }
   }
 };
@@ -124,14 +152,15 @@ function scriptFilterCompleteEventHandler(
   scriptFilterResult: execa.ExecaReturnValue<string>
 ) {
   const workManager = WorkManager.getInstance();
-  const stdout = parseStdin(
+
+  const stdio = parseStdio(
     scriptFilterResult.stdout,
     scriptFilterResult.stderr
   );
 
-  workManager.printScriptfilter && log(LogType.info, '[SF Result]', stdout);
+  workManager.printScriptfilter && log(LogType.info, '[SF Result]', stdio);
 
-  const { items, rerun: rerunInterval, variables } = stdout;
+  const { items, rerun: rerunInterval, variables } = stdio;
 
   workManager.updateTopWork({
     items,
@@ -164,22 +193,25 @@ function scriptFilterCompleteEventHandler(
 }
 
 /**
- * @param  {ExecaError} err
+ * @param  {Error} err
  * @description Handler when scriptfilter's script fails
  */
-function scriptErrorHandler(err: ExecaError) {
+function scriptErrorHandler(
+  err: Error,
+  options?: { extractJson?: boolean } | undefined
+) {
   const workManager = WorkManager.getInstance();
 
-  if (err.timedOut) {
+  if (err['timedOut']) {
     log(LogType.error, `Script timeout!\n'${err}`);
-  } else if (err.isCanceled) {
+  } else if (err['isCanceled']) {
     // console.log('Command was canceled by other scriptfilter.');
   } else {
     if (workManager.hasEmptyWorkStk()) {
       // console.log('Command was canceled by user.');
     } else {
       log(LogType.error, err);
-      workManager.handleWorkflowError(err);
+      workManager.handleScriptFilterError(err, options);
     }
   }
 }
@@ -290,24 +322,7 @@ async function scriptFilterExcute(
   scriptWork
     .then((result) => {
       if (workManager.getTopWork().workProcess === scriptWork) {
-        if (workManager.printActionType) {
-          if (workManager.loggerColorType === 'gui') {
-            log(
-              LogType.info,
-              `%c[Action: scriptfilter]%c `,
-              'color: red',
-              'color: unset',
-              workManager.getTopWork().actionTrigger
-            );
-          } else {
-            log(
-              LogType.info,
-              chalk.redBright(`[Action: scriptfilter] `),
-              workManager.getTopWork().actionTrigger
-            );
-          }
-        }
-
+        printActionLog();
         scriptFilterCompleteEventHandler(result);
         if (workManager.getTopWork().rerunInterval) {
           // Run recursive every rerunInterval
@@ -317,7 +332,9 @@ async function scriptFilterExcute(
         }
       }
     })
-    .catch(scriptErrorHandler);
+    .catch((err) =>
+      scriptErrorHandler(err, { extractJson: err['extractJson'] ?? true })
+    );
 }
 
 export { scriptFilterExcute };
