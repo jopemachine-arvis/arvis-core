@@ -315,9 +315,18 @@ function handleAction({
             appendQuotes: true,
           });
 
+          let isTrue;
+          try {
+            // tslint:disable-next-line: no-eval
+            isTrue = eval(target) === true;
+          } catch (err) {
+            console.error(
+              `Below error occured while evaling cond target. target is evaluated by false.\n${err}`
+            );
+            isTrue = false;
+          }
+
           // To do:: Fix below logic safely
-          // tslint:disable-next-line: no-eval
-          const isTrue = eval(target) === true;
           const conditionalAction = isTrue
             ? action.if.action.then
             : action.if.action.else;
