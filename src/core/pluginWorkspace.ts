@@ -88,6 +88,7 @@ const pluginWorkspace: PluginWorkspace = {
           bundleId: pluginInfo.bundleId,
           name: pluginInfo.name,
           version: pluginInfo.version,
+          vars: pluginInfo.variables
         });
 
         newPluginModules[pluginInfo.bundleId] = requireDynamically(
@@ -100,7 +101,7 @@ const pluginWorkspace: PluginWorkspace = {
           `Plugin '${pluginInfo.bundleId}' raised error on require: \n${err}`
         );
 
-        trace(err);
+        trace(err as Error);
       }
     }
 

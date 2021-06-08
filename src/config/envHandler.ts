@@ -4,14 +4,29 @@ import {
   getExtensionHistoryPath,
 } from './path';
 
+const extractVarEnv = (queryArgs: object) => {
+  const vars = {};
+
+  Object.keys(queryArgs)
+    .filter((arg: string) => arg.startsWith('{var:') && arg.endsWith('}'))
+    .map((arg: string) => arg.substring(5, arg.length - 1))
+    .forEach((key) => {
+      vars[key] = queryArgs[`{var:${key}}`];
+    });
+
+  return vars;
+};
+
 const getEnvs = ({
   extensionType,
   bundleId,
+  vars,
   name,
   version,
 }: {
   extensionType: 'workflow' | 'plugin',
   bundleId: string;
+  vars: object;
   name?: string;
   version?: string;
 }) => {
@@ -46,9 +61,10 @@ const getEnvs = ({
   };
 
   return {
+    ...vars,
     ...env,
     ...alfredWorkflowEnv,
   };
 };
 
-export { getEnvs };
+export { getEnvs, extractVarEnv };

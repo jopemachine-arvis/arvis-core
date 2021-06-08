@@ -1,4 +1,5 @@
 import { log, LogType } from '../config';
+import { extractVarEnv } from '../config/envHandler';
 import '../types';
 import { applyArgsToScript } from './argsHandler';
 import { execute } from './scriptExecutor';
@@ -39,7 +40,9 @@ const handleScriptFilterChange = (
     log(LogType.info, '[SF Script]', scriptStr);
   }
 
-  return execute({ bundleId, scriptStr, options });
+  const vars = extractVarEnv(queryArgs);
+
+  return execute({ bundleId, scriptStr, options, vars });
 };
 
 export { handleScriptFilterChange };

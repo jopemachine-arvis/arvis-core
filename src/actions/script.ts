@@ -1,5 +1,6 @@
 import execa, { ExecaError } from '../../execa';
 import { log, LogType } from '../config';
+import { extractVarEnv } from '../config/envHandler';
 import { execute } from '../core';
 import { applyArgsToScript } from '../core/argsHandler';
 import { extractScriptOnThisPlatform } from '../core/scriptExtracter';
@@ -28,6 +29,7 @@ const handleScriptAction = async (action: ScriptAction, queryArgs: object) => {
   const scriptWork = execute({
     bundleId: workManager.getTopWork().bundleId,
     scriptStr: applyArgsToScript({ scriptStr, queryArgs }),
+    vars: extractVarEnv(queryArgs),
     options: { all: true },
   });
 

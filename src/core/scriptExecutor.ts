@@ -18,10 +18,12 @@ type ScriptExecuterOption = {
 const execute = ({
   bundleId,
   scriptStr,
-  options,
+  vars,
+  options
 }: {
   bundleId: string;
   scriptStr: string;
+  vars: object;
   options?: ScriptExecuterOption | undefined;
 }): execa.ExecaChildProcess<string> => {
   const { execPath, name, version, type } =
@@ -60,6 +62,7 @@ const execute = ({
       bundleId,
       name: name ?? '',
       version: version ?? '',
+      vars,
     }),
   });
 };
