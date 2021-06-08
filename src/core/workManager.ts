@@ -373,12 +373,7 @@ export class WorkManager {
    */
   public setRunningText({ selectedItem }: { selectedItem: Command }) {
     this.throwErrOnRendererUpdaterNotSet();
-
-    selectedItem = {
-      ...selectedItem,
-      title: selectedItem.title,
-      subtitle: selectedItem.running_subtext ?? '',
-    };
+    selectedItem.subtitle = selectedItem.running_subtext ?? '';
 
     this.onItemShouldBeUpdate!({
       items: [selectedItem],

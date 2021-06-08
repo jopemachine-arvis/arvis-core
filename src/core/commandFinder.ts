@@ -21,7 +21,7 @@ const findCommands = async (
     const isBackwardCandidates = inputStr.startsWith(commandStr);
 
     // e.g. when given inputStr is 'en' => output: en, enc, enct..
-    const isForwardCandidates = commandStr.startsWith(inputStr.trimRight());
+    const isForwardCandidates = commandStr.startsWith(inputStr);
 
     if (isForwardCandidates || isBackwardCandidates) {
       for (const command of commands[commandStr]) {

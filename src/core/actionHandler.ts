@@ -358,8 +358,8 @@ function handleAction({
 
           printActionDebuggingLog({
             action,
-            cuiColorApplier: chalk.magentaBright,
-            guiColor: 'magenta',
+            cuiColorApplier: chalk.blackBright,
+            guiColor: 'black',
             extra: `new input: "${action.newInput}"`,
           });
           break;
