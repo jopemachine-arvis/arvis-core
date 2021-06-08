@@ -13,6 +13,7 @@ import '../types';
 import extractJson from '../utils/extractJson';
 import { handleAction } from './actionHandler';
 import {
+  applyExtensionVars,
   extractArgsFromPluginItem,
   extractArgsFromQuery,
   extractArgsFromScriptFilterItem,
@@ -489,14 +490,25 @@ export class WorkManager {
     item: Command | ScriptFilterItem | PluginItem;
     inputStr: string;
   }): object => {
+    const bundleId: string = this.hasEmptyWorkStk()
+      ? item.bundleId!
+      : this.getTopWork().bundleId;
+
+    const extensionVariables = item['isPluginItem']
+      ? getPluginList()[bundleId].variables
+      : getWorkflowList()[bundleId].variables ?? {};
+
     // Plugin Trigger
     if (this.hasEmptyWorkStk() && item['isPluginItem']) {
-      return extractArgsFromPluginItem(item as PluginItem);
+      return applyExtensionVars(
+        extractArgsFromPluginItem(item as PluginItem),
+        extensionVariables
+      );
     }
 
     // Workflow Trigger: Hotkey
-    else if (this.hasEmptyWorkStk() && item['type'] === 'hotkey') {
-      return {};
+    if (this.hasEmptyWorkStk() && item['type'] === 'hotkey') {
+      return applyExtensionVars({}, extensionVariables);
     }
 
     // Workflow Trigger: Keyword, scriptfilter
@@ -505,8 +517,11 @@ export class WorkManager {
         (item as Command).command!
       );
 
-      return extractArgsFromQuery(
-        queryStr ? queryStr.trim().split((item as Command).command!) : []
+      return applyExtensionVars(
+        extractArgsFromQuery(
+          queryStr ? queryStr.trim().split((item as Command).command!) : []
+        ),
+        extensionVariables
       );
     }
 
@@ -515,14 +530,20 @@ export class WorkManager {
       this.getTopWork().type === 'keyword' ||
       this.getTopWork().type === 'keyword-waiting'
     ) {
-      return extractArgsFromQuery(inputStr.split(' '));
+      return applyExtensionVars(
+        extractArgsFromQuery(inputStr.split(' ')),
+        extensionVariables
+      );
     }
 
     // Handle scriptfilter action
     if (this.getTopWork().type === 'scriptfilter') {
       item = item as ScriptFilterItem;
       const vars = { ...item.variables, ...this.globalVariables! };
-      return extractArgsFromScriptFilterItem(item, vars);
+      return applyExtensionVars(
+        extractArgsFromScriptFilterItem(item, vars),
+        extensionVariables
+      );
     }
 
     log(LogType.error, 'Args type infer failed');
@@ -659,6 +680,11 @@ export class WorkManager {
     // If workStk is empty, the actions becomes command, otherwise the top action of the stack is 'actions'.
     const actions = this.prepareNextActions({ item });
     const args = this.prepareArgs({ item, inputStr });
+
+    if (this.printArgs) {
+      // Print 'args' to debugging console
+      log(LogType.info, '[Args]', args);
+    }
 
     if (this.hasEmptyWorkStk()) {
       // Trigger Type: one of 'keyword', 'scriptfilter'

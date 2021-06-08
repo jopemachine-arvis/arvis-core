@@ -4,8 +4,8 @@ import _ from 'lodash';
 import { xml2json } from 'xml-js';
 import execa from '../../execa';
 import { log, LogType, pushInputStrLog } from '../config';
-import { getWorkflowList, WorkManager } from '../core';
-import { extractArgsFromQuery } from '../core/argsHandler';
+import { getPluginList, getWorkflowList, WorkManager } from '../core';
+import { applyExtensionVars, extractArgsFromQuery } from '../core/argsHandler';
 import { handleScriptFilterChange } from '../core/scriptFilterChangeHandler';
 
 /**
@@ -307,7 +307,22 @@ async function scriptFilterExcute(
 
   // If the ScriptFilters are nested, the first string element is query.
   // Otherwise, the first string element is command.
-  const extractedArgs = extractArgsFromQuery(querys);
+
+  const extensionVariables =
+    workManager.extensionInfo!.type === 'plugin'
+      ? getPluginList()[bundleId].variables
+      : getWorkflowList()[bundleId].variables ?? {};
+
+  const extractedArgs = applyExtensionVars(
+    extractArgsFromQuery(querys),
+    extensionVariables
+  );
+
+  if (workManager.printArgs) {
+    // Print 'args' to debugging console
+    log(LogType.info, '[Args]', extractedArgs);
+  }
+
   const scriptWork: execa.ExecaChildProcess = handleScriptFilterChange(
     bundleId,
     // Assume

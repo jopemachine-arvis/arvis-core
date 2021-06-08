@@ -1,7 +1,6 @@
+// tslint:disable: forin
 import _ from 'lodash';
-import { log, LogType } from '../config';
 import { escapeBraket, replaceAll } from '../utils';
-import { WorkManager } from './workManager';
 
 /**
  * @param  {string} scriptStr
@@ -59,22 +58,14 @@ const getAppliedArgsFromScript = (scriptStr: string, args: object): string => {
  * @return {object}
  */
 const extractArgsFromQuery = (querys: string[]): object => {
-  // To do:: In some cases, the single quotes below may need to be escape.
+// To do:: In some cases, the single quotes below may need to be escape.
   const args = { '{query}': querys.join(' '), $1: '' };
 
-  // tslint:disable-next-line: forin
   for (const qIdx in querys) {
     querys[qIdx] = escapeBraket(querys[qIdx]);
 
     // * Assign args separated by whitespace to each index.
     args[`$${Number(qIdx) + 1}`] = querys[qIdx];
-  }
-
-  const workManager = WorkManager.getInstance();
-
-  if (workManager.printArgs) {
-    // Print 'args' to debugging console
-    log(LogType.info, '[Args]', args);
   }
 
   return args;
@@ -125,22 +116,27 @@ const extractArgsFromScriptFilterItem = (
     vars = { ...vars, ...item.variables };
   }
 
-  // tslint:disable-next-line: forin
   for (const variable in vars) {
     args[`{var:${variable}}`] = `${vars[variable]}`;
-  }
-
-  const workManager = WorkManager.getInstance();
-
-  if (workManager.printArgs) {
-    // Print 'args' to debugging console
-    log(LogType.info, '[Args]', args);
   }
 
   return args;
 };
 
+/**
+ * @param  {object} args
+ * @param  {object} vars
+ * @returns variable
+ */
+const applyExtensionVars = (args: object, vars: object): object => {
+  for (const variable in vars) {
+    args[`{var:${variable}}`] = `${vars[variable]}`;
+  }
+  return args;
+};
+
 export {
+  applyExtensionVars,
   extractArgsFromQuery,
   extractArgsFromPluginItem,
   extractArgsFromScriptFilterItem,
