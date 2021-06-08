@@ -347,6 +347,24 @@ function handleAction({
           }
           break;
 
+        case 'resetinput': {
+          action = action as ResetInputAction;
+          action.newInput = applyArgsToScript({
+            scriptStr: action.newInput,
+            queryArgs,
+          });
+
+          nextAction = [action];
+
+          printActionDebuggingLog({
+            action,
+            cuiColorApplier: chalk.magentaBright,
+            guiColor: 'magenta',
+            extra: `new input: "${action.newInput}"`,
+          });
+          break;
+        }
+
         default:
           log(LogType.error, 'Error: Not supported type, ' + type);
           break;

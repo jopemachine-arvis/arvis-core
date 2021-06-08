@@ -654,6 +654,15 @@ export class WorkManager {
 
       if (targetActions) {
         for (const nextAction of targetActions!) {
+          if (nextAction.type === 'resetInput') {
+            this.clearWorkStack();
+            this.onInputShouldBeUpdate!({
+              needItemsUpdate: true,
+              str: nextAction.newInput,
+            });
+
+            return false;
+          }
           if (this.handleTriggerAction(nextAction, handleActionResult.args))
             return false;
         }
