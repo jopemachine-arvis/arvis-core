@@ -127,6 +127,7 @@ function handleAction({
 
     let nextAction: Action[] | undefined;
     let asyncChain: Promise<any> | undefined;
+    let asyncChainType: string | undefined;
 
     // tslint:disable-next-line: no-string-literal
     nextAction = action['action'];
@@ -155,6 +156,7 @@ function handleAction({
           });
 
           asyncChain = handleScriptAction(action, queryArgs);
+          asyncChainType = action.type;
           break;
 
         // Scriptfilter cannot be processed here because it could be ran in a way other than 'Enter' event
@@ -377,9 +379,10 @@ function handleAction({
 
     if (nextAction) {
       if (asyncChain) {
-        nextAction.forEach(
-          (targetAction) => (targetAction['asyncChain'] = asyncChain)
-        );
+        nextAction.forEach((targetAction) => {
+          targetAction['asyncChain'] = asyncChain;
+          targetAction['asyncChainType'] = asyncChainType;
+        });
       }
 
       nextActions = [...nextActions, ...nextAction];

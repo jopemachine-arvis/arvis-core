@@ -4,6 +4,7 @@ import { handleKeywordWaiting, setKeywordItem } from './keyword';
 import { notify } from './notify';
 import { openFile } from './openFiles';
 import { customActions, registerCustomAction } from './registerCustomAction';
+import { handleResetInputAction } from './resetInput';
 import { handleScriptAction } from './script';
 import { scriptFilterExcute } from './scriptFilter';
 
@@ -12,6 +13,7 @@ export {
   copyToClipboard,
   customActions,
   handleKeywordWaiting,
+  handleResetInputAction,
   handleScriptAction,
   notify,
   openFile,

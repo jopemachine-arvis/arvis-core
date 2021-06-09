@@ -2,7 +2,11 @@
 
 import _ from 'lodash';
 import execa from '../../execa';
-import { handleKeywordWaiting, setKeywordItem } from '../actions';
+import {
+  handleKeywordWaiting,
+  handleResetInputAction,
+  setKeywordItem,
+} from '../actions';
 import { scriptFilterExcute } from '../actions/scriptFilter';
 import { log, LogType, pushInputStrLog } from '../config';
 import {
@@ -560,6 +564,13 @@ export class WorkManager {
   }
 
   /**
+   * @summary
+   */
+  private hasTriggerAction = (nextAction: Action) => {
+    return nextAction.type === 'scriptfilter' || nextAction.type === 'keyword';
+  }
+
+  /**
    * @param  {Action} nextAction
    * @param  {object} args
    * @description This function handle Trigger as Actions.
@@ -607,10 +618,20 @@ export class WorkManager {
     return false;
   }
 
+  /**
+   * @param  {Action} action
+   */
   private hasAsyncActionChain = (action: Action) => {
     return action['asyncChain'];
   }
 
+  /**
+   * @param  {Command|ScriptFilterItem|PluginItem} item
+   * @param  {object} args
+   * @param  {Action[]|undefined} targetActions
+   * @param  {ModifierInput} modifier
+   * @param  {Action} nextAction
+   */
   private handleAsyncActionChain = (
     item: Command | ScriptFilterItem | PluginItem,
     args: object,
@@ -622,7 +643,12 @@ export class WorkManager {
       (targetAction) => targetAction !== nextAction
     );
 
-    nextAction['asyncChain'].then(() => {
+    nextAction['asyncChain'].then((result) => {
+      if (nextAction['asyncChainType'] === 'keyword') {
+        args['{query}'] = result.all;
+        args['$1'] = result.all;
+      }
+
       this.handleActionChain({
         item,
         args,
@@ -685,16 +711,14 @@ export class WorkManager {
           }
 
           if (nextAction.type === 'resetInput') {
-            this.clearWorkStack();
-            this.onInputShouldBeUpdate!({
-              needItemsUpdate: true,
-              str: nextAction.newInput,
-            });
-
+            handleResetInputAction(nextAction.newInput);
             return false;
           }
-          if (this.handleTriggerAction(nextAction, handleActionResult.args))
+
+          if (this.hasTriggerAction(nextAction)) {
+            this.handleTriggerAction(nextAction, handleActionResult.args);
             return false;
+          }
         }
       }
     }
