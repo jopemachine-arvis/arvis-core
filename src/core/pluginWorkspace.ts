@@ -33,8 +33,11 @@ const requireDynamically = (modulePath: string, envs: object = {}): any => {
     log(LogType.debug, 'Plugin module cache not deleted', err);
   }
 
+  // For windows support
+  const envsStr = JSON.stringify(envs).replaceAll(path.sep, '/');
+
   return eval(`
-    const envs = JSON.parse('${JSON.stringify(envs)}');
+    const envs = JSON.parse('${envsStr}');
 
     Object.keys(envs).forEach(function(env) {
       process.env[env] = envs[env];

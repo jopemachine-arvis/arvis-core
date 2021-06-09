@@ -1,6 +1,7 @@
 // tslint:disable: no-string-literal
 import chalk from 'chalk';
 import _ from 'lodash';
+import parseJson from 'parse-json';
 import { xml2json } from 'xml-js';
 import execa from '../../execa';
 import { log, LogType, pushInputStrLog } from '../config';
@@ -101,7 +102,7 @@ const printActionLog = () => {
 const parseStdio = (stdout: string, stderr: string): ScriptFilterResult => {
   if (stdout.startsWith('<?xml')) {
     try {
-      let target = JSON.parse(
+      let target = parseJson(
         xml2json(stdout, { compact: true, ignoreDeclaration: true })
       );
 
@@ -133,7 +134,7 @@ const parseStdio = (stdout: string, stderr: string): ScriptFilterResult => {
     }
   } else {
     try {
-      return JSON.parse(stdout) as ScriptFilterResult;
+      return parseJson(stdout) as ScriptFilterResult;
     } catch (err) {
       const error = new Error(
         `JSON Scriptfilter format error!\n${err}\n\nstdout: ${stdout}\n\nstderr: ${stderr}\n`
