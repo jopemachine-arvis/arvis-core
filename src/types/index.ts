@@ -16,6 +16,7 @@ import { PluginConfigFile as _PluginConfigFile } from './pluginConfig';
 import { PluginItem as _PluginItem } from './pluginItem';
 import { ScriptFilterItem as _ScriptFilterItem } from './scriptFilterItem';
 import { ScriptFilterResult as _ScriptFilterResult } from './scriptFilterResult';
+import { Work as _Work } from './work';
 import { WorkflowConfigFile as _WorkflowConfigFile } from './workflowConfig';
 
 // To do:: Need to change below codes to import this code from the CUI and GUI code side
@@ -43,6 +44,7 @@ declare global {
     | HotkeyAction
     | ResetInputAction;
   type Log = _Log;
+  type Work = _Work;
 
   type Command = _Command;
   type PluginItem = _PluginItem;

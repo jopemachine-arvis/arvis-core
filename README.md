@@ -20,7 +20,7 @@ The arvis history log the action logs and query logs in the path below.
 * macOS: `~/Library/Preferences/arvis-core-nodejs`
 * Windows: `%APPDATA%\arvis-core-nodejs\Config` (for example, `C:\Users\USERNAME\AppData\Roaming\arvis-core-nodejs\Config`)
 
-### installed workflow, plugin files
+### Installed workflow, plugin file paths
 
 The storage path for all installed extension files is stored in the `data` path of the [env-paths](https://github.com/sindresorhus/env-paths).
 (including extension's data, cache files)
@@ -29,5 +29,8 @@ The storage path for all installed extension files is stored in the `data` path 
 * on macOS: `~/Library/Application Support/arvis-core-nodejs`
 * on Windows: `%LOCALAPPDATA%\arvis-core-nodejs\Data` (for example, `C:\Users\USERNAME\AppData\Local\arvis-core-nodejs\Data`)
 
-## Workflow, Plugin JSON Schema
+## Related
 
+- [arvis-extension-validator](https://github.com/jopemachine/arvis-extension-validator) - Arvis extension's JSON schema, cli and library to validate these.
+
+- [arvis-plist-converter](https://github.com/jopemachine/arvis-extension-validator) - Convert alfred 4 workflow's info.plist to arvis-workflow.json

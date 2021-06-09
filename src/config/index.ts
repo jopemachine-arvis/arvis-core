@@ -1,5 +1,4 @@
 import { getEnvs } from './envHandler';
-import getHelpStr from './getHelpStr';
 import {
   getHistory,
   getHistoryFilePath,
@@ -14,7 +13,6 @@ import { Store } from './store';
 
 export {
   getEnvs,
-  getHelpStr,
   getHistory,
   getHistoryFilePath,
   initHistory,

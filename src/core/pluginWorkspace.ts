@@ -34,7 +34,7 @@ const requireDynamically = (modulePath: string, envs: object = {}): any => {
   }
 
   // For windows support
-  const envsStr = JSON.stringify(envs).replaceAll(path.sep, '/');
+  const envsStr = JSON.stringify(envs).split(path.sep).join('/');
 
   return eval(`
     const envs = JSON.parse('${envsStr}');

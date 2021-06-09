@@ -1,7 +1,6 @@
 // tslint:disable: no-string-literal
 
 import _ from 'lodash';
-import execa from '../../execa';
 import {
   handleKeywordWaiting,
   handleResetInputAction,
@@ -26,62 +25,6 @@ import {
 import { getPluginList } from './pluginList';
 import { extractScriptOnThisPlatform } from './scriptExtracter';
 import { getWorkflowList } from './workflowList';
-
-interface Work {
-  /**
-   * @description Work's type
-   *              Possible value is `keyword`, `keyword-waiting`, `scriptfilter`, `hotkey`
-   */
-  type: string;
-
-  /**
-   * @description
-   */
-  input: string;
-
-  /**
-   * @description Workflow or plugin's bundleId
-   */
-  bundleId: string;
-
-  /**
-   * @description Applied args
-   */
-  args: object | null;
-
-  /**
-   * @description nextAction to execute
-   */
-  action: Action[] | undefined;
-
-  /**
-   * @description trigger that triggers action.
-   *              starts with command object or pluginItem and becomes scriptFilterItem or action
-   */
-  actionTrigger: Command | PluginItem | ScriptFilterItem | Action;
-
-  /**
-   * @description Used in only type is 'scriptfilter'
-   *              Indicates whether scriptfilter script is running
-   */
-  workCompleted?: boolean;
-
-  /**
-   * @description Used in only type is 'scriptfilter'
-   *              ExecaChildProcess object (promise)
-   */
-  workProcess?: execa.ExecaChildProcess | null;
-
-  /**
-   * @description Scriptfilter's rerun interval
-   */
-  rerunInterval?: number;
-
-  /**
-   * @description Scriptfilter's script execution result
-   */
-  items?: ScriptFilterItem[];
-}
 
 /**
  * @description Manage the execution of tasks (works)
