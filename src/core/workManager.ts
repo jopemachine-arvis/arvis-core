@@ -607,6 +607,31 @@ export class WorkManager {
     return false;
   }
 
+  private hasAsyncActionChain = (action: Action) => {
+    return action['asyncChain'];
+  }
+
+  private handleAsyncActionChain = (
+    item: Command | ScriptFilterItem | PluginItem,
+    args: object,
+    targetActions: Action[] | undefined,
+    modifier: ModifierInput,
+    nextAction: Action
+  ) => {
+    targetActions = targetActions!.filter(
+      (targetAction) => targetAction !== nextAction
+    );
+
+    nextAction['asyncChain'].then(() => {
+      this.handleActionChain({
+        item,
+        args,
+        modifier,
+        targetActions: [nextAction],
+      });
+    });
+  }
+
   /**
    * @returns {boolean} If return false, commandExcute quits to enable users to give more input
    * @description Handle Multiple Actions, Process a sequence of actions that follow back.
@@ -649,6 +674,16 @@ export class WorkManager {
 
       if (targetActions) {
         for (const nextAction of targetActions!) {
+          if (this.hasAsyncActionChain(nextAction)) {
+            this.handleAsyncActionChain(
+              item,
+              args,
+              targetActions,
+              modifier,
+              nextAction
+            );
+          }
+
           if (nextAction.type === 'resetInput') {
             this.clearWorkStack();
             this.onInputShouldBeUpdate!({
