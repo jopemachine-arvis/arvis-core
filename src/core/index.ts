@@ -3,7 +3,7 @@ import { hasRequiredArg } from './argTypeHandler';
 import { checkUpdatableExtensions } from './checkUpdatableExtensions';
 import { findCommands } from './commandFinder';
 import { getCommandList } from './commandList';
-import { getBundleId } from './getBundleId';
+import { getBundleId, getNameFromBundleId } from './getBundleId';
 import { findHotkeys } from './hotkeyFinder';
 import { exportPlugin } from './pluginExporter';
 import {
@@ -39,6 +39,7 @@ export {
   findHotkeys,
   getBundleId,
   getCommandList,
+  getNameFromBundleId,
   getPluginList,
   getWorkflowList,
   handleAction,

@@ -162,11 +162,11 @@ const unInstall = async ({ bundleId }: { bundleId: string }): Promise<void> => {
     rimraf(installedDir, () => {
       store.deleteWorkflow(bundleId);
     });
-  } catch (e) {
+  } catch (error) {
     if (!(await checkFileExists(installedDir))) {
       return;
     }
-    throw new Error(e);
+    throw new Error(`Extension delete failed!\n\n${error}`);
   }
 };
 

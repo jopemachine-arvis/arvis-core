@@ -7,3 +7,6 @@ export const getBundleId = (createdby: string, name: string) => {
 
   return `@${createdby}.${name}`;
 };
+
+export const getNameFromBundleId = (bundleId: string) =>
+  bundleId.split('.').slice(1).join('.');

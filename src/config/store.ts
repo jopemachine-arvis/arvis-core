@@ -1,10 +1,9 @@
 import fse from 'fs-extra';
 import _ from 'lodash';
 import path from 'path';
-import recursiveReaddir from 'recursive-readdir';
 import { getBundleId } from '../core';
 import pluginWorkspace from '../core/pluginWorkspace';
-import { zipDirectory } from '../utils/zip';
+import { fetchExtensionJson, zipDirectory } from '../utils';
 import { log, LogType } from './index';
 import {
   getPluginInstalledPath,
@@ -139,14 +138,10 @@ export class Store {
    * @description If bundleId is given, renew only that workflow info.
    */
   public async renewWorkflows(bundleId?: string) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       this.setStoreAvailability(false);
-      recursiveReaddir(workflowInstallPath, async (err, files) => {
-        if (err) {
-          reject(err);
-          this.setStoreAvailability(true);
-          return;
-        }
+      try {
+        let files = await fetchExtensionJson('workflow');
 
         files = files.filter((filePath) => {
           if (bundleId)
@@ -197,7 +192,10 @@ export class Store {
         if (errorCnt !== 0) {
           log(LogType.error, `${errorCnt} workflows have format errors`);
         }
-      });
+      } catch (err) {
+        reject(err);
+        this.setStoreAvailability(true);
+      }
     });
   }
 
@@ -215,15 +213,11 @@ export class Store {
     initializePluginWorkspace: boolean;
     bundleId?: string | undefined;
   }) => {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       this.setStoreAvailability(false);
-      recursiveReaddir(pluginInstallPath, async (err, files) => {
-        if (err) {
-          reject(err);
-          this.setStoreAvailability(true);
-          return;
-        }
 
+      try {
+        let files = await fetchExtensionJson('plugin');
         files = files.filter((filePath) => {
           if (bundleId)
             return filePath.endsWith(`${bundleId}${path.sep}arvis-plugin.json`);
@@ -277,7 +271,10 @@ export class Store {
         if (errorCnt !== 0) {
           log(LogType.error, `${errorCnt} plugins have format errors`);
         }
-      });
+      } catch (err) {
+        reject(err);
+        this.setStoreAvailability(true);
+      }
     });
   }
 
@@ -338,7 +335,7 @@ export class Store {
     const installedWorkflows = this.getInstalledWorkflows();
     installedWorkflows[bundleId] = {
       bundleId,
-      ...workflow
+      ...workflow,
     };
 
     this.store.set('workflows', installedWorkflows);
