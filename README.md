@@ -5,7 +5,7 @@
 ## Build and development
 
 ```
-$ yarn && yarn build
+$ npm i && npm run build
 ```
 
 ## Config file pathes used by arvis-core
