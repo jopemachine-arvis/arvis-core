@@ -574,6 +574,10 @@ export class WorkManager {
    * @param  {Action[]|undefined} targetActions
    * @param  {ModifierInput} modifier
    * @param  {Action} nextAction
+   * @description Actions after async action (like script) must be executed after the async action is completed.
+   *              This function handle these async action chain.
+   *              Actions after async action are removed from targetActions.
+   *              And return this targetActions.
    */
   private handleAsyncActionChain = (
     item: Command | ScriptFilterItem | PluginItem,
@@ -581,7 +585,7 @@ export class WorkManager {
     targetActions: Action[] | undefined,
     modifier: ModifierInput,
     nextAction: Action
-  ) => {
+  ): Action[] | undefined => {
     targetActions = targetActions!.filter(
       (targetAction) => targetAction !== nextAction
     );
@@ -599,6 +603,8 @@ export class WorkManager {
         targetActions: [nextAction],
       });
     });
+
+    return targetActions;
   }
 
   /**
@@ -644,7 +650,7 @@ export class WorkManager {
       if (targetActions) {
         for (const nextAction of targetActions!) {
           if (this.hasAsyncActionChain(nextAction)) {
-            this.handleAsyncActionChain(
+            targetActions = this.handleAsyncActionChain(
               item,
               args,
               targetActions,
