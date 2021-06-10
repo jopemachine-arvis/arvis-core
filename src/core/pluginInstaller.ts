@@ -1,4 +1,4 @@
-import { validate } from '@jopemachine/arvis-extension-validator';
+import { validate as validateJson } from '@jopemachine/arvis-extension-validator';
 import chmodr from 'chmodr';
 import * as fse from 'fs-extra';
 import path from 'path';
@@ -29,12 +29,12 @@ const installByPath = async (installedPath: string): Promise<void | Error> => {
       return;
     }
 
-    const { errors, valid } = validate(pluginConfig, 'plugin');
+    const { errors, valid } = validateJson(pluginConfig, 'plugin');
 
     if (!valid) {
       reject(
         new Error(
-          `arvis-plugin.json format is invalid\n${errors
+          `'arvis-plugin.json' format is invalid\n${errors
             .map((error) => error.message)
             .join('\n')}`
         )
@@ -105,7 +105,10 @@ const install = async (installFile: string): Promise<void | Error> => {
       await sleep(1000);
 
       const innerPath = zipFileName.split('.')[0];
-      const arvisPluginConfigPath = path.resolve(extractedPath, 'arvis-plugin.json');
+      const arvisPluginConfigPath = path.resolve(
+        extractedPath,
+        'arvis-plugin.json'
+      );
       // Supports both compressed with folder and compressed without folders
       const containedWorkflowConf = await checkFileExists(
         arvisPluginConfigPath

@@ -8,8 +8,6 @@ import { log, LogType } from './index';
 import {
   getPluginInstalledPath,
   getWorkflowInstalledPath,
-  pluginInstallPath,
-  workflowInstallPath,
 } from './path';
 
 /**

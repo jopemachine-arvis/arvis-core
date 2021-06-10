@@ -38,21 +38,21 @@ const tempPath = envPaths.temp;
  * @summary Create the necessary paths for the Arvis if they don't exists
  */
 const initializePath = async () => {
-  if (!(await checkFileExists(workflowInstallPath))) {
-    await fse.mkdir(workflowInstallPath, { recursive: true });
-  }
-  if (!(await checkFileExists(extensionDataPath))) {
-    await fse.mkdir(extensionDataPath, { recursive: true });
-  }
-  if (!(await checkFileExists(extensionCachePath))) {
-    await fse.mkdir(extensionCachePath, { recursive: true });
-  }
-  if (!(await checkFileExists(pluginInstallPath))) {
-    await fse.mkdir(pluginInstallPath, { recursive: true });
-  }
-  if (!(await checkFileExists(tempPath))) {
-    await fse.mkdir(tempPath, { recursive: true });
-  }
+  const checkAndCreatePath = async (dir: string) => {
+    if (!(await checkFileExists(dir))) {
+      await fse.mkdir(dir, { recursive: true });
+    }
+  };
+
+  const works = [
+    checkAndCreatePath(workflowInstallPath),
+    checkAndCreatePath(pluginInstallPath),
+    checkAndCreatePath(extensionDataPath),
+    checkAndCreatePath(extensionCachePath),
+    checkAndCreatePath(tempPath),
+  ];
+
+  await Promise.all(works).catch(console.error);
 };
 
 /**

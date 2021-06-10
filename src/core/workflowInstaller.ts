@@ -1,5 +1,4 @@
-import { validate } from '@jopemachine/arvis-extension-validator';
-import alfredWorkflowPlistConvert from '@jopemachine/arvis-plist-converter';
+import { validate as validateJson } from '@jopemachine/arvis-extension-validator';
 import chmodr from 'chmodr';
 import * as fse from 'fs-extra';
 import path from 'path';
@@ -18,7 +17,10 @@ import { getBundleId } from './getBundleId';
  */
 const installByPath = async (installedPath: string): Promise<void | Error> => {
   const store = Store.getInstance();
-  const workflowConfFilePath = path.resolve(installedPath, 'arvis-workflow.json');
+  const workflowConfFilePath = path.resolve(
+    installedPath,
+    'arvis-workflow.json'
+  );
 
   return new Promise(async (resolve, reject) => {
     let workflowConfig: WorkflowConfigFile;
@@ -29,12 +31,12 @@ const installByPath = async (installedPath: string): Promise<void | Error> => {
       return;
     }
 
-    const { errors, valid } = validate(workflowConfig, 'workflow');
+    const { errors, valid } = validateJson(workflowConfig, 'workflow');
 
     if (!valid) {
       reject(
         new Error(
-          `arvis-workflow.json format is invalid\n${errors
+          `'arvis-workflow.json' format is invalid\n${errors
             .map((error) => error.message)
             .join('\n')}`
         )
@@ -77,7 +79,7 @@ const installByPath = async (installedPath: string): Promise<void | Error> => {
 };
 
 /**
- * @param  {string} installFile arvisworkflow files or alfredworkflow files
+ * @param  {string} installFile arvisworkflow file
  * @return {Promise<void | Error>}
  */
 const install = async (installFile: string): Promise<void | Error> => {
@@ -85,10 +87,7 @@ const install = async (installFile: string): Promise<void | Error> => {
   let unzipStream: unzipper.ParseStream | null;
   const zipFileName: string = installFile.split(path.sep).pop()!;
 
-  if (
-    installFile.endsWith('.arvisworkflow') ||
-    installFile.endsWith('.alfredworkflow')
-  ) {
+  if (installFile.endsWith('.arvisworkflow')) {
     // Create temporary folder and delete it after installtion
     const temporaryFolderName = uuidv4();
 
@@ -108,36 +107,20 @@ const install = async (installFile: string): Promise<void | Error> => {
       await sleep(1000);
 
       const innerPath = zipFileName.split('.')[0];
-      const plistPath = path.resolve(extractedPath, 'info.plist');
       const arvisWorkflowConfigPath = path.resolve(
         extractedPath,
         'arvis-workflow.json'
       );
 
       // Supports both compressed with folder and compressed without folders
-      const containedInfoPlist = await checkFileExists(plistPath);
       const containedWorkflowConf = await checkFileExists(
         arvisWorkflowConfigPath
       );
-      const folderNotContained = containedInfoPlist || containedWorkflowConf;
 
       // Suppose it is in the inner folder if it is not in the outer folder. if not, throw error.
-      const installedPath = folderNotContained
+      const installedPath = containedWorkflowConf
         ? extractedPath
         : `${extractedPath}${path.sep}${innerPath}`;
-
-      // Need to convert alfred's info.plist to json first
-      if (installFile.endsWith('.alfredworkflow')) {
-        try {
-          await alfredWorkflowPlistConvert(
-            `${installedPath}${path.sep}info.plist`,
-            `${installedPath}${path.sep}arvis-workflow.json`
-          );
-        } catch (err) {
-          fse.remove(extractedPath);
-          reject(err);
-        }
-      }
 
       installByPath(installedPath)
         .then(resolve)

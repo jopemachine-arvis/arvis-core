@@ -4,6 +4,18 @@ import {
   getExtensionHistoryPath,
 } from './path';
 
+let macPathsEnv: string = '';
+
+/**
+ * @param  {string} path
+ */
+const setMacPathsEnv = (path: string) => {
+  macPathsEnv = path;
+};
+
+/**
+ * @param  {object} queryArgs
+ */
 const extractVarEnv = (queryArgs: object) => {
   const vars = {};
 
@@ -17,6 +29,10 @@ const extractVarEnv = (queryArgs: object) => {
   return vars;
 };
 
+/**
+ * @param  {string;vars:object;name?:string;version?:string;}
+ * @returns
+ */
 const getEnvs = ({
   extensionType,
   bundleId,
@@ -40,6 +56,12 @@ const getEnvs = ({
     arvis_extension_cache: getExtensionCachePath(bundleId),
     arvis_extension_history: getExtensionHistoryPath(),
   };
+
+  // In macos, GUI App does not inherit $PATH.
+  // So need to provide path directly
+  if (process.platform === 'darwin') {
+    env['PATH'] = macPathsEnv;
+  }
 
   // Environment variable setting for alfred workflows
   const alfredWorkflowEnv = {
@@ -68,4 +90,4 @@ const getEnvs = ({
   };
 };
 
-export { getEnvs, extractVarEnv };
+export { getEnvs, extractVarEnv, setMacPathsEnv };

@@ -5,7 +5,7 @@ export const getBundleId = (createdby: string, name: string) => {
     );
   }
 
-  return `@${createdby}.${name}`;
+  return `${createdby}.${name}`;
 };
 
 export const getNameFromBundleId = (bundleId: string) =>

@@ -4,6 +4,7 @@ import { checkUpdatableExtensions } from './checkUpdatableExtensions';
 import { findCommands } from './commandFinder';
 import { getCommandList } from './commandList';
 import { getBundleId, getNameFromBundleId } from './getBundleId';
+import { getSystemPaths } from './getSystemPaths';
 import { findHotkeys } from './hotkeyFinder';
 import { exportPlugin } from './pluginExporter';
 import {
@@ -28,6 +29,8 @@ import * as history from '../config/history';
 import * as logger from '../config/logger';
 import * as path from '../config/path';
 
+import { setMacPathsEnv } from '../config/envHandler';
+
 import { registerCustomAction, scriptFilterExcute } from '../actions';
 
 export {
@@ -41,6 +44,7 @@ export {
   getCommandList,
   getNameFromBundleId,
   getPluginList,
+  getSystemPaths,
   getWorkflowList,
   handleAction,
   hasRequiredArg,
@@ -54,6 +58,7 @@ export {
   renewWorkflows,
   scriptFilterExcute,
   setStoreAvailabiltyChecker,
+  setMacPathsEnv,
   Store,
   uninstallPlugin,
   uninstallWorkflow,

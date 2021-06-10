@@ -42,6 +42,7 @@ const findWorkflowCommands = async (inputStr: string): Promise<Command[]> => {
   const searchResult = [] as any;
 
   const getWorkflowCommandPriority = (commandStr: string) => {
+    // + 1 to set more high priority on Workflow command than plugin command.
     return compareTwoStrings(commandStr, inputStr) + 1;
   };
 
