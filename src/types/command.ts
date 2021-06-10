@@ -12,4 +12,5 @@ export interface Command {
   arg_type?: 'required' | 'optional' | 'no';
   type: 'keyword' | 'scriptfilter' | 'hotkey';
   action?: Action[];
+  stringSimilarity?: number;
 }

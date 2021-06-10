@@ -2,9 +2,11 @@
 import _ from 'lodash';
 import PCancelable from 'p-cancelable';
 import path from 'path';
+import { compareTwoStrings } from 'string-similarity';
 import { getEnvs, getHistory, log, LogType } from '../config';
 import { trace } from '../config/logger';
 import { getPluginInstalledPath } from '../config/path';
+import { PluginExectionResult } from '../types/pluginExectionResult';
 import { getPluginList } from './pluginList';
 import { WorkManager } from './workManager';
 
@@ -57,7 +59,7 @@ interface PluginWorkspace {
     asyncPluginPromise: Promise<any>
   ) => PCancelable<any>;
   renew: (pluginInfos: any[], bundleId?: string) => void;
-  search: (inputStr: string) => Promise<PluginItem[]>;
+  search: (inputStr: string) => Promise<PluginExectionResult[]>;
   cancelPrevious: () => void;
 }
 
@@ -123,25 +125,25 @@ const pluginWorkspace: PluginWorkspace = {
   getAsyncWork: (pluginBundleId, asyncPluginPromise): PCancelable<any> => {
     const work = new PCancelable<any>((resolve, reject, onCancel) => {
       const timer = setTimeout(
-        () => resolve([]),
+        () => resolve({ items: [] }),
         pluginWorkspace.asyncPluginTimer
       );
 
       onCancel(() => {
-        resolve([]);
+        resolve({ items: [] });
       });
 
       asyncPluginPromise
         .then((result) => {
           clearTimeout(timer);
-          if (!result.items || !result.items.length) resolve([]);
+          if (!result.items || !result.items.length) resolve({ items: [] });
 
-          resolve(
-            result.items.map((item) => {
-              item.bundleId = pluginBundleId;
-              return item;
-            })
-          );
+          result.items.forEach((item) => {
+            item.bundleId = pluginBundleId;
+            return item;
+          });
+
+          resolve(result);
         })
         .catch(reject);
     });
@@ -160,10 +162,10 @@ const pluginWorkspace: PluginWorkspace = {
   /**
    * @param  {string} inputStr
    */
-  search: async (inputStr: string): Promise<PluginItem[]> => {
+  search: async (inputStr: string): Promise<PluginExectionResult[]> => {
     pluginWorkspace.cancelPrevious();
 
-    let pluginOutputItems: any[] = [];
+    const pluginExecutionResults: any[] = [];
     const asyncPluginWorks: PCancelable<any>[] = [];
 
     for (const pluginBundleId of Object.keys(pluginWorkspace.pluginModules)) {
@@ -181,16 +183,11 @@ const pluginWorkspace: PluginWorkspace = {
             pluginWorkspace.getAsyncWork(pluginBundleId, pluginExecutionResult)
           );
         } else {
-          const thisPluginOutputItems = (pluginModule as Function)({
-            inputStr,
-            history: getHistory(),
-          }).items;
-
-          thisPluginOutputItems.forEach(
+          pluginExecutionResult.items.forEach(
             (item) => (item.bundleId = pluginBundleId)
           );
 
-          pluginOutputItems = [...pluginOutputItems, ...thisPluginOutputItems];
+          pluginExecutionResults.push(pluginExecutionResult);
         }
       } catch (err) {
         log(
@@ -215,19 +212,25 @@ const pluginWorkspace: PluginWorkspace = {
 
     const asyncPrintResult = _.flattenDeep(successes);
 
-    pluginOutputItems = [...pluginOutputItems, ...asyncPrintResult]
-      .filter((item) => item !== null && item !== undefined)
-      .map((item) => {
-        item.isPluginItem = true;
-        // pluginItem is treated like keyword
-        item.type = 'keyword';
-        item.command = item.title;
-        item.action = getPluginList()[item.bundleId].action;
-        return item;
+    asyncPrintResult
+      .map((result) => result.items)
+      .map((items) => {
+        return items
+          .filter((item) => item !== null && item !== undefined)
+          .map((item) => {
+            item.isPluginItem = true;
+            // pluginItem is treated like keyword
+            item.type = 'keyword';
+            item.command = item.title;
+            item.action = getPluginList()[item.bundleId].action;
+            return item;
+          });
       });
 
+    pluginExecutionResults.push(...asyncPrintResult);
+
     if (WorkManager.getInstance().printPluginItems) {
-      log(LogType.info, 'Plugin Items: ', pluginOutputItems);
+      log(LogType.info, 'Plugin Items: ', pluginExecutionResults);
     }
 
     if (errors.length !== 0) {
@@ -236,7 +239,19 @@ const pluginWorkspace: PluginWorkspace = {
       }
     }
 
-    return pluginOutputItems;
+    pluginExecutionResults
+      .map((result) => result.items)
+      .map((items) =>
+        items.map(
+          (item) =>
+            (item.stringSimilarity = compareTwoStrings(
+              item.command ? item.command : item.title,
+              inputStr
+            ))
+        )
+      );
+
+    return pluginExecutionResults;
   },
 };
 

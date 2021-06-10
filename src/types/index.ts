@@ -9,6 +9,8 @@ import { ResetInputAction as _ResetInputAction } from './actions/resetInputActio
 import { ScriptAction as _ScriptAction } from './actions/scriptAction';
 import { ScriptFilterAction as _ScriptFilterAction } from './actions/scriptFilterAction';
 
+import { PluginExectionResult as _PluginExectionResult } from './pluginExectionResult';
+
 import { Command as _Command } from './command';
 import { Log as _Log } from './log';
 import { ModifierInput as _ModifierInput } from './modifierInput';

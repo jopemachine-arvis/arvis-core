@@ -12,22 +12,22 @@ const cachePath = envPaths.cache;
 /**
  * @description Store workflow, plugin data
  */
-const extensionDataPath = `${installedDataPath}${path.sep}data`;
+const extensionDataPath = path.resolve(installedDataPath, 'data');
 
 /**
  * @description Store workflow, plugin caches
  */
-const extensionCachePath = `${cachePath}${path.sep}cache`;
+const extensionCachePath = path.resolve(cachePath, 'cache');
 
 /**
  * @description Store workflow files
  */
-const workflowInstallPath = `${installedDataPath}${path.sep}workflows`;
+const workflowInstallPath = path.resolve(installedDataPath, 'workflows');
 
 /**
  * @description Store plugin's files
  */
-const pluginInstallPath = `${installedDataPath}${path.sep}plugins`;
+const pluginInstallPath = path.resolve(installedDataPath, 'plugins');
 
 /**
  * @description Store temp files
@@ -66,42 +66,42 @@ const getExtensionHistoryPath = () => {
  * @param  {string} bundleId
  */
 const getExtensionDataPath = (bundleId: string) => {
-  return `${extensionDataPath}${path.sep}${bundleId}`;
+  return path.resolve(extensionDataPath, bundleId);
 };
 
 /**
  * @param  {string} bundleId
  */
 const getExtensionCachePath = (bundleId: string) => {
-  return `${extensionCachePath}${path.sep}${bundleId}`;
+  return path.resolve(extensionCachePath, bundleId);
 };
 
 /**
  * @param  {string} bundleId
  */
 const getWorkflowInstalledPath = (bundleId: string) => {
-  return `${workflowInstallPath}${path.sep}${bundleId}`;
+  return path.resolve(workflowInstallPath, bundleId);
 };
 
 /**
  * @param  {string} bundleId
  */
 const getPluginInstalledPath = (bundleId: string) => {
-  return `${pluginInstallPath}${path.sep}${bundleId}`;
-};
-
-/**
- * @param  {string} bundleId
- */
-const getPluginConfigJsonPath = (bundleId: string) => {
-  return `${getPluginInstalledPath(bundleId)}${path.sep}arvis-plugin.json`;
+  return path.resolve(pluginInstallPath, bundleId);
 };
 
 /**
  * @param  {string} bundleId
  */
 const getWorkflowConfigJsonPath = (bundleId: string) => {
-  return `${getWorkflowInstalledPath(bundleId)}${path.sep}arvis-workflow.json`;
+  return path.resolve(getWorkflowInstalledPath(bundleId), 'arvis-workflow.json');
+};
+
+/**
+ * @param  {string} bundleId
+ */
+const getPluginConfigJsonPath = (bundleId: string) => {
+  return path.resolve(getPluginInstalledPath(bundleId), 'arvis-plugin.json');
 };
 
 export {

@@ -1,5 +1,6 @@
 export interface PluginItem {
   title: string;
+  command?: string;
   type: 'keyword';
   valid?: boolean;
   subtitle?: string;
@@ -38,4 +39,5 @@ export interface PluginItem {
       subtitle?: string;
     };
   };
+  stringSimilarity?: number;
 }
