@@ -1,6 +1,6 @@
 {
   "name": "@jopemachine/arvis-core",
-  "version": "0.1.93",
+  "version": "0.1.95",
   "description": "Core part of Arvis",
   "main": "dist/index.js",
   "bin": "dist/main.js",

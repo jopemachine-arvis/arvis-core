@@ -14,6 +14,11 @@ import {
 import { getPluginList } from './pluginList';
 import { renewPlugins } from './pluginRenewer';
 import { execute } from './scriptExecutor';
+import {
+  xmlExtractGlobalVars,
+  xmlScriptFilterItemToJsonScriptFilterItem,
+  xmlToJsonScriptFilterItemFormat,
+} from './scriptFilterItemFormatConverter';
 import { setStoreAvailabiltyChecker } from './setStoreAvailabiltyChecker';
 import { exportWorkflow } from './workflowExporter';
 import {
@@ -57,10 +62,13 @@ export {
   renewPlugins,
   renewWorkflows,
   scriptFilterExcute,
-  setStoreAvailabiltyChecker,
   setMacPathsEnv,
+  setStoreAvailabiltyChecker,
   Store,
   uninstallPlugin,
   uninstallWorkflow,
   WorkManager,
+  xmlExtractGlobalVars,
+  xmlScriptFilterItemToJsonScriptFilterItem,
+  xmlToJsonScriptFilterItemFormat,
 };

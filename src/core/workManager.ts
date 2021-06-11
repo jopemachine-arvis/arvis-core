@@ -542,7 +542,7 @@ export class WorkManager {
         scriptFilterExcute(nextInput);
 
         this.onInputShouldBeUpdate!({
-          str: nextInput + ' ',
+          str: nextInput ? nextInput + ' ' : '',
           needItemsUpdate: false,
         });
       } else if (nextAction.type === 'keyword') {
