@@ -367,12 +367,11 @@ export class WorkManager {
    */
   public getNextActionsInput = (nextAction: Action, args: any): string => {
     if (nextAction.type === 'scriptfilter') {
-      return getAppliedArgsFromScript(
-        extractScriptOnThisPlatform(
-          (nextAction as ScriptFilterAction).script_filter
-        ),
-        args
+      const { script } = extractScriptOnThisPlatform(
+        (nextAction as ScriptFilterAction).script_filter
       );
+
+      return getAppliedArgsFromScript(script, args);
     }
     log(LogType.error, `Unsupported type, '${nextAction.type}'`);
     return 'Unsupported type error';

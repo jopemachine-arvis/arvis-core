@@ -25,12 +25,15 @@ const scriptErrorHandler = (err: ExecaError) => {
  */
 const handleScriptAction = async (action: ScriptAction, queryArgs: object) => {
   const workManager = WorkManager.getInstance();
-  const scriptStr = extractScriptOnThisPlatform(action.script);
+  const { script: scriptStr, shell } = extractScriptOnThisPlatform(
+    action.script
+  );
+
   const scriptWork = execute({
     bundleId: workManager.getTopWork().bundleId,
     scriptStr: applyArgsToScript({ scriptStr, queryArgs }),
     vars: extractVarEnv(queryArgs),
-    options: { all: true },
+    options: { all: true, shell },
   });
 
   return scriptWork

@@ -145,7 +145,9 @@ function handleAction({
           action = action as ScriptAction;
           if (!action.script) throwReqAttrNotExtErr(type, ['script']);
 
-          const scriptStr = extractScriptOnThisPlatform(action.script);
+          const { script: scriptStr } = extractScriptOnThisPlatform(
+            action.script
+          );
           target = applyArgsToScript({ scriptStr, queryArgs });
 
           printActionDebuggingLog({

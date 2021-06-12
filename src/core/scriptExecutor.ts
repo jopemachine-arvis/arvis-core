@@ -7,6 +7,7 @@ import { WorkManager } from './workManager';
 type ScriptExecuterOption = {
   all?: boolean;
   timeout?: number;
+  shell?: boolean | string;
 };
 
 /**
@@ -31,10 +32,12 @@ const execute = ({
 
   let all;
   let timeout;
+  let shell;
 
   if (options) {
     all = options.all;
     timeout = options.timeout;
+    shell = options.shell;
   }
 
   // 100MB
@@ -54,7 +57,7 @@ const execute = ({
     maxBuffer,
     preferLocal: false,
     serialization: 'json',
-    shell: false,
+    shell,
     timeout,
     windowsHide: true,
     env: getEnvs({

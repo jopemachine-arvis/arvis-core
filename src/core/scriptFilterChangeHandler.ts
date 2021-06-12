@@ -8,6 +8,7 @@ import { WorkManager } from './workManager';
 
 type ScriptFilterChangeHandlerOption = {
   timeout?: number;
+  shell?: boolean | string;
 };
 
 /**
@@ -27,10 +28,12 @@ const handleScriptFilterChange = (
     throw new Error(`Command is not scriptfilter! ${command}`);
   }
 
-  const script = (command as ScriptFilterAction).script_filter!;
+  const { script, shell } = extractScriptOnThisPlatform(
+    (command as ScriptFilterAction).script_filter!
+  );
 
   const scriptStr = applyArgsToScript({
-    scriptStr: extractScriptOnThisPlatform(script),
+    scriptStr: script,
     queryArgs,
   });
 
@@ -42,7 +45,7 @@ const handleScriptFilterChange = (
 
   const vars = extractVarEnv(queryArgs);
 
-  return execute({ bundleId, scriptStr, options, vars });
+  return execute({ bundleId, scriptStr, vars, options: { ...options, shell } });
 };
 
 export { handleScriptFilterChange };
