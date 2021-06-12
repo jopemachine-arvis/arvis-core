@@ -105,10 +105,8 @@ const getPluginConfigJsonPath = (bundleId: string) => {
 };
 
 export {
-  tempPath,
-  installedDataPath,
-  workflowInstallPath,
-  pluginInstallPath,
+  cachePath,
+  envPathsGenerator,
   getExtensionCachePath,
   getExtensionDataPath,
   getExtensionHistoryPath,
@@ -117,13 +115,15 @@ export {
   getWorkflowConfigJsonPath,
   getWorkflowInstalledPath,
   initializePath,
+  installedDataPath,
+  pluginInstallPath,
+  tempPath,
+  workflowInstallPath,
 };
 
 export default {
-  tempPath,
-  installedDataPath,
-  workflowInstallPath,
-  pluginInstallPath,
+  cachePath,
+  envPathsGenerator,
   getExtensionCachePath,
   getExtensionDataPath,
   getPluginConfigJsonPath,
@@ -131,4 +131,8 @@ export default {
   getWorkflowConfigJsonPath,
   getWorkflowInstalledPath,
   initializePath,
+  installedDataPath,
+  pluginInstallPath,
+  tempPath,
+  workflowInstallPath,
 };

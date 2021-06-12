@@ -9,7 +9,10 @@ import { getWorkflowList } from './workflowList';
  */
 const findPluginCommands = async (inputStr: string) => {
   const pluginResults = await pluginWorkspace.search(inputStr);
-  const [pluginNoSortItems, pluginItems] = _.partition(pluginResults, (result) => result.noSort);
+  const [pluginNoSortItems, pluginItems] = _.partition(
+    pluginResults,
+    (result) => result.noSort
+  );
 
   const pluginSortOutputs = pluginItems
     .map((result) => result.items)
@@ -41,9 +44,15 @@ const findWorkflowCommands = async (inputStr: string): Promise<Command[]> => {
 
   const searchResult = [] as any;
 
-  const getWorkflowCommandPriority = (commandStr: string) => {
+  const getWorkflowCommandPriority = (
+    commandStr: string,
+    isForwardCand: boolean
+  ) => {
     // + 1 to set more high priority on Workflow command than plugin command.
-    return compareTwoStrings(commandStr, inputStr) + 1;
+    // + 1 If it is ForwardCandidates, not same commandStr.
+    return (
+      compareTwoStrings(commandStr, inputStr) + 1 + (isForwardCand ? 1 : 0)
+    );
   };
 
   for (const commandStr of Object.keys(commands)) {
@@ -72,7 +81,10 @@ const findWorkflowCommands = async (inputStr: string): Promise<Command[]> => {
         if (enabled) {
           searchResult.push({
             ...command,
-            stringSimilarity: getWorkflowCommandPriority(commandStr),
+            stringSimilarity: getWorkflowCommandPriority(
+              commandStr,
+              !same && isForwardCandidates
+            ),
             icon: {
               path: defaultIcon,
             },
@@ -95,7 +107,9 @@ const findCommands = async (
   inputStr: string
 ): Promise<(Command | PluginItem)[]> => {
   const workflowCommands = await findWorkflowCommands(inputStr);
-  const { pluginNoSortOutputs, pluginSortOutputs } = await findPluginCommands(inputStr);
+  const { pluginNoSortOutputs, pluginSortOutputs } = await findPluginCommands(
+    inputStr
+  );
 
   return [
     ...[...workflowCommands, ...pluginSortOutputs].sort((a, b) =>
