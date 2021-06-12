@@ -1,7 +1,9 @@
-import './';
+export {};
 
-export interface ScriptFilterResult {
-  items: ScriptFilterItem[];
-  variables?: any;
-  rerun?: number;
+declare global {
+  export interface ScriptFilterResult {
+    items: ScriptFilterItem[];
+    variables?: any;
+    rerun?: number;
+  }
 }

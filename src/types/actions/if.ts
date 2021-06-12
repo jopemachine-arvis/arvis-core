@@ -1,7 +1,8 @@
-import '..';
-import { ConditionalAction } from './conditionalAction';
+export {};
 
-export interface If {
-  cond: string;
-  action: ConditionalAction;
+declare global {
+  export interface If {
+    cond: string;
+    action: ConditionalAction;
+  }
 }

@@ -1,43 +1,47 @@
-export interface PluginItem {
-  title: string;
-  command?: string;
-  type: 'keyword';
-  valid?: boolean;
-  subtitle?: string;
-  autocomplete?: string;
-  arg?: object | string;
-  variables?: object;
-  action?: Action[];
-  text?: {
-    copy?: string;
-    largetype?: string;
-  };
-  icon?: {
-    path?: string;
-  };
-  quicklookurl?: string;
-  bundleId?: string;
-  mods?: {
-    ctrl?: {
-      title?: string;
-      subtitle?: string;
+export {};
+
+declare global {
+  export interface PluginItem {
+    title: string;
+    command?: string;
+    type: 'keyword';
+    valid?: boolean;
+    subtitle?: string;
+    autocomplete?: string;
+    arg?: object | string;
+    variables?: object;
+    action?: Action[];
+    text?: {
+      copy?: string;
+      largetype?: string;
     };
-    shift?: {
-      title?: string;
-      subtitle?: string;
+    icon?: {
+      path?: string;
     };
-    alt?: {
-      title?: string;
-      subtitle?: string;
+    quicklookurl?: string;
+    bundleId?: string;
+    mods?: {
+      ctrl?: {
+        title?: string;
+        subtitle?: string;
+      };
+      shift?: {
+        title?: string;
+        subtitle?: string;
+      };
+      alt?: {
+        title?: string;
+        subtitle?: string;
+      };
+      fn?: {
+        title?: string;
+        subtitle?: string;
+      };
+      cmd?: {
+        title?: string;
+        subtitle?: string;
+      };
     };
-    fn?: {
-      title?: string;
-      subtitle?: string;
-    };
-    cmd?: {
-      title?: string;
-      subtitle?: string;
-    };
-  };
-  stringSimilarity?: number;
+    stringSimilarity?: number;
+  }
 }

@@ -1,6 +1,6 @@
 import { Store } from '../config/store';
 
-let requestTimer;
+let requestTimer: NodeJS.Timeout;
 const requestTimerElapse = 100;
 
 /**

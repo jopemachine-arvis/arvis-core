@@ -1,5 +1,5 @@
 import Conf from 'conf';
-import '../types';
+
 import { log, LogType } from './logger';
 
 const schema = {

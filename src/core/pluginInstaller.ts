@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { log, LogType } from '../config';
 import { getPluginInstalledPath, tempPath } from '../config/path';
 import { Store } from '../config/store';
-import '../types';
+
 import { checkFileExists, sleep } from '../utils';
 import { getBundleId } from './getBundleId';
 

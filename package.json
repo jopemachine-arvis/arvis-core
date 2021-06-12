@@ -1,7 +1,7 @@
 {
   "name": "@jopemachine/arvis-core",
-  "version": "0.1.100",
-  "description": "Core part of Arvis",
+  "version": "0.1.107",
+  "description": "Core module of Arvis",
   "main": "dist/index.js",
   "bin": "dist/main.js",
   "files": [
@@ -9,7 +9,7 @@
     "execa/**/*.js",
     "LICENSE",
     "README.md"
-   ],
+  ],
   "scripts": {
     "test": "jest --verbose ./__test__/unit",
     "build": "tsc",
@@ -63,6 +63,7 @@
     "conf": "^10.0.1",
     "env-paths": "^2.2.1",
     "fs-extra": "^9.1.0",
+    "global": "^4.4.0",
     "lodash": "^4.17.21",
     "open": "^8.0.4",
     "p-cancelable": "^2.1.1",

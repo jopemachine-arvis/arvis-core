@@ -1,8 +1,10 @@
-import '../index';
+export {};
 
-export interface ResetInputAction {
-  type: 'resetInput';
-  newInput: string;
-  modifiers?: string;
-  action?: Action[];
+declare global {
+  export interface ResetInputAction {
+    type: 'resetInput';
+    newInput: string;
+    modifiers?: string;
+    action?: Action[];
+  }
 }

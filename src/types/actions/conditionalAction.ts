@@ -1,6 +1,9 @@
-import '..';
+export {};
+import "../index";
 
-export interface ConditionalAction {
-  then: Action[];
-  else?: Action[];
+declare global {
+  export interface ConditionalAction {
+    then: Action[];
+    else?: Action[];
+  }
 }

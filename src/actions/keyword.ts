@@ -1,5 +1,5 @@
 import { getWorkflowList, WorkManager } from '../core';
-import '../types';
+
 
 /**
  * @param  {KeywordAction} targetAction

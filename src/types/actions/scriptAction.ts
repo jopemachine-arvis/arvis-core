@@ -1,6 +1,10 @@
-export interface ScriptAction {
-  type: 'script';
-  script: string | object;
-  modifiers?: string;
-  action?: Action[];
+export {};
+
+declare global {
+  export interface ScriptAction {
+    type: 'script';
+    script: string | object;
+    modifiers?: string;
+    action?: Action[];
+  }
 }

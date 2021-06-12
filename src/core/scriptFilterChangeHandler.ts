@@ -1,6 +1,6 @@
 import { log, LogType } from '../config';
 import { extractVarEnv } from '../config/envHandler';
-import '../types';
+
 import { applyArgsToScript } from './argsHandler';
 import { execute } from './scriptExecutor';
 import { extractScriptOnThisPlatform } from './scriptExtracter';

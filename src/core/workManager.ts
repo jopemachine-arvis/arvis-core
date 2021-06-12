@@ -12,7 +12,7 @@ import {
   getPluginInstalledPath,
   getWorkflowInstalledPath,
 } from '../config/path';
-import '../types';
+
 import extractJson from '../utils/extractJson';
 import { handleAction } from './actionHandler';
 import {

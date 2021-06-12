@@ -6,7 +6,6 @@ import { compareTwoStrings } from 'string-similarity';
 import { getEnvs, getHistory, log, LogType } from '../config';
 import { trace } from '../config/logger';
 import { getPluginInstalledPath } from '../config/path';
-import { PluginExectionResult } from '../types/pluginExectionResult';
 import { getPluginList } from './pluginList';
 import { WorkManager } from './workManager';
 

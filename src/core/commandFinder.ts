@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import { compareTwoStrings } from 'string-similarity';
 import { getCommandList } from './commandList';
 import { pluginWorkspace } from './pluginWorkspace';
 import { getWorkflowList } from './workflowList';
