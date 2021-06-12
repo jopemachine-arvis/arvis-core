@@ -1,5 +1,5 @@
 export {};
-import "../index";
+import '../index';
 
 declare global {
   export interface ConditionalAction {

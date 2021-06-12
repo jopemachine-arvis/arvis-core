@@ -21,7 +21,7 @@ function validateUrl(value: string) {
  */
 const escapeBraket = (str: string): string => {
   if (
-    (str.startsWith("'") && str.endsWith("'")) ||
+    (str.startsWith('\'') && str.endsWith('\'')) ||
     (str.startsWith('"') && str.endsWith('"'))
   ) {
     str = str.substring(1, str.length - 1);

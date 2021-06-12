@@ -1,4 +1,4 @@
-import { log, LogType } from "../config";
+import { log, LogType } from '../config';
 
 /**
  * @param  {string} title
