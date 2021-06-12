@@ -42,20 +42,13 @@ const findWorkflowCommands = async (inputStr: string): Promise<Command[]> => {
 
   if (inputStr === '') return [];
 
-  const searchResult = [] as any;
+  const searchResult: any[] = [];
 
-  const getWorkflowCommandPriority = (
-    commandStr: string,
-    isForwardCand: boolean
-  ) => {
-    // + 1 to set more high priority on Workflow command than plugin command.
-    // + 1 If it is ForwardCandidates, not same commandStr.
-    return (
-      compareTwoStrings(commandStr, inputStr) + 1 + (isForwardCand ? 1 : 0)
-    );
-  };
+  // e.g when given inputStr is 'ent' => output order: entodo, ent
+  // because if order is not reversed, ent is scriptfilter, entodo is not available.
+  const targetCommands = Object.keys(commands).sort((a, b) => (a > b ? -1 : 1));
 
-  for (const commandStr of Object.keys(commands)) {
+  for (const commandStr of targetCommands) {
     // e.g when given inputStr is 'en abc' => output: en
     const isBackwardCandidates = inputStr.startsWith(commandStr);
 
@@ -81,10 +74,6 @@ const findWorkflowCommands = async (inputStr: string): Promise<Command[]> => {
         if (enabled) {
           searchResult.push({
             ...command,
-            stringSimilarity: getWorkflowCommandPriority(
-              commandStr,
-              !same && isForwardCandidates
-            ),
             icon: {
               path: defaultIcon,
             },
@@ -112,7 +101,8 @@ const findCommands = async (
   );
 
   return [
-    ...[...workflowCommands, ...pluginSortOutputs].sort((a, b) =>
+    ...workflowCommands,
+    ...pluginSortOutputs.sort((a, b) =>
       a.stringSimilarity! > b.stringSimilarity! ? -1 : 1
     ),
     ...pluginNoSortOutputs,
