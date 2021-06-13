@@ -56,7 +56,7 @@ const installByPath = async (installedPath: string): Promise<void | Error> => {
     const workflowConfDirPath = arr.slice(0, arr.length - 1).join(path.sep);
 
     const destinationPath = getWorkflowInstalledPath(
-      getBundleId(workflowConfig.createdby, workflowConfig.name)
+      getBundleId(workflowConfig.creator, workflowConfig.name)
     );
 
     if (await checkFileExists(destinationPath)) {

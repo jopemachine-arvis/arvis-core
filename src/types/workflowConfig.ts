@@ -4,12 +4,12 @@ declare global {
   export interface WorkflowConfigFile {
     commands: Command[];
     name: string;
-    createdby: string;
+    creator: string;
     enabled?: boolean;
     category?: string;
     description?: string;
     readme?: string;
-    webaddress?: string;
+    webAddress?: string;
     version?: string;
     platform?: string[];
   }

@@ -24,12 +24,12 @@ const handleScriptFilterChange = (
   queryArgs: object,
   options?: ScriptFilterChangeHandlerOption
 ) => {
-  if (command.type !== 'scriptfilter') {
+  if (command.type !== 'scriptFilter') {
     throw new Error(`Command is not scriptfilter! ${command}`);
   }
 
   const { script, shell } = extractScriptOnThisPlatform(
-    (command as ScriptFilterAction).script_filter!
+    (command as ScriptFilterAction).scriptFilter!
   );
 
   const scriptStr = applyArgsToScript({

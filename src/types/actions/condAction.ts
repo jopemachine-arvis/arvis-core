@@ -2,7 +2,7 @@ export {};
 
 declare global {
   export interface CondAction {
-    type: 'cond';
+    readonly type: 'cond';
     if: If;
     modifiers?: string;
   }

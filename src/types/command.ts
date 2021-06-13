@@ -7,12 +7,11 @@ declare global {
     command?: string;
     bundleId?: string;
     modifiers?: string;
-    script_filter?: string | object;
-    running_subtext?: string;
+    scriptFilter?: string | object;
+    runningSubtext?: string;
     withspace?: boolean;
-    arg_type?: 'required' | 'optional' | 'no';
-    type: 'keyword' | 'scriptfilter' | 'hotkey';
-    action?: Action[];
-    stringSimilarity?: number;
+    readonly argType?: 'required' | 'optional' | 'no';
+    readonly type: 'keyword' | 'scriptFilter' | 'hotkey';
+    actions?: Action[];
   }
 }

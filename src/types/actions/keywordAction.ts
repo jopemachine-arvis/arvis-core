@@ -2,9 +2,9 @@ export {};
 
 declare global {
   export interface KeywordAction {
-    type: 'keyword';
+    readonly type: 'keyword';
     command: string;
-    action: Action[];
+    actions: Action[];
     modifiers?: string;
     title?: string;
     subtitle?: string;

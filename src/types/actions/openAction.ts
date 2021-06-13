@@ -2,9 +2,9 @@ export {};
 
 declare global {
   export interface OpenAction {
-    type: 'open';
+    readonly type: 'open';
     target: string; // local file path or url
     modifiers?: string;
-    action?: Action[];
+    actions?: Action[];
   }
 }

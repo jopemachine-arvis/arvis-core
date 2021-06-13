@@ -3,10 +3,10 @@ import '../index';
 
 declare global {
   export interface NotiAction {
-    type: 'notification';
+    readonly type: 'notification';
     title: string;
     text: string;
     modifiers?: string;
-    action: Action[];
+    actions: Action[];
   }
 }

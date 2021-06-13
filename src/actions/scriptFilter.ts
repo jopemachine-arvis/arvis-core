@@ -169,7 +169,7 @@ const getScriptFilterQuery = (
     return inputStr.split(' ');
   } else if (workManager.hasEmptyWorkStk()) {
     return getQuery();
-  } else if (workManager.getTopWork().type === 'scriptfilter') {
+  } else if (workManager.getTopWork().type === 'scriptFilter') {
     return getQuery();
   }
 
@@ -193,10 +193,10 @@ async function scriptFilterExcute(
       throw new Error('Error - command should be given when stack is empty');
     }
     workManager.pushWork({
-      type: 'scriptfilter',
+      type: 'scriptFilter',
       // user input string
       input: inputStr,
-      action: commandWhenStackIsEmpty.action,
+      actions: commandWhenStackIsEmpty.actions,
       actionTrigger: commandWhenStackIsEmpty,
       bundleId: commandWhenStackIsEmpty.bundleId!,
       args: null,
@@ -208,7 +208,7 @@ async function scriptFilterExcute(
     workManager.setExtensionInfo(commandWhenStackIsEmpty);
   } else {
     const newScriptFilterNeedsToExecuted =
-      workManager.getTopWork().type === 'scriptfilter' &&
+      workManager.getTopWork().type === 'scriptFilter' &&
       workManager.getTopWork().workProcess &&
       !workManager.getTopWork().workCompleted;
 

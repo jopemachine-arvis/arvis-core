@@ -1,6 +1,6 @@
 /**
  * @param  {{item:any;inputStr:string;}}
- * @description Return true if item should be executed depending on arg_type
+ * @description Return true if item should be executed depending on argType
  */
 export const hasRequiredArg = ({
   item,
@@ -9,10 +9,10 @@ export const hasRequiredArg = ({
   item: any;
   inputStr: string;
 }) => {
-  // arg_type's default value is optional
+  // argType's default value is optional
   // 'optional', 'no' always return true.
 
-  if (item.arg_type === 'required') {
+  if (item.argType === 'required') {
     const [command, querys] = inputStr.split(item.command);
     if (!querys) return false;
     return querys.length >= 2;

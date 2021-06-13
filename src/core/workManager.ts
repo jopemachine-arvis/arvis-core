@@ -145,7 +145,7 @@ export class WorkManager {
     // To do:: Handle keyword, keyword-waiting here..
     if (this.hasNestedScriptFilters()) {
       this.workStk.pop();
-      if (this.getTopWork().type !== 'scriptfilter') return;
+      if (this.getTopWork().type !== 'scriptFilter') return;
 
       this.onItemShouldBeUpdate!({
         items: this.getTopWork().items!,
@@ -232,7 +232,7 @@ export class WorkManager {
 
     if (
       this.hasEmptyWorkStk() ||
-      this.getTopWork().type !== 'scriptfilter' ||
+      this.getTopWork().type !== 'scriptFilter' ||
       !this.getTopWork().workCompleted
     ) {
       return;
@@ -279,7 +279,7 @@ export class WorkManager {
 
     if (
       this.hasEmptyWorkStk() ||
-      this.getTopWork().type !== 'scriptfilter' ||
+      this.getTopWork().type !== 'scriptFilter' ||
       !this.getTopWork().workCompleted
     ) {
       return;
@@ -320,7 +320,7 @@ export class WorkManager {
    */
   public setRunningText({ selectedItem }: { selectedItem: Command }) {
     this.throwErrOnRendererUpdaterNotSet();
-    selectedItem.subtitle = selectedItem.running_subtext ?? '';
+    selectedItem.subtitle = selectedItem.runningSubtext ?? '';
 
     this.onItemShouldBeUpdate!({
       items: [selectedItem],
@@ -334,7 +334,7 @@ export class WorkManager {
    */
   public hasNestedScriptFilters = (): boolean => {
     return (
-      this.workStk.filter((work: Work) => work.type === 'scriptfilter')
+      this.workStk.filter((work: Work) => work.type === 'scriptFilter')
         .length >= 2
     );
   }
@@ -366,9 +366,9 @@ export class WorkManager {
    * @return {string}
    */
   public getNextActionsInput = (nextAction: Action, args: any): string => {
-    if (nextAction.type === 'scriptfilter') {
+    if (nextAction.type === 'scriptFilter') {
       const { script } = extractScriptOnThisPlatform(
-        (nextAction as ScriptFilterAction).script_filter
+        (nextAction as ScriptFilterAction).scriptFilter
       );
 
       return getAppliedArgsFromScript(script, args);
@@ -396,7 +396,7 @@ export class WorkManager {
    * @summary Update input of stack (Updated input could be used when popWork)
    */
   public renewInput = (str: string): void => {
-    if (this.getTopWork().type === 'scriptfilter') {
+    if (this.getTopWork().type === 'scriptFilter') {
       this.workStk[this.workStk.length - 1].input = str;
     }
   }
@@ -412,9 +412,9 @@ export class WorkManager {
     item: Command | ScriptFilterItem | PluginItem;
   }): Action[] | undefined => {
     if (this.hasEmptyWorkStk()) {
-      return (item as Command | PluginItem).action;
+      return (item as Command | PluginItem).actions;
     } else {
-      return this.getTopWork().action;
+      return this.getTopWork().actions;
     }
   }
 
@@ -469,7 +469,7 @@ export class WorkManager {
     // Handle Keyword-waiting
     if (
       this.getTopWork().type === 'keyword' ||
-      this.getTopWork().type === 'keyword-waiting'
+      this.getTopWork().type === 'keywordWaiting'
     ) {
       return applyExtensionVars(
         extractArgsFromQuery(inputStr.split(' ')),
@@ -478,7 +478,7 @@ export class WorkManager {
     }
 
     // Handle scriptfilter action
-    if (this.getTopWork().type === 'scriptfilter') {
+    if (this.getTopWork().type === 'scriptFilter') {
       item = item as ScriptFilterItem;
       const vars = { ...item.variables, ...this.globalVariables! };
       return applyExtensionVars(
@@ -509,7 +509,7 @@ export class WorkManager {
    * @summary
    */
   private hasTriggerAction = (nextAction: Action) => {
-    return nextAction.type === 'scriptfilter' || nextAction.type === 'keyword';
+    return nextAction.type === 'scriptFilter' || nextAction.type === 'keyword';
   }
 
   /**
@@ -523,13 +523,13 @@ export class WorkManager {
   private handleTriggerAction = (nextAction: Action, args: object): boolean => {
     this.throwErrOnRendererUpdaterNotSet();
 
-    if (nextAction.type === 'scriptfilter' || nextAction.type === 'keyword') {
+    if (nextAction.type === 'scriptFilter' || nextAction.type === 'keyword') {
       const nextInput = this.getNextActionsInput(nextAction, args);
 
       this.pushWork({
         type: nextAction.type,
         input: nextInput,
-        action: (nextAction as ScriptFilterAction | KeywordAction).action,
+        actions: (nextAction as ScriptFilterAction | KeywordAction).actions,
         actionTrigger: nextAction,
         bundleId: this.getTopWork().bundleId,
         args,
@@ -537,7 +537,7 @@ export class WorkManager {
         workCompleted: false,
       });
 
-      if (nextAction.type === 'scriptfilter') {
+      if (nextAction.type === 'scriptFilter') {
         scriptFilterExcute(nextInput);
 
         this.onInputShouldBeUpdate!({
@@ -698,11 +698,11 @@ export class WorkManager {
     }
 
     if (this.hasEmptyWorkStk()) {
-      // Trigger Type: one of 'keyword', 'scriptfilter'
+      // Trigger Type: one of 'keyword', 'scriptFilter'
       this.pushWork({
         args,
         input: inputStr,
-        action: actions,
+        actions,
         actionTrigger: item as Command | PluginItem,
         type: (item as Command | PluginItem).type,
         bundleId: (item as Command | PluginItem).bundleId!,

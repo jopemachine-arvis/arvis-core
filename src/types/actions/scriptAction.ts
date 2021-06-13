@@ -2,9 +2,9 @@ export {};
 
 declare global {
   export interface ScriptAction {
-    type: 'script';
+    readonly type: 'script';
     script: string | object;
     modifiers?: string;
-    action?: Action[];
+    actions?: Action[];
   }
 }

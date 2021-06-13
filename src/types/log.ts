@@ -5,6 +5,6 @@ declare global {
     inputStr?: string;
     action?: Action;
     timestamp: number;
-    type: 'action' | 'query';
+    readonly type: 'action' | 'query';
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "@jopemachine/arvis-core",
-  "version": "0.1.107",
+  "version": "0.2.0",
   "description": "Core module of Arvis",
   "main": "dist/index.js",
   "bin": "dist/main.js",
@@ -57,7 +57,7 @@
     "typescript": "^4.2.3"
   },
   "dependencies": {
-    "@jopemachine/arvis-extension-validator": "^0.0.6",
+    "@jopemachine/arvis-extension-validator": "^0.2.0",
     "archiver": "^5.3.0",
     "chalk": "^4.1.0",
     "chmodr": "^1.2.0",
@@ -65,7 +65,6 @@
     "conf": "^10.0.1",
     "env-paths": "^2.2.1",
     "fs-extra": "^9.1.0",
-    "global": "^4.4.0",
     "lodash": "^4.17.21",
     "open": "^8.0.4",
     "p-cancelable": "^2.1.1",

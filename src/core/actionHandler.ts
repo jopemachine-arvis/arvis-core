@@ -89,12 +89,12 @@ const resolveActionType = (action: Action) => {
 
   if (
     !workManager.hasEmptyWorkStk() &&
-    workManager.getTopWork().type === 'keyword-waiting' &&
-    action.type.toLowerCase() === 'keyword'
+    workManager.getTopWork().type === 'keywordWaiting' &&
+    action.type === 'keyword'
   ) {
-    return 'keyword-waiting-resolve';
+    return 'keywordWaitingResolve';
   } else {
-    return action.type.toLowerCase();
+    return action.type;
   }
 };
 
@@ -130,7 +130,7 @@ function handleAction({
     let asyncChainType: string | undefined;
 
     // tslint:disable-next-line: no-string-literal
-    nextAction = action['action'];
+    nextAction = action['actions'];
 
     if (customActions[action.type]) {
       customActions[action.type](action);
@@ -163,16 +163,16 @@ function handleAction({
 
         // Scriptfilter cannot be processed here because it could be ran in a way other than 'Enter' event
         // Because the action is not processed here, so it passes action as nextAction, not action.action
-        case 'scriptfilter':
+        case 'scriptFilter':
           action = action as ScriptFilterAction;
-          if (!action.script_filter)
-            throwReqAttrNotExtErr(type, ['script_filter']);
+          if (!action.scriptFilter)
+            throwReqAttrNotExtErr(type, ['scriptFilter']);
 
-          target = action.script_filter;
+          target = action.scriptFilter;
           nextAction = [action];
           break;
 
-        case 'keyword-waiting-resolve':
+        case 'keywordWaitingResolve':
           action = action as KeywordAction;
           target = action.title;
 
@@ -310,9 +310,9 @@ function handleAction({
         case 'cond':
           action = action as CondAction;
           if (!action.if) throwReqAttrNotExtErr(type, ['if']);
-          if (!action.if.cond || !action.if.action)
+          if (!action.if.cond || !action.if.actions)
             throwReqAttrNotExtErr('if', ['cond', 'action']);
-          if (!action.if.action.then)
+          if (!action.if.actions.then)
             throwReqAttrNotExtErr('action of cond type', ['then']);
 
           target = applyArgsToScript({
@@ -334,8 +334,8 @@ function handleAction({
 
           // To do:: Fix below logic safely
           const conditionalAction = isTrue
-            ? action.if.action.then
-            : action.if.action.else;
+            ? action.if.actions.then
+            : action.if.actions.else;
 
           printActionDebuggingLog({
             action,
@@ -353,7 +353,7 @@ function handleAction({
           }
           break;
 
-        case 'resetinput': {
+        case 'resetInput': {
           action = action as ResetInputAction;
           action.newInput = applyArgsToScript({
             scriptStr: action.newInput,

@@ -55,7 +55,7 @@ describe('commandExecute test', () => {
       workProcess: null,
       args: {},
       items: [],
-      type: 'scriptfilter',
+      type: 'scriptFilter',
       action: [],
       bundleId: 'arvis-mock-workflow',
       input: '',

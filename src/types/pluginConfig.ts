@@ -3,14 +3,14 @@ export {};
 declare global {
   export interface PluginConfigFile {
     name: string;
-    createdby: string;
+    creator: string;
     enabled?: boolean;
     category?: string;
     description?: string;
     readme?: string;
-    webaddress?: string;
+    webAddress?: string;
     version?: string;
     platform?: string[];
-    action: Action[];
+    actions: Action[];
   }
 }

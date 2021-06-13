@@ -1,6 +1,6 @@
 {
     "$schema": "some_schema_file_path",
-    "createdby": "jopemachine",
+    "creator": "jopemachine",
     "name": "mock-workflow",
     "enabled": true,
     "bundleId": "arvis-mock-workflow",
@@ -11,7 +11,7 @@
             "title": "Test 1 - keyword-script",
             "subtitle": "",
             "withspace": false,
-            "arg_type": "no",
+            "argType": "no",
             "action": [
                 {
                     "modifiers": "normal",
@@ -24,10 +24,10 @@
             "type": "scriptfilter",
             "command": "scriptFilter",
             "title": "Test 2 - scriptfilter + if",
-            "script_filter": "node scriptfilter.js {query}",
-            "running_subtext": "Searching...",
+            "scriptFilter": "node scriptfilter.js {query}",
+            "runningSubtext": "Searching...",
             "withspace": true,
-            "arg_type": "optional",
+            "argType": "optional",
             "action": [
                 {
                     "modifiers": "normal",
@@ -58,23 +58,23 @@
             "type": "scriptfilter",
             "command": "scriptFilterOverlay",
             "title": "Test 3 - scriptfilter + scriptfilter",
-            "script_filter": "node scriptfilter.js {query}",
-            "running_subtext": "Searching...",
+            "scriptFilter": "node scriptfilter.js {query}",
+            "runningSubtext": "Searching...",
             "withspace": true,
-            "arg_type": "optional",
+            "argType": "optional",
             "action": [
                 {
                     "type": "scriptfilter",
                     "arg": "{query}",
-                    "script_filter": "node scriptfilter.js {query}",
-                    "running_subtext": "Searching...",
+                    "scriptFilter": "node scriptfilter.js {query}",
+                    "runningSubtext": "Searching...",
                     "withspace": true,
                     "action": [
                         {
                             "type": "scriptfilter",
                             "arg": "{query}",
-                            "script_filter": "node scriptfilter.js {query}",
-                            "running_subtext": "Searching...",
+                            "scriptFilter": "node scriptfilter.js {query}",
+                            "runningSubtext": "Searching...",
                             "withspace": true,
                             "action": [
                                 {
@@ -94,7 +94,7 @@
             "title": "Test 4 - muitiple actions",
             "subtitle": "",
             "withspace": false,
-            "arg_type": "no",
+            "argType": "no",
             "action": [
                 {
                     "modifiers": "normal",

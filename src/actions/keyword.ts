@@ -18,14 +18,14 @@ const handleKeywordWaiting = (
   // Assume nested keyword not happen
   if (
     workManager.getTopWork().type !== 'keyword' &&
-    workManager.getTopWork().type !== 'keyword-waiting'
+    workManager.getTopWork().type !== 'keywordWaiting'
   ) {
     const nextAction = targetAction;
     workManager.pushWork({
-      type: 'keyword-waiting',
+      type: 'keywordWaiting',
       args,
       input: '',
-      action: [nextAction],
+      actions: [nextAction],
       actionTrigger: trigger,
       bundleId: workManager.getTopWork().bundleId,
     });

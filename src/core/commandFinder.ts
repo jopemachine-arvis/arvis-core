@@ -58,12 +58,12 @@ const findWorkflowCommands = async (inputStr: string): Promise<Command[]> => {
 
     if (isForwardCandidates || isBackwardCandidates) {
       for (const command of commands[commandStr]) {
-        const { bundleId, arg_type } = command;
+        const { bundleId, argType } = command;
         const { defaultIcon, enabled } = getWorkflowList()[bundleId];
 
-        // Except if arg_type is 'no' and query exists
+        // Except if argType is 'no' and query exists
         if (
-          arg_type === 'no' &&
+          argType === 'no' &&
           isBackwardCandidates &&
           inputStr !== commandStr
         ) {

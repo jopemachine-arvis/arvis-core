@@ -2,9 +2,9 @@ export {};
 
 declare global {
   export interface ArgsAction {
-    type: 'args';
+    readonly type: 'args';
     arg: string;
-    action: Action[];
+    actions: Action[];
     modifiers?: string;
   }
 }

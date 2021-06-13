@@ -2,11 +2,11 @@ export {};
 
 declare global {
   export interface ScriptFilterAction {
-    type: 'scriptfilter';
-    script_filter: string | object;
-    action: Action[];
+    readonly type: 'scriptFilter';
+    scriptFilter: string | object;
+    actions: Action[];
     withspace?: boolean;
-    arg_type?: 'required' | 'optinal' | 'no';
+    readonly argType?: 'required' | 'optinal' | 'no';
     modifiers?: string;
   }
 }

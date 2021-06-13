@@ -54,7 +54,7 @@ const installByPath = async (installedPath: string): Promise<void | Error> => {
     const pluginConfDirPath = arr.slice(0, arr.length - 1).join(path.sep);
 
     const destinationPath = getPluginInstalledPath(
-      getBundleId(pluginConfig.createdby, pluginConfig.name)
+      getBundleId(pluginConfig.creator, pluginConfig.name)
     );
 
     if (await checkFileExists(destinationPath)) {

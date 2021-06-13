@@ -173,7 +173,7 @@ export class Store {
         this.store.set('hotkeys', {});
         for (const workflowInfo of workflowInfoArr) {
           const extensionBundleId = getBundleId(
-            workflowInfo.createdby,
+            workflowInfo.creator,
             workflowInfo.name
           );
 
@@ -241,7 +241,7 @@ export class Store {
 
         pluginInfoArr.forEach((pluginInfo) => {
           pluginInfo.bundleId = getBundleId(
-            pluginInfo.createdby,
+            pluginInfo.creator,
             pluginInfo.name
           );
         });
@@ -249,7 +249,7 @@ export class Store {
         const newPluginDict: any = bundleId ? this.getPlugins() : {};
 
         for (const pluginInfo of pluginInfoArr) {
-          newPluginDict[getBundleId(pluginInfo.createdby, pluginInfo.name)] =
+          newPluginDict[getBundleId(pluginInfo.creator, pluginInfo.name)] =
             pluginInfo;
         }
 
@@ -315,7 +315,7 @@ export class Store {
    * @param  {any} workflow
    */
   public setPlugin(plugin: any) {
-    const bundleId = getBundleId(plugin.createdby, plugin.name);
+    const bundleId = getBundleId(plugin.creator, plugin.name);
     this.store.set('plugins', {
       ...this.getPlugins(),
       [bundleId]: { bundleId, ...plugin },
@@ -327,7 +327,7 @@ export class Store {
    * @param  {any} workflow
    */
   public setWorkflow(workflow: any) {
-    const bundleId = getBundleId(workflow.createdby, workflow.name);
+    const bundleId = getBundleId(workflow.creator, workflow.name);
 
     // Update workflow installation info
     const installedWorkflows = this.getInstalledWorkflows();

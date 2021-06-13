@@ -25,9 +25,9 @@ declare global {
     args: object | null;
 
     /**
-     * @description nextAction to execute
+     * @description nextActions to execute
      */
-    action: Action[] | undefined;
+    actions: Action[] | undefined;
 
     /**
      * @description trigger that triggers action.
@@ -36,13 +36,13 @@ declare global {
     actionTrigger: Command | PluginItem | ScriptFilterItem | Action;
 
     /**
-     * @description Used in only type is 'scriptfilter'
+     * @description Used in only type is 'scriptFilter'
      *              Indicates whether scriptfilter script is running
      */
     workCompleted?: boolean;
 
     /**
-     * @description Used in only type is 'scriptfilter'
+     * @description Used in only type is 'scriptFilter'
      *              ExecaChildProcess object (promise)
      */
     workProcess?: execa.ExecaChildProcess | null;

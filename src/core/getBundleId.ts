@@ -1,11 +1,11 @@
-export const getBundleId = (createdby: string, name: string) => {
-  if (!createdby || !name || createdby === '' || name === '') {
+export const getBundleId = (creator: string, name: string) => {
+  if (!creator || !name || creator === '' || name === '') {
     throw new Error(
       'Error: Necessary attribute not set on Extension setting file.'
     );
   }
 
-  return `${createdby}.${name}`;
+  return `${creator}.${name}`;
 };
 
 export const getNameFromBundleId = (bundleId: string) =>

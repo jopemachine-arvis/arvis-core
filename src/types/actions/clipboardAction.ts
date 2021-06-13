@@ -2,9 +2,9 @@ export {};
 
 declare global {
   export interface ClipboardAction {
-    type: 'clipboard';
+    readonly type: 'clipboard';
     text: string;
     modifiers?: string;
-    action?: Action[];
+    actions?: Action[];
   }
 }

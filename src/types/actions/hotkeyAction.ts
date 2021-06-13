@@ -3,9 +3,9 @@ export {};
 declare global {
   export interface HotkeyAction {
     bundleId: string;
-    type: 'hotkey';
+    readonly type: 'hotkey';
     hotkey: string;
-    action: Action[];
+    actions: Action[];
     modifiers?: string;
   }
 }

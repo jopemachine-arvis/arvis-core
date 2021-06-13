@@ -4,13 +4,13 @@ declare global {
   export interface PluginItem {
     title: string;
     command?: string;
-    type: 'keyword';
+    readonly type: 'keyword';
     valid?: boolean;
     subtitle?: string;
     autocomplete?: string;
     arg?: object | string;
     variables?: object;
-    action?: Action[];
+    actions?: Action[];
     text?: {
       copy?: string;
       largetype?: string;
