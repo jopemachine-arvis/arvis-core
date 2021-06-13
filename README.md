@@ -1,6 +1,11 @@
 # arvis-core
+[![NPM Version](https://img.shields.io/npm/v/npm.svg?style=flat)]()
+[![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/tterb/atomic-design-ui/blob/master/LICENSEs)
+[![PR's Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](http://makeapullrequest.com)  
+[![Issues](https://img.shields.io/github/issues-raw/tterb/PlayMusic.svg?maxAge=25000)](https://github.com/jopemachine/arvis-core)  
 
 [Arvis](https://github.com/jopemachine/arvis) module.
+
 
 ## Build and development
 

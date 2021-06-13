@@ -221,7 +221,7 @@ const pluginWorkspace: PluginWorkspace = {
             // pluginItem is treated like keyword
             item.type = 'keyword';
             item.command = item.title;
-            item.action = getPluginList()[item.bundleId].action;
+            item.actions = getPluginList()[item.bundleId].actions;
             return item;
           });
       });
