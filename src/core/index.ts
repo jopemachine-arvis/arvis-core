@@ -1,10 +1,10 @@
 import { handleAction } from './actionHandler';
+import { hasRequiredArg, isInputMeetWithspaceCond } from './argUtility';
 import { checkUpdatableExtensions } from './checkUpdatableExtensions';
 import { findCommands } from './commandFinder';
 import { getCommandList } from './commandList';
 import { getBundleId, getNameFromBundleId } from './getBundleId';
 import { getSystemPaths } from './getSystemPaths';
-import { hasRequiredArg } from './hasRequiredArg';
 import { findHotkeys } from './hotkeyFinder';
 import { exportPlugin } from './pluginExporter';
 import {
@@ -56,6 +56,7 @@ export {
   history,
   installPlugin,
   installWorkflow,
+  isInputMeetWithspaceCond,
   logger,
   path,
   registerCustomAction,
