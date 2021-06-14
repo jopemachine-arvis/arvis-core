@@ -9,15 +9,17 @@ export const hasRequiredArg = ({
   item: any;
   inputStr: string;
 }) => {
-  const { withspace } = item;
+  if (item.type === 'scriptFilter') {
+    const { withspace } = item;
 
-  const withWithspace =
-    withspace &&
-    (inputStr === item.command || inputStr.includes(`${item.command} `));
+    const withWithspace =
+      withspace &&
+      (inputStr === item.command || inputStr.includes(`${item.command} `));
 
-  const withoutWithspace = !withspace && inputStr.includes(item.command);
+    const withoutWithspace = !withspace && inputStr.includes(item.command);
 
-  if (!withWithspace && !withoutWithspace) return false;
+    if (!withWithspace && !withoutWithspace) return false;
+  }
 
   // argType's default value is optional
   // 'optional', 'no' always return true.
