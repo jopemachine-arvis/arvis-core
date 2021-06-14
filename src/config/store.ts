@@ -1,4 +1,4 @@
-import { validate as validateJson } from '@jopemachine/arvis-extension-validator';
+import { validate as validateJson } from 'arvis-extension-validator';
 import fse from 'fs-extra';
 import _ from 'lodash';
 import path from 'path';

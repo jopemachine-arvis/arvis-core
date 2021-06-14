@@ -1,4 +1,4 @@
-import { validate as validateJson } from '@jopemachine/arvis-extension-validator';
+import { validate as validateJson } from 'arvis-extension-validator';
 import chmodr from 'chmodr';
 import * as fse from 'fs-extra';
 import path from 'path';

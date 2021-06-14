@@ -1,6 +1,6 @@
 {
-  "name": "@jopemachine/arvis-core",
-  "version": "0.2.8",
+  "name": "arvis-core",
+  "version": "0.0.1",
   "description": "Core module of Arvis",
   "main": "dist/index.js",
   "bin": "dist/main.js",
@@ -57,7 +57,7 @@
     "typescript": "^4.2.3"
   },
   "dependencies": {
-    "@jopemachine/arvis-extension-validator": "^0.2.2",
+    "arvis-extension-validator": "^0.0.1",
     "archiver": "^5.3.0",
     "chalk": "^4.1.0",
     "chmodr": "^1.2.0",
