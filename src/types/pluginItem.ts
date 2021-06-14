@@ -2,46 +2,46 @@ export {};
 
 declare global {
   export interface PluginItem {
-    title: string;
-    command?: string;
+    readonly title: string;
+    readonly command?: string;
     readonly type: 'keyword';
-    valid?: boolean;
-    subtitle?: string;
-    autocomplete?: string;
-    arg?: object | string;
-    variables?: object;
-    actions?: Action[];
-    text?: {
+    readonly valid?: boolean;
+    readonly subtitle?: string;
+    readonly autocomplete?: string;
+    readonly arg?: object | string;
+    readonly variables?: object;
+    readonly actions?: Action[];
+    readonly text?: {
       copy?: string;
       largetype?: string;
     };
-    icon?: {
+    readonly icon?: {
       path?: string;
     };
-    quicklookurl?: string;
-    bundleId?: string;
-    mods?: {
-      ctrl?: {
+    readonly quicklookurl?: string;
+    readonly mods?: {
+      readonly ctrl?: {
         title?: string;
         subtitle?: string;
       };
-      shift?: {
+      readonly shift?: {
         title?: string;
         subtitle?: string;
       };
-      alt?: {
+      readonly alt?: {
         title?: string;
         subtitle?: string;
       };
-      fn?: {
+      readonly fn?: {
         title?: string;
         subtitle?: string;
       };
-      cmd?: {
+      readonly cmd?: {
         title?: string;
         subtitle?: string;
       };
     };
+    bundleId?: string;
     stringSimilarity?: number;
   }
 }

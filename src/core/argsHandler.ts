@@ -80,8 +80,8 @@ const extractArgsFromPluginItem = (item: PluginItem): object => {
 
   if (item.arg) {
     if (typeof item.arg === 'string') {
-      item.arg = escapeBraket(item.arg);
-      args = { '{query}': item.arg, $1: item.arg };
+      const arg = escapeBraket(item.arg);
+      args = { '{query}': arg, $1: arg };
     } else {
       args = { ...item.arg };
     }
@@ -103,8 +103,8 @@ const extractArgsFromScriptFilterItem = (
 
   if (item.arg) {
     if (typeof item.arg === 'string') {
-      item.arg = escapeBraket(item.arg);
-      args = { '{query}': item.arg, $1: item.arg };
+      const arg = escapeBraket(item.arg);
+      args = { '{query}': arg, $1: arg };
     } else if (typeof item.arg === 'number') {
       args = { '{query}': item.arg, $1: item.arg };
     } else {

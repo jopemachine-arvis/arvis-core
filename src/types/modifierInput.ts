@@ -2,9 +2,9 @@ export {};
 
 declare global {
   export interface ModifierInput {
-    ctrl?: boolean;
-    shift?: boolean;
-    cmd?: boolean;
-    normal?: boolean;
+    readonly ctrl?: boolean;
+    readonly shift?: boolean;
+    readonly cmd?: boolean;
+    readonly normal?: boolean;
   }
 }

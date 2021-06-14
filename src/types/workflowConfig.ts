@@ -2,15 +2,15 @@ export {};
 
 declare global {
   export interface WorkflowConfigFile {
-    commands: Command[];
-    name: string;
-    creator: string;
-    enabled?: boolean;
     category?: string;
+    readonly commands: Command[];
+    readonly creator: string;
     description?: string;
-    readme?: string;
-    webAddress?: string;
-    version?: string;
+    enabled?: boolean;
+    readonly name: string;
     platform?: string[];
+    readme?: string;
+    version?: string;
+    webAddress?: string;
   }
 }

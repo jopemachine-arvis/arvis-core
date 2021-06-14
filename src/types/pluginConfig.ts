@@ -2,15 +2,15 @@ export {};
 
 declare global {
   export interface PluginConfigFile {
-    name: string;
-    creator: string;
-    enabled?: boolean;
+    readonly actions: Action[];
     category?: string;
+    readonly creator: string;
     description?: string;
-    readme?: string;
-    webAddress?: string;
-    version?: string;
+    enabled?: boolean;
+    readonly name: string;
     platform?: string[];
-    actions: Action[];
+    readme?: string;
+    version?: string;
+    webAddress?: string;
   }
 }

@@ -46,7 +46,7 @@ const installByPath = async (installedPath: string): Promise<void | Error> => {
       pluginConfig.platform &&
       !pluginConfig.platform.includes(process.platform)
     ) {
-      reject(new Error(`This plugin not supports '${process.platform}'`));
+      reject(new Error(`This plugin does not supports '${process.platform}'`));
       return;
     }
 

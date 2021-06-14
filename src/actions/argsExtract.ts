@@ -20,7 +20,6 @@ const argsExtract = (queryArgs: object, argToExtract: string): object => {
     log(LogType.info, 'Arg selection could be wrong. {query} not changed.');
   }
 
-  // result[`${argToExtract}`] = targetString;
   result[`{query}`] = targetString;
 
   return result;

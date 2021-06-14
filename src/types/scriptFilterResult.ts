@@ -2,8 +2,8 @@ export {};
 
 declare global {
   export interface ScriptFilterResult {
-    items: ScriptFilterItem[];
-    variables?: any;
-    rerun?: number;
+    readonly items: ScriptFilterItem[];
+    readonly variables?: any;
+    readonly rerun?: number;
   }
 }

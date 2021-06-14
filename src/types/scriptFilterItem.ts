@@ -2,44 +2,44 @@ export {};
 
 declare global {
   export interface ScriptFilterItem {
-    title: string;
-    arg?: object | string;
-    variables?: object;
-    valid?: boolean;
-    subtitle?: string;
-    autocomplete?: string;
-    text?: {
-      copy?: string;
-      largetype?: string;
+    readonly title: string;
+    readonly arg?: object | string;
+    readonly variables?: object;
+    readonly valid?: boolean;
+    readonly subtitle?: string;
+    readonly autocomplete?: string;
+    readonly text?: {
+      readonly copy?: string;
+      readonly largetype?: string;
+    };
+    readonly quicklookurl?: string;
+    readonly mods?: {
+      readonly ctrl?: {
+        readonly title?: string;
+        readonly subtitle?: string;
+      };
+      readonly shift?: {
+        readonly title?: string;
+        readonly subtitle?: string;
+      };
+      readonly alt?: {
+        readonly title?: string;
+        readonly subtitle?: string;
+      };
+      readonly fn?: {
+        readonly title?: string;
+        readonly subtitle?: string;
+      };
+      readonly cmd?: {
+        readonly title?: string;
+        readonly subtitle?: string;
+      };
     };
     icon?:
       | {
           path?: string;
         }
       | string;
-    quicklookurl?: string;
     bundleId?: string;
-    mods?: {
-      ctrl?: {
-        title?: string;
-        subtitle?: string;
-      };
-      shift?: {
-        title?: string;
-        subtitle?: string;
-      };
-      alt?: {
-        title?: string;
-        subtitle?: string;
-      };
-      fn?: {
-        title?: string;
-        subtitle?: string;
-      };
-      cmd?: {
-        title?: string;
-        subtitle?: string;
-      };
-    };
   }
 }

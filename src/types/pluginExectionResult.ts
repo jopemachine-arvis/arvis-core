@@ -2,7 +2,7 @@ export {};
 
 declare global {
   export interface PluginExectionResult {
-    items: PluginItem[];
-    noSort?: boolean;
+    readonly items: PluginItem[];
+    readonly noSort?: boolean;
   }
 }
