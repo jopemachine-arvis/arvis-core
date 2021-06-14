@@ -1,7 +1,7 @@
+import { validate as validateJson } from '@jopemachine/arvis-extension-validator';
 import fse from 'fs-extra';
 import _ from 'lodash';
 import path from 'path';
-import { validate as validateJson } from '@jopemachine/arvis-extension-validator';
 import { getBundleId } from '../core';
 import pluginWorkspace from '../core/pluginWorkspace';
 import { fetchExtensionJson, zipDirectory } from '../utils';
