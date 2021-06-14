@@ -142,7 +142,7 @@ export class WorkManager {
   public popWork = () => {
     this.throwErrOnRendererUpdaterNotSet();
 
-    // To do:: Handle keyword, keyword-waiting here..
+    // To do:: Handle keyword, keywordWaiting here..
     if (this.hasNestedScriptFilters()) {
       this.workStk.pop();
       if (this.getTopWork().type !== 'scriptFilter') return;

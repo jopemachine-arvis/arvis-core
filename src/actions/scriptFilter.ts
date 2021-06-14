@@ -103,15 +103,20 @@ function scriptFilterCompleteEventHandler(
   });
 
   const { bundleId } = workManager.getTopWork();
-  // To do :: If this code could be used in plugin, below codes need to be fixed.
-  const workflowDefaultIcon = getWorkflowList()[bundleId].defaultIcon;
+
+  const infolist =
+    workManager.extensionInfo!.type === 'workflow'
+      ? getWorkflowList()
+      : getPluginList();
+
+  const defaultIcon = infolist[bundleId].defaultIcon;
 
   items.map((item: ScriptFilterItem) => {
     // Append bundleId to each ScriptFilterItem.
     item.bundleId = bundleId;
     // Append workflow's defaultIcon
     item.icon = item.icon ?? {
-      path: workflowDefaultIcon,
+      path: defaultIcon,
     };
   });
 

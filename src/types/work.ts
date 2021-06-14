@@ -7,7 +7,7 @@ declare global {
      * @description Work's type
      *              Possible value is `keyword`, `keyword-waiting`, `scriptfilter`, `hotkey`
      */
-    type: string;
+    readonly type: string;
 
     /**
      * @description
@@ -48,12 +48,14 @@ declare global {
     workProcess?: execa.ExecaChildProcess | null;
 
     /**
-     * @description Scriptfilter's rerun interval
+     * @description Used in only type is 'scriptFilter'
+     *              Scriptfilter's rerun interval
      */
     rerunInterval?: number;
 
     /**
-     * @description Scriptfilter's script execution result
+     * @description Used in only type is 'scriptFilter'
+     *              Scriptfilter's script execution result
      */
     items?: ScriptFilterItem[];
   }

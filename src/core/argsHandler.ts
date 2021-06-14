@@ -58,7 +58,6 @@ const getAppliedArgsFromScript = (scriptStr: string, args: object): string => {
  * @return {object}
  */
 const extractArgsFromQuery = (querys: string[]): object => {
-// To do:: In some cases, the single quotes below may need to be escape.
   const args = { '{query}': querys.join(' '), $1: '' };
 
   for (const qIdx in querys) {

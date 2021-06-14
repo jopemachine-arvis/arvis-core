@@ -1,5 +1,4 @@
-import { getWorkflowList, WorkManager } from '../core';
-
+import { getPluginList, getWorkflowList, WorkManager } from '../core';
 
 /**
  * @param  {KeywordAction} targetAction
@@ -50,9 +49,12 @@ const handleKeywordWaiting = (
 const setKeywordItem = (item: KeywordAction) => {
   const workManager = WorkManager.getInstance();
 
-  // To do :: If this code could be used in plugin, below codes need to be fixed.
-  const workflowDefaultIcon =
-    getWorkflowList()[workManager.getTopWork().bundleId].defaultIcon;
+  const infolist =
+    workManager.extensionInfo!.type === 'workflow'
+      ? getWorkflowList()
+      : getPluginList();
+
+  const defaultIcon = infolist[workManager.getTopWork().bundleId].defaultIcon;
 
   workManager.onItemShouldBeUpdate &&
     workManager.onItemShouldBeUpdate({
@@ -62,7 +64,7 @@ const setKeywordItem = (item: KeywordAction) => {
           subtitle: item.subtitle ?? '',
           bundleId: workManager.getTopWork().bundleId,
           icon: {
-            path: workflowDefaultIcon,
+            path: defaultIcon,
           },
         },
       ],
