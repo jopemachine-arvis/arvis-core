@@ -1,5 +1,5 @@
 import { handleAction } from './actionHandler';
-import { hasRequiredArg } from './argTypeHandler';
+import { hasRequiredArg } from './hasRequiredArg';
 import { checkUpdatableExtensions } from './checkUpdatableExtensions';
 import { findCommands } from './commandFinder';
 import { getCommandList } from './commandList';

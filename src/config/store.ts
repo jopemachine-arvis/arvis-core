@@ -1,6 +1,7 @@
 import fse from 'fs-extra';
 import _ from 'lodash';
 import path from 'path';
+import { validate as validateJson } from '@jopemachine/arvis-extension-validator';
 import { getBundleId } from '../core';
 import pluginWorkspace from '../core/pluginWorkspace';
 import { fetchExtensionJson, zipDirectory } from '../utils';
@@ -164,7 +165,15 @@ export class Store {
 
         const workflowInfoArr = readJsonsResult
           .filter((jsonResult) => jsonResult.status === 'fulfilled')
-          .map((jsonResult) => (jsonResult as any).value);
+          .map((jsonResult) => (jsonResult as any).value)
+          .filter((workflowInfo) => {
+            const { valid, errorMsg } = validateJson(workflowInfo, 'workflow');
+            if (errorMsg) {
+              const err = `${workflowInfo.name} has invalid format. skip ${workflowInfo.name}..\n\n${errorMsg}`;
+              console.error(err);
+            }
+            return valid;
+          });
 
         if (!bundleId) {
           this.clearWorkflowsInfo();
@@ -188,7 +197,7 @@ export class Store {
         ).length;
 
         if (errorCnt !== 0) {
-          log(LogType.error, `${errorCnt} workflows have format errors`);
+          log(LogType.error, `${errorCnt} workflows have json format errors`);
         }
       } catch (err) {
         reject(err);
@@ -237,7 +246,15 @@ export class Store {
 
         const pluginInfoArr = readJsonsResult
           .filter((jsonResult) => jsonResult.status === 'fulfilled')
-          .map((jsonResult) => (jsonResult as any).value);
+          .map((jsonResult) => (jsonResult as any).value)
+          .filter((pluginInfo) => {
+            const { valid, errorMsg } = validateJson(pluginInfo, 'plugin');
+            if (errorMsg) {
+              const err = `${pluginInfo.name} has invalid format. skip ${pluginInfo.name}..\n\n${errorMsg}`;
+              console.error(err);
+            }
+            return valid;
+          });
 
         pluginInfoArr.forEach((pluginInfo) => {
           pluginInfo.bundleId = getBundleId(
@@ -267,7 +284,7 @@ export class Store {
         ).length;
 
         if (errorCnt !== 0) {
-          log(LogType.error, `${errorCnt} plugins have format errors`);
+          log(LogType.error, `${errorCnt} plugins have json format errors`);
         }
       } catch (err) {
         reject(err);
