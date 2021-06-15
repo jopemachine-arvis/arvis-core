@@ -92,7 +92,7 @@ const pluginWorkspace: PluginWorkspace = {
           bundleId: pluginInfo.bundleId,
           name: pluginInfo.name,
           version: pluginInfo.version,
-          vars: pluginInfo.variables
+          vars: pluginInfo.variables,
         });
 
         newPluginModules[pluginInfo.bundleId] = requireDynamically(
@@ -129,7 +129,9 @@ const pluginWorkspace: PluginWorkspace = {
       );
 
       onCancel(() => {
-        resolve({ items: [] });
+        reject({
+          name: 'CancelError',
+        });
       });
 
       asyncPluginPromise
