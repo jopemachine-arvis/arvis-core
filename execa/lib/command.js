@@ -1,5 +1,5 @@
 'use strict';
-const COMMAND_TOKEN_REGEXP = /\B["'][^"']*\b["']\B|\S+/g;
+const COMMAND_TOKEN_REGEXP = /\B["'][^"']*["']\B|\S+/g;
 
 const joinCommand = (file, args = []) => {
 	if (!Array.isArray(args)) {
