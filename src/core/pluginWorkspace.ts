@@ -247,20 +247,18 @@ const pluginWorkspace: PluginWorkspace = {
     pluginExecutionResults
       .map((result) => result.items)
       .map((items) =>
-        items.map(
-          (item) => {
-            if (getPluginList()[item.bundleId].defaultIcon) {
-              item.icon = {
-                path: getPluginList()[item.bundleId].defaultIcon,
-              };
-            }
-
-            (item.stringSimilarity = compareTwoStrings(
-              item.command ? item.command : item.title,
-              inputStr
-            ));
+        items.map((item) => {
+          if (!item.icon && getPluginList()[item.bundleId].defaultIcon) {
+            item.icon = {
+              path: getPluginList()[item.bundleId].defaultIcon,
+            };
           }
-        )
+
+          item.stringSimilarity = compareTwoStrings(
+            item.command ? item.command : item.title,
+            inputStr
+          );
+        })
       );
 
     return pluginExecutionResults;
