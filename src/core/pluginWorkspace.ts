@@ -1,9 +1,9 @@
 // tslint:disable: no-eval
+import isPromise from 'is-promise';
 import _ from 'lodash';
 import PCancelable from 'p-cancelable';
 import path from 'path';
 import { compareTwoStrings } from 'string-similarity';
-import isPromise from 'is-promise';
 import { getEnvs, getHistory, log, LogType } from '../config';
 import { trace } from '../config/logger';
 import { getPluginInstalledPath } from '../config/path';
@@ -248,11 +248,18 @@ const pluginWorkspace: PluginWorkspace = {
       .map((result) => result.items)
       .map((items) =>
         items.map(
-          (item) =>
+          (item) => {
+            if (getPluginList()[item.bundleId].defaultIcon) {
+              item.icon = {
+                path: getPluginList()[item.bundleId].defaultIcon,
+              };
+            }
+
             (item.stringSimilarity = compareTwoStrings(
               item.command ? item.command : item.title,
               inputStr
-            ))
+            ));
+          }
         )
       );
 
