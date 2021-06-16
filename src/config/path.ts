@@ -1,8 +1,8 @@
 import envPathsGenerator from 'env-paths';
 import fse from 'fs-extra';
 import path from 'path';
+import pathExists from 'path-exists';
 import { getHistoryFilePath } from '../config';
-import { checkFileExists } from '../utils';
 
 const envPaths = envPathsGenerator('arvis');
 
@@ -39,7 +39,7 @@ const tempPath = envPaths.temp;
  */
 const initializePath = async () => {
   const checkAndCreatePath = async (dir: string) => {
-    if (!(await checkFileExists(dir))) {
+    if (!(await pathExists(dir))) {
       await fse.mkdir(dir, { recursive: true });
     }
   };

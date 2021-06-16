@@ -5,10 +5,11 @@ import path from 'path';
 import rimraf from 'rimraf';
 import unzipper from 'unzipper';
 import { v4 as uuidv4 } from 'uuid';
+import pathExists from 'path-exists';
 import { log, LogType } from '../config';
 import { getWorkflowInstalledPath, tempPath } from '../config/path';
 import { Store } from '../config/store';
-import { checkFileExists, sleep } from '../utils';
+import { sleep } from '../utils';
 import { getBundleId } from './getBundleId';
 
 /**
@@ -31,15 +32,11 @@ const installByPath = async (installedPath: string): Promise<void | Error> => {
       return;
     }
 
-    const { errors, valid } = validateJson(workflowConfig, 'workflow');
+    const { valid, errorMsg } = validateJson(workflowConfig, 'workflow');
 
     if (!valid) {
       reject(
-        new Error(
-          `'arvis-workflow.json' format is invalid\n${errors
-            .map((error) => error.message)
-            .join('\n')}`
-        )
+        new Error(`'arvis-workflow.json' format is invalid\n\n${errorMsg}`)
       );
       return;
     }
@@ -59,7 +56,7 @@ const installByPath = async (installedPath: string): Promise<void | Error> => {
       getBundleId(workflowConfig.creator, workflowConfig.name)
     );
 
-    if (await checkFileExists(destinationPath)) {
+    if (await pathExists(destinationPath)) {
       await fse.remove(destinationPath);
     }
 
@@ -113,7 +110,7 @@ const install = async (installFile: string): Promise<void | Error> => {
       );
 
       // Supports both compressed with folder and compressed without folders
-      const containedWorkflowConf = await checkFileExists(
+      const containedWorkflowConf = await pathExists(
         arvisWorkflowConfigPath
       );
 
@@ -146,7 +143,7 @@ const unInstall = async ({ bundleId }: { bundleId: string }): Promise<void> => {
       store.deleteWorkflow(bundleId);
     });
   } catch (error) {
-    if (!(await checkFileExists(installedDir))) {
+    if (!(await pathExists(installedDir))) {
       return;
     }
     throw new Error(`Extension delete failed!\n\n${error}`);

@@ -1,6 +1,13 @@
 {
   "compileOnSave": true,
   "compilerOptions": {
+    "pretty": true,
+    "newLine": "lf",
+    "stripInternal": true,
+    "noEmitOnError": true,
+    "skipLibCheck": false,
+    "noImplicitReturns": true,
+    "noImplicitOverride": true,
     /* Basic Options */
     "skipDefaultLibCheck": false,
     // "incremental": true,                   /* Enable incremental compilation */

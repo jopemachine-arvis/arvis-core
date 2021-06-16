@@ -15,7 +15,7 @@ export const hasRequiredArg = ({
   // argType's default value is optional
   // 'optional', 'no' always return true.
   if (item.argType === 'required') {
-    const [command, querys] = inputStr.split(item.command);
+    const [command, ...querys] = inputStr.split(item.command);
     if (!querys) return false;
     return querys.length >= 2;
   }

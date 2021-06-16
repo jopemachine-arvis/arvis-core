@@ -3,6 +3,7 @@ import _ from 'lodash';
 import PCancelable from 'p-cancelable';
 import path from 'path';
 import { compareTwoStrings } from 'string-similarity';
+import isPromise from 'is-promise';
 import { getEnvs, getHistory, log, LogType } from '../config';
 import { trace } from '../config/logger';
 import { getPluginInstalledPath } from '../config/path';
@@ -179,9 +180,12 @@ const pluginWorkspace: PluginWorkspace = {
           history: getHistory(),
         });
 
-        if (pluginExecutionResult.then) {
+        if (isPromise(pluginExecutionResult)) {
           asyncPluginWorks.push(
-            pluginWorkspace.getAsyncWork(pluginBundleId, pluginExecutionResult)
+            pluginWorkspace.getAsyncWork(
+              pluginBundleId,
+              pluginExecutionResult as Promise<any>
+            )
           );
         } else {
           pluginExecutionResult.items.forEach(

@@ -5,11 +5,12 @@ import path from 'path';
 import rimraf from 'rimraf';
 import unzipper from 'unzipper';
 import { v4 as uuidv4 } from 'uuid';
+import pathExists from 'path-exists';
 import { log, LogType } from '../config';
 import { getPluginInstalledPath, tempPath } from '../config/path';
 import { Store } from '../config/store';
 
-import { checkFileExists, sleep } from '../utils';
+import { sleep } from '../utils';
 import { getBundleId } from './getBundleId';
 
 /**
@@ -29,15 +30,11 @@ const installByPath = async (installedPath: string): Promise<void | Error> => {
       return;
     }
 
-    const { errors, valid } = validateJson(pluginConfig, 'plugin');
+    const { errorMsg, valid } = validateJson(pluginConfig, 'plugin');
 
     if (!valid) {
       reject(
-        new Error(
-          `'arvis-plugin.json' format is invalid\n${errors
-            .map((error) => error.message)
-            .join('\n')}`
-        )
+        new Error(`'arvis-plugin.json' format is invalid\n\n${errorMsg}`)
       );
       return;
     }
@@ -57,7 +54,7 @@ const installByPath = async (installedPath: string): Promise<void | Error> => {
       getBundleId(pluginConfig.creator, pluginConfig.name)
     );
 
-    if (await checkFileExists(destinationPath)) {
+    if (await pathExists(destinationPath)) {
       await fse.remove(destinationPath);
     }
 
@@ -110,7 +107,7 @@ const install = async (installFile: string): Promise<void | Error> => {
         'arvis-plugin.json'
       );
       // Supports both compressed with folder and compressed without folders
-      const containedWorkflowConf = await checkFileExists(
+      const containedWorkflowConf = await pathExists(
         arvisPluginConfigPath
       );
       const folderNotContained = containedWorkflowConf;
@@ -144,7 +141,7 @@ const unInstall = async ({ bundleId }: { bundleId: string }): Promise<void> => {
       store.deleteWorkflow(bundleId);
     });
   } catch (error) {
-    if (!(await checkFileExists(installedDir))) {
+    if (!(await pathExists(installedDir))) {
       return;
     }
     throw new Error(`Extension delete failed!\n\n${error}`);
