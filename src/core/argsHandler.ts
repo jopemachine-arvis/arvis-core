@@ -86,6 +86,10 @@ const extractArgsFromPluginItem = (item: PluginItem): object => {
     }
   }
 
+  for (const variable in item.variables) {
+    args[`{var:${variable}}`] = `${item.variables[variable]}`;
+  }
+
   return args;
 };
 

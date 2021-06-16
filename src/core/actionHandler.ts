@@ -77,7 +77,7 @@ const throwReqAttrNotExtErr = (
   requiredAttributes: string[]
 ) => {
   throw new Error(
-    `'${typeName}' type should have '${requiredAttributes.join(' ')}' attribute`
+    `'${typeName}' type should have '${requiredAttributes.join(', ')}' attributes`
   );
 };
 
@@ -311,7 +311,7 @@ function handleAction({
           action = action as CondAction;
           if (!action.if) throwReqAttrNotExtErr(type, ['if']);
           if (!action.if.cond || !action.if.actions)
-            throwReqAttrNotExtErr('if', ['cond', 'action']);
+            throwReqAttrNotExtErr('if', ['cond', 'actions']);
           if (!action.if.actions.then)
             throwReqAttrNotExtErr('action of cond type', ['then']);
 
