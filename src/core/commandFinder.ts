@@ -1,3 +1,4 @@
+import alphaSort from 'alpha-sort';
 import _ from 'lodash';
 import { getCommandList } from './commandList';
 import { pluginWorkspace } from './pluginWorkspace';
@@ -15,17 +16,11 @@ const findPluginCommands = async (inputStr: string) => {
 
   const pluginSortOutputs = pluginItems
     .map((result) => result.items)
-    .reduce((prev, curr) => {
-      prev.push(...curr);
-      return prev;
-    }, []);
+    .reduce((prev, curr) => [...prev, ...curr], []);
 
   const pluginNoSortOutputs = pluginNoSortItems
     .map((result) => result.items)
-    .reduce((prev, curr) => {
-      prev.push(...curr);
-      return prev;
-    }, []);
+    .reduce((prev, curr) => [...prev, ...curr], []);
 
   return {
     pluginSortOutputs,
@@ -45,7 +40,9 @@ const findWorkflowCommands = async (inputStr: string): Promise<Command[]> => {
 
   // e.g when given inputStr is 'ent' => output order: entodo, ent
   // because if order is not reversed, ent is scriptfilter, entodo is not available.
-  const targetCommands = Object.keys(commands).sort((a, b) => (a > b ? -1 : 1));
+  const targetCommands = Object.keys(commands).sort(
+    alphaSort({ descending: true, natural: true })
+  );
 
   for (const commandStr of targetCommands) {
     // e.g when given inputStr is 'en abc' => output: en

@@ -81,6 +81,8 @@ const extractArgsFromPluginItem = (item: PluginItem): object => {
     if (typeof item.arg === 'string') {
       const arg = escapeBraket(item.arg);
       args = { '{query}': arg, $1: arg };
+    } else if (typeof item.arg === 'number') {
+      args = { '{query}': item.arg, $1: item.arg };
     } else {
       args = { ...item.arg };
     }
