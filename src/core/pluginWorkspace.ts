@@ -190,14 +190,14 @@ const pluginWorkspace: PluginWorkspace = {
             )
           );
         } else {
-          pluginExecutionResults.push(
-            pluginExecutionResult.items
-              .filter((item) => !!item)
-              .map((item) => {
-                item.bundleId = pluginBundleId;
-                return item;
-              })
-          );
+          pluginExecutionResult.items
+            .filter((item) => !!item)
+            .forEach((item) => {
+              item.bundleId = pluginBundleId;
+              return item;
+            });
+
+          pluginExecutionResults.push(pluginExecutionResult);
         }
       } catch (err) {
         log(
@@ -221,21 +221,6 @@ const pluginWorkspace: PluginWorkspace = {
       .filter((error) => error.name !== 'CancelError');
 
     const asyncPrintResult = _.flattenDeep(successes);
-
-    asyncPrintResult
-      .map((result) => result.items)
-      .map((items) => {
-        return items
-          .filter((item) => !!item)
-          .map((item) => {
-            // pluginItem is treated like keyword
-            item.type = 'keyword';
-            item.isPluginItem = true;
-            item.actions = getPluginList()[item.bundleId].actions;
-            return item;
-          });
-      });
-
     pluginExecutionResults.push(...asyncPrintResult);
 
     if (errors.length !== 0) {
@@ -247,18 +232,27 @@ const pluginWorkspace: PluginWorkspace = {
     pluginExecutionResults
       .map((result) => result.items)
       .map((items) =>
-        items.map((item) => {
-          if (!item.icon && getPluginList()[item.bundleId].defaultIcon) {
-            item.icon = {
-              path: getPluginList()[item.bundleId].defaultIcon,
-            };
-          }
+        items
+          .filter((item) => !!item)
+          .map((item) => {
+            if (!item.icon && getPluginList()[item.bundleId].defaultIcon) {
+              item.icon = {
+                path: getPluginList()[item.bundleId].defaultIcon,
+              };
+            }
 
-          item.stringSimilarity = compareTwoStrings(
-            item.command ? item.command : item.title,
-            inputStr
-          );
-        })
+            const compareTarget = item.command ? item.command : item.title;
+
+            // pluginItem is treated like keyword
+            item.type = 'keyword';
+            item.isPluginItem = true;
+            item.actions = getPluginList()[item.bundleId].actions;
+
+            item.stringSimilarity = compareTwoStrings(
+              compareTarget.toString(),
+              inputStr.toString()
+            );
+          })
       );
 
     for (const pluginExecutionResult of pluginExecutionResults) {
