@@ -223,20 +223,15 @@ const pluginWorkspace: PluginWorkspace = {
         return items
           .filter((item) => item !== null && item !== undefined)
           .map((item) => {
-            item.isPluginItem = true;
             // pluginItem is treated like keyword
             item.type = 'keyword';
-            item.command = item.title;
+            item.isPluginItem = true;
             item.actions = getPluginList()[item.bundleId].actions;
             return item;
           });
       });
 
     pluginExecutionResults.push(...asyncPrintResult);
-
-    if (WorkManager.getInstance().printPluginItems) {
-      log(LogType.info, 'Plugin Items: ', pluginExecutionResults);
-    }
 
     if (errors.length !== 0) {
       for (const error of errors) {
@@ -260,6 +255,16 @@ const pluginWorkspace: PluginWorkspace = {
           );
         })
       );
+
+    for (const pluginExecutionResult of pluginExecutionResults) {
+      pluginExecutionResult.items = pluginExecutionResult.items.filter(
+        (item) => !item.command || item.command.startsWith(inputStr)
+      );
+    }
+
+    if (WorkManager.getInstance().printPluginItems) {
+      log(LogType.info, 'Plugin Items: ', pluginExecutionResults);
+    }
 
     return pluginExecutionResults;
   },
