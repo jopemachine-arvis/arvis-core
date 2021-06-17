@@ -1,0 +1,71 @@
+import path from 'path';
+import {
+  getPluginInstalledPath,
+  getWorkflowInstalledPath,
+} from '../config/path';
+import { decideExtensionType } from './decideExtensionType';
+import { getPluginList } from './pluginList';
+import { getWorkflowList } from './workflowList';
+
+export const determineIconPath = (
+  command: any,
+  options?: { supportedImgFormats?: string[] }
+) => {
+  if (!command.bundleId) {
+    return undefined;
+  }
+
+  const extensionRootPath: string = command.isPluginItem
+    ? getPluginInstalledPath(command.bundleId)
+    : getWorkflowInstalledPath(command.bundleId);
+
+  let iconPath;
+  try {
+    if (command.icon) {
+      // In case of 'icon' is string
+      if (command.icon.length) {
+        command.icon = {
+          path: command.icon,
+        };
+      }
+
+      if (command.icon.path.includes('.')) {
+        const iconExt = command.icon.path.split('.').pop();
+        if (
+          !options ||
+          !options.supportedImgFormats ||
+          options.supportedImgFormats.includes(iconExt)
+        ) {
+          iconPath = path.isAbsolute(command.icon.path)
+            ? command.icon.path
+            : path.resolve(extensionRootPath, command.icon.path);
+        }
+      }
+    }
+  } catch (err) {
+    // Assume command.icon.path is undefined
+  }
+
+  return iconPath;
+};
+
+export const determineDefaultIconPath = (command: any) => {
+  if (!command.bundleId) {
+    return undefined;
+  }
+
+  if (decideExtensionType(command) === 'plugin') {
+    return getPluginList()[command.bundleId].defaultIcon
+      ? path.resolve(
+          getPluginInstalledPath(command.bundleId),
+          getPluginList()[command.bundleId].defaultIcon
+        )
+      : undefined;
+  }
+  return getWorkflowList()[command.bundleId].defaultIcon
+    ? path.resolve(
+        getWorkflowInstalledPath(command.bundleId),
+        getWorkflowList()[command.bundleId].defaultIcon
+      )
+    : undefined;
+};

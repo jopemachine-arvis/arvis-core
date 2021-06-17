@@ -1,6 +1,6 @@
 {
   "name": "arvis-core",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "description": "Core module of Arvis",
   "main": "dist/index.js",
   "bin": "dist/main.js",

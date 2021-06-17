@@ -3,9 +3,11 @@ import { hasRequiredArg, isInputMeetWithspaceCond } from './argUtility';
 import { checkUpdatableExtensions } from './checkUpdatableExtensions';
 import { findCommands } from './commandFinder';
 import { getCommandList } from './commandList';
+import { decideExtensionType } from './decideExtensionType';
 import { getBundleId, getNameFromBundleId } from './getBundleId';
 import { getSystemPaths } from './getSystemPaths';
 import { findHotkeys } from './hotkeyFinder';
+import { determineDefaultIconPath, determineIconPath } from './iconPathFinder';
 import { exportPlugin } from './pluginExporter';
 import {
   install as installPlugin,
@@ -40,6 +42,9 @@ import { registerCustomAction, scriptFilterExcute } from '../actions';
 
 export {
   checkUpdatableExtensions,
+  decideExtensionType,
+  determineDefaultIconPath,
+  determineIconPath,
   execute,
   exportPlugin,
   exportWorkflow,
