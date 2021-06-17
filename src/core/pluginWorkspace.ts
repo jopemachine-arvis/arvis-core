@@ -140,10 +140,12 @@ const pluginWorkspace: PluginWorkspace = {
           clearTimeout(timer);
           if (!result.items || !result.items.length) resolve({ items: [] });
 
-          result.items.forEach((item) => {
-            item.bundleId = pluginBundleId;
-            return item;
-          });
+          result.items = result.items
+            .filter((item) => !!item)
+            .map((item) => {
+              item.bundleId = pluginBundleId;
+              return item;
+            });
 
           resolve(result);
         })
@@ -188,11 +190,14 @@ const pluginWorkspace: PluginWorkspace = {
             )
           );
         } else {
-          pluginExecutionResult.items.forEach(
-            (item) => (item.bundleId = pluginBundleId)
+          pluginExecutionResults.push(
+            pluginExecutionResult.items
+              .filter((item) => !!item)
+              .map((item) => {
+                item.bundleId = pluginBundleId;
+                return item;
+              })
           );
-
-          pluginExecutionResults.push(pluginExecutionResult);
         }
       } catch (err) {
         log(
@@ -221,7 +226,7 @@ const pluginWorkspace: PluginWorkspace = {
       .map((result) => result.items)
       .map((items) => {
         return items
-          .filter((item) => item !== null && item !== undefined)
+          .filter((item) => !!item)
           .map((item) => {
             // pluginItem is treated like keyword
             item.type = 'keyword';
