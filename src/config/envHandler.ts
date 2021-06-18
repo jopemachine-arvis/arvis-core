@@ -5,12 +5,22 @@ import {
 } from './path';
 
 let macPathsEnv: string = '';
+let externalEnv: object = {};
 
 /**
  * @param  {string} path
+ * @description Because mac gui apps doesn't inherit PATH env, need to set it manually
  */
 const setMacPathsEnv = (path: string) => {
   macPathsEnv = path;
+};
+
+/**
+ * @param  {string} path
+ * @description Sets environment variables outside core lib
+ */
+const setExternalEnvs = (envs: object) => {
+  externalEnv = envs;
 };
 
 /**
@@ -40,7 +50,7 @@ const getEnvs = ({
   name,
   version,
 }: {
-  extensionType: 'workflow' | 'plugin',
+  extensionType: 'workflow' | 'plugin';
   bundleId: string;
   vars: object;
   name?: string;
@@ -87,7 +97,8 @@ const getEnvs = ({
     ...vars,
     ...env,
     ...alfredWorkflowEnv,
+    ...externalEnv,
   };
 };
 
-export { getEnvs, extractVarEnv, setMacPathsEnv };
+export { getEnvs, extractVarEnv, setMacPathsEnv, setExternalEnvs };
