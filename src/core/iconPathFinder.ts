@@ -54,18 +54,22 @@ export const determineDefaultIconPath = (command: any) => {
     return undefined;
   }
 
-  if (decideExtensionType(command) === 'plugin') {
-    return getPluginList()[command.bundleId].defaultIcon
+  try {
+    if (decideExtensionType(command) === 'plugin') {
+      return getPluginList()[command.bundleId].defaultIcon
+        ? path.resolve(
+            getPluginInstalledPath(command.bundleId),
+            getPluginList()[command.bundleId].defaultIcon
+          )
+        : undefined;
+    }
+    return getWorkflowList()[command.bundleId].defaultIcon
       ? path.resolve(
-          getPluginInstalledPath(command.bundleId),
-          getPluginList()[command.bundleId].defaultIcon
+          getWorkflowInstalledPath(command.bundleId),
+          getWorkflowList()[command.bundleId].defaultIcon
         )
       : undefined;
+  } catch (err) {
+    return undefined;
   }
-  return getWorkflowList()[command.bundleId].defaultIcon
-    ? path.resolve(
-        getWorkflowInstalledPath(command.bundleId),
-        getWorkflowList()[command.bundleId].defaultIcon
-      )
-    : undefined;
 };
