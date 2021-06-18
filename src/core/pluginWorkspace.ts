@@ -125,7 +125,7 @@ const pluginWorkspace: PluginWorkspace = {
   getAsyncWork: (pluginBundleId, asyncPluginPromise): PCancelable<any> => {
     const work = new PCancelable<any>((resolve, reject, onCancel) => {
       const timer = setTimeout(
-        () => resolve({ items: [] }),
+        () => work.cancel(),
         pluginWorkspace.asyncPluginTimer
       );
 

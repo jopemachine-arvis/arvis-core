@@ -21,6 +21,8 @@ import {
   xmlScriptFilterItemToJsonScriptFilterItem,
   xmlToJsonScriptFilterItemFormat,
 } from './scriptFilterItemFormatConverter';
+import { setAsyncPluginTimer } from './setAsyncPluginTimer';
+import { setExternalEnvs } from './setExternalEnvs';
 import { setStoreAvailabiltyChecker } from './setStoreAvailabiltyChecker';
 import { exportWorkflow } from './workflowExporter';
 import {
@@ -30,13 +32,12 @@ import {
 import { getWorkflowList } from './workflowList';
 import { renewWorkflows } from './workflowRenewer';
 import { WorkManager } from './workManager';
-import { setExternalEnvs } from './setExternalEnvs';
 
 import { Store } from '../config';
+import { setMacPathsEnv } from '../config/envHandler';
 import * as history from '../config/history';
 import * as logger from '../config/logger';
 import * as path from '../config/path';
-import { setMacPathsEnv } from '../config/envHandler';
 
 import { registerCustomAction, scriptFilterExcute } from '../actions';
 
@@ -68,6 +69,7 @@ export {
   renewPlugins,
   renewWorkflows,
   scriptFilterExcute,
+  setAsyncPluginTimer,
   setExternalEnvs,
   setMacPathsEnv,
   setStoreAvailabiltyChecker,
