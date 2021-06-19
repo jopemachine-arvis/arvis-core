@@ -57,7 +57,6 @@ const getEnvs = ({
   version?: string;
 }) => {
   const env = {
-    arvis_version: 'demo',
     arvis_extension_version: name ?? '',
     arvis_extension_name: version ?? '',
     arvis_extension_bundleid: bundleId,
