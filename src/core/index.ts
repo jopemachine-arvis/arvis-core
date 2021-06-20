@@ -1,5 +1,9 @@
 import { handleAction } from './actionHandler';
-import { hasRequiredArg, isInputMeetWithspaceCond } from './argUtility';
+import {
+  hasRequiredArg,
+  isArgTypeNoButHaveArg,
+  isInputMeetWithspaceCond,
+} from './argUtility';
 import { checkUpdatableExtensions } from './checkUpdatableExtensions';
 import { findCommands } from './commandFinder';
 import { getCommandList } from './commandList';
@@ -58,6 +62,7 @@ export {
   getSystemPaths,
   getWorkflowList,
   handleAction,
+  isArgTypeNoButHaveArg,
   hasRequiredArg,
   history,
   installPlugin,

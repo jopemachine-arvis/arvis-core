@@ -27,6 +27,25 @@ export const hasRequiredArg = ({
 /**
  * @param  {{item:any;inputStr:string;}}
  */
+export const isArgTypeNoButHaveArg = ({
+  item,
+  inputStr,
+}: {
+  item: any;
+  inputStr: string;
+}): boolean | undefined => {
+  // argType's default value is optional
+  const [emptyStr, ...querys] = inputStr.split(item.command);
+  if (item.argType === 'no') {
+    if (querys.length >= 1) return true;
+  }
+
+  return false;
+};
+
+/**
+ * @param  {{item:any;inputStr:string;}}
+ */
 export const isInputMeetWithspaceCond = ({
   item,
   inputStr,
