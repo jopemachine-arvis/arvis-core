@@ -58,32 +58,44 @@ export const xmlScriptFilterItemToJsonScriptFilterItem = (
   };
 
   const eachItem = {};
-  // * Attributes
-  eachItem['uid'] = extractValue(xmlScriptFilterItem._attributes, 'uid');
-  eachItem['arg'] = extractValue(xmlScriptFilterItem._attributes, 'arg');
-  eachItem['autocomplete'] = extractValue(
-    xmlScriptFilterItem._attributes,
-    'autocomplete'
-  );
-  eachItem['valid'] = extractValue(xmlScriptFilterItem._attributes, 'valid');
-  eachItem['type'] = extractValue(xmlScriptFilterItem._attributes, 'type');
+  // Try to find on Attributes first, Try to find on Elements next
+  eachItem['arg'] =
+    extractValue(xmlScriptFilterItem._attributes, 'arg') ??
+    extractValue(xmlScriptFilterItem.arg, '_text');
+  eachItem['subtitle'] =
+    extractValue(xmlScriptFilterItem._attributes, 'subtitle') ??
+    extractValue(xmlScriptFilterItem.subtitle, '_text');
+  eachItem['title'] =
+    extractValue(xmlScriptFilterItem._attributes, 'title') ??
+    extractValue(xmlScriptFilterItem.title, '_text');
+  eachItem['valid'] =
+    extractValue(xmlScriptFilterItem._attributes, 'valid') ??
+    extractValue(xmlScriptFilterItem.valid, '_text');
+  eachItem['autocomplete'] =
+    extractValue(xmlScriptFilterItem._attributes, 'autocomplete') ??
+    extractValue(xmlScriptFilterItem.autocomplete, '_text');
+  eachItem['quicklookurl'] =
+    extractValue(xmlScriptFilterItem._attributes, 'quicklookurl') ??
+    extractValue(xmlScriptFilterItem.quicklookurl, '_text');
 
-  // * Elements
-  eachItem['title'] = extractValue(xmlScriptFilterItem.title, '_text');
-  eachItem['subtitle'] = extractValue(xmlScriptFilterItem.subtitle, '_text');
+  eachItem['type'] = extractValue(xmlScriptFilterItem._attributes, 'type');
+  eachItem['uid'] = extractValue(xmlScriptFilterItem._attributes, 'uid');
+
+  eachItem['icon'] = {
+    path:
+      extractValue(
+        xmlScriptFilterItem.icon
+          ? xmlScriptFilterItem.icon._attributes
+          : undefined,
+        'icon'
+      ) ?? extractValue(xmlScriptFilterItem.icon, '_text'),
+  };
 
   // To do :: Add below elements here
   eachItem['mod'] = {};
   eachItem['text'] = {
     copy: extractValue(xmlScriptFilterItem.text, '_text'),
     largetype: '',
-  };
-  eachItem['quicklookurl'] = extractValue(
-    xmlScriptFilterItem.quicklookurl,
-    '_text'
-  );
-  eachItem['icon'] = {
-    path: extractValue(xmlScriptFilterItem.icon, '_text'),
   };
 
   return eachItem;

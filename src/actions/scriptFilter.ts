@@ -43,7 +43,7 @@ const printActionLog = () => {
 const parseStdio = (stdout: string, stderr: string): ScriptFilterResult => {
   if (stdout.startsWith('<?xml')) {
     try {
-      console.error('Warning: XML scriptfilter format not supported yet!');
+      console.error('Warning: XML scriptfilter format supporting could have defects yet.');
 
       const { items, variables, rerun } = xmlToJsonScriptFilterItemFormat(
         stdout,
