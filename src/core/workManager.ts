@@ -590,9 +590,17 @@ export class WorkManager {
     );
 
     nextAction['asyncChain'].then((result) => {
-      if (nextAction['asyncChainType'] === 'keyword') {
-        args['{query}'] = result.all;
-        args['$1'] = result.all;
+      switch (nextAction['asyncChainType']) {
+        case 'keyword': {
+          args['{query}'] = result.all;
+          args['$1'] = result.all;
+          break;
+        }
+        case 'clipboard': {
+          args['{query}'] = result;
+          args['$1'] = result;
+          break;
+        }
       }
 
       this.handleActionChain({

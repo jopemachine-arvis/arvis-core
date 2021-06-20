@@ -8,7 +8,7 @@ const mockdata = {
         {
           type: 'keyword',
           command: 'ch > init',
-          action: [
+          actions: [
             {
               modifiers: 'normal',
               type: 'script',
@@ -19,7 +19,7 @@ const mockdata = {
         {
           type: 'hotkey',
           hotkey: 'Double + Ctrl',
-          action: [
+          actions: [
             {
               modifiers: 'normal',
               type: 'script',
@@ -35,7 +35,7 @@ const mockdata = {
         {
           type: 'keyword',
           command: 'ch > init',
-          action: [
+          actions: [
             {
               modifiers: 'normal',
               type: 'script',
@@ -46,7 +46,7 @@ const mockdata = {
         {
           type: 'keyword',
           command: 'abc',
-          action: [
+          actions: [
             {
               modifiers: 'normal',
               type: 'script',
@@ -108,7 +108,7 @@ describe('store test', () => {
           bundleId: 'some_bundleid',
           type: 'keyword',
           command: 'ch > init',
-          action: [
+          actions: [
             {
               modifiers: 'normal',
               type: 'script',
@@ -120,7 +120,7 @@ describe('store test', () => {
           bundleId: 'some_bundleid2',
           type: 'keyword',
           command: 'ch > init',
-          action: [
+          actions: [
             {
               modifiers: 'normal',
               type: 'script',
@@ -134,7 +134,7 @@ describe('store test', () => {
           bundleId: 'some_bundleid2',
           type: 'keyword',
           command: 'abc',
-          action: [
+          actions: [
             {
               modifiers: 'normal',
               type: 'script',
@@ -157,7 +157,7 @@ describe('store test', () => {
           bundleId: 'some_bundleid2',
           type: 'keyword',
           command: 'ch > init',
-          action: [
+          actions: [
             {
               modifiers: 'normal',
               type: 'script',
@@ -171,7 +171,7 @@ describe('store test', () => {
           bundleId: 'some_bundleid2',
           type: 'keyword',
           command: 'abc',
-          action: [
+          actions: [
             {
               modifiers: 'normal',
               type: 'script',

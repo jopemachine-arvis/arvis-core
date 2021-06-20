@@ -278,7 +278,9 @@ function handleAction({
             extra: `Copied string: ${target}`,
           });
 
-          copyToClipboardAction(target);
+          asyncChain = copyToClipboardAction(target);
+          asyncChainType = action.type;
+
           break;
 
         // Extract query from args, vars and execute the action.
