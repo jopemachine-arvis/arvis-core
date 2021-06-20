@@ -1,3 +1,4 @@
+import PCancelable from 'p-cancelable';
 import execa from '../../execa';
 export {};
 
@@ -45,7 +46,7 @@ declare global {
      * @description Used in only type is 'scriptFilter'
      *              ExecaChildProcess object (promise)
      */
-    workProcess?: execa.ExecaChildProcess | null;
+    workProcess?: PCancelable<execa.ExecaReturnValue<string>> | null;
 
     /**
      * @description Used in only type is 'scriptFilter'

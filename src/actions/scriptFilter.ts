@@ -1,8 +1,9 @@
 // tslint:disable: no-string-literal
 import chalk from 'chalk';
 import _ from 'lodash';
+import PCancelable from 'p-cancelable';
 import parseJson from 'parse-json';
-import execa from '../../execa';
+import execa, { ExecaError } from '../../execa';
 import { log, LogType, pushInputStrLog } from '../config';
 import {
   getPluginList,
@@ -43,7 +44,9 @@ const printActionLog = () => {
 const parseStdio = (stdout: string, stderr: string): ScriptFilterResult => {
   if (stdout.startsWith('<?xml')) {
     try {
-      console.error('Warning: XML scriptfilter format supporting could have defects yet.');
+      console.error(
+        'Warning: XML scriptfilter format supporting could have defects yet.'
+      );
 
       const { items, variables, rerun } = xmlToJsonScriptFilterItemFormat(
         stdout,
@@ -258,12 +261,20 @@ async function scriptFilterExcute(
     log(LogType.info, '[Args]', extractedArgs);
   }
 
-  const scriptWork: execa.ExecaChildProcess = handleScriptFilterChange(
-    bundleId,
-    // Assume
-    actionTrigger as Command | Action | PluginItem,
-    extractedArgs
-  );
+  const scriptWork: PCancelable<execa.ExecaReturnValue<string>> =
+    new PCancelable((resolve, reject, onCancel) => {
+      const proc: execa.ExecaChildProcess<string> = handleScriptFilterChange(
+        bundleId,
+        // Assume
+        actionTrigger as Command | Action | PluginItem,
+        extractedArgs
+      );
+      proc.then(resolve).catch((err) => {
+        scriptErrorHandler(err, { extractJson: err['extractJson'] ?? true });
+      });
+      proc.unref();
+      onCancel(() => proc.cancel());
+    });
 
   workManager.updateTopWork({
     workProcess: scriptWork,
@@ -271,7 +282,11 @@ async function scriptFilterExcute(
 
   scriptWork
     .then((result) => {
-      if (workManager.getTopWork().workProcess === scriptWork) {
+      if (
+        workManager.getTopWork().workProcess &&
+        !workManager.getTopWork().workProcess!.isCanceled &&
+        workManager.getTopWork().workProcess === scriptWork
+      ) {
         printActionLog();
         scriptFilterCompleteEventHandler(result);
         if (workManager.getTopWork().rerunInterval) {
@@ -282,9 +297,11 @@ async function scriptFilterExcute(
         }
       }
     })
-    .catch((err) =>
-      scriptErrorHandler(err, { extractJson: err['extractJson'] ?? true })
-    );
+    .catch((err) => {
+      if (!scriptWork.isCanceled) {
+        console.error(`Unexpected Error occurs:\n\n${err}`);
+      }
+    });
 }
 
 export { scriptFilterExcute };

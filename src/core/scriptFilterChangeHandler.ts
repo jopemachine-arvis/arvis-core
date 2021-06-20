@@ -1,3 +1,4 @@
+import execa from '../../execa';
 import { log, LogType } from '../config';
 import { extractVarEnv } from '../config/envHandler';
 
@@ -23,7 +24,7 @@ const handleScriptFilterChange = (
   command: Command | PluginItem | Action,
   queryArgs: object,
   options?: ScriptFilterChangeHandlerOption
-) => {
+): execa.ExecaChildProcess<string> => {
   if (command.type !== 'scriptFilter') {
     throw new Error(`Command is not scriptfilter! ${command}`);
   }
