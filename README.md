@@ -1,6 +1,6 @@
 # arvis-core
 [![CodeFactor](https://www.codefactor.io/repository/github/jopemachine/arvis-core/badge)](https://www.codefactor.io/repository/github/jopemachine/arvis-core)
-[![Known Vulnerabilities](https://snyk.io/test/github/jopemachine/arvis-core/badge.svg)]
+[![Known Vulnerabilities](https://snyk.io/test/github/jopemachine/arvis-core/badge.svg)]()
 [![NPM version](https://badge.fury.io/js/arvis-core.svg)](http://badge.fury.io/js/arvis-core)
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
 [![PR's Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](http://makeapullrequest.com)
