@@ -21,6 +21,7 @@ export const extractScriptOnThisPlatform = (
     log(LogType.error, `Proper script for '${process.platform}' not exist!`);
   } else if (typeof scriptStrOrDict[process.platform] === 'string') {
     script = scriptStrOrDict[process.platform];
+    shell = (scriptStrOrDict as any).shell ?? false;
   } else {
     script = scriptStrOrDict[process.platform].script;
     shell = scriptStrOrDict[process.platform].shell ?? false;
