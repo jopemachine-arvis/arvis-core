@@ -57,8 +57,8 @@ const getEnvs = ({
   version?: string;
 }) => {
   const env = {
-    arvis_extension_version: name ?? '',
-    arvis_extension_name: version ?? '',
+    arvis_extension_version: version ?? '',
+    arvis_extension_name: name ?? '',
     arvis_extension_bundleid: bundleId,
     arvis_extension_type: extensionType,
     arvis_extension_data: getExtensionDataPath(bundleId),
