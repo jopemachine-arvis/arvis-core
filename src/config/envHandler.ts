@@ -57,13 +57,13 @@ const getEnvs = ({
   version?: string;
 }) => {
   const env = {
-    arvis_extension_version: version ?? '',
-    arvis_extension_name: name ?? '',
     arvis_extension_bundleid: bundleId,
-    arvis_extension_type: extensionType,
-    arvis_extension_data: getExtensionDataPath(bundleId),
     arvis_extension_cache: getExtensionCachePath(bundleId),
+    arvis_extension_data: getExtensionDataPath(bundleId),
     arvis_extension_history: getExtensionHistoryPath(),
+    arvis_extension_name: name ?? '',
+    arvis_extension_type: extensionType,
+    arvis_extension_version: version ?? '',
   };
 
   // In macos, GUI App does not inherit $PATH.
@@ -77,7 +77,7 @@ const getEnvs = ({
     alfred_workflow_bundleid: env.arvis_extension_bundleid,
     alfred_workflow_cache: env.arvis_extension_cache,
     alfred_workflow_data: env.arvis_extension_data,
-    alfred_workflow_name: bundleId,
+    alfred_workflow_name: name ?? '',
     alfred_workflow_uid: bundleId,
 
     // mock data
