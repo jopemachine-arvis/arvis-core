@@ -18,7 +18,8 @@ export const hasRequiredArg = ({
     // e.g. "npm query".split("npm") => ["", " query"]
     const [emptyStr, ...querys] = inputStr.split(item.command);
     if (!querys) return false;
-    return querys.length >= 1;
+    // There must be valid input (Assume only whitespaces are not valid)
+    return querys.length >= 1 && querys[0].trim() !== '';
   }
 
   return true;
@@ -37,7 +38,7 @@ export const isArgTypeNoButHaveArg = ({
   // argType's default value is optional
   const [emptyStr, ...querys] = inputStr.split(item.command);
   if (item.argType === 'no') {
-    if (querys.length >= 1) return true;
+    if (querys.length >= 1 && querys[0] !== '') return true;
   }
 
   return false;
