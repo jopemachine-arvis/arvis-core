@@ -1,9 +1,8 @@
 {
   "name": "arvis-core",
-  "version": "0.1.18",
+  "version": "0.1.19",
   "description": "Core module of Arvis",
   "main": "dist/index.js",
-  "bin": "dist/main.js",
   "files": [
     "dist/**",
     "execa/**/*.js",
@@ -104,8 +103,8 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run lint",
-      "pre-push": "npm run lint"
+      "pre-commit": "npm run test && npm run lint",
+      "pre-push": "npm run test && npm run lint"
     }
   }
 }
