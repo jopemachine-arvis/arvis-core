@@ -42,8 +42,7 @@ describe('argsExtract test', () => {
 
     const expected = {
       '{query}': 'ab',
-      '{var:a}{var:b}': 'ab',
-      $1: 'ab',
+      $1: 'abc',
       '{var:a}': 'a',
       '{var:b}': 'b',
     };
@@ -62,8 +61,7 @@ describe('argsExtract test', () => {
 
     const expected = {
       '{query}': 'a b',
-      '{var:a} {var:b}': 'a b',
-      $1: 'a b',
+      $1: 'abc',
       '{var:a}': 'a',
       '{var:b}': 'b',
     };

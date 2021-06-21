@@ -3,7 +3,9 @@ const { Store } = require('../../../dist/config/store');
 const mockdata = {
   workflow: [
     {
-      bundleId: 'some_bundleid',
+      creator: 'mock',
+      name: 'mock1',
+      bundleId: 'mock.mock1',
       commands: [
         {
           type: 'keyword',
@@ -30,7 +32,9 @@ const mockdata = {
       ],
     },
     {
-      bundleId: 'some_bundleid2',
+      creator: 'mock',
+      name: 'mock2',
+      bundleId: 'mock.mock2',
       commands: [
         {
           type: 'keyword',
@@ -105,7 +109,7 @@ describe('store test', () => {
     expect(commands).toStrictEqual({
       'ch > init': [
         {
-          bundleId: 'some_bundleid',
+          bundleId: "mock.mock1",
           type: 'keyword',
           command: 'ch > init',
           actions: [
@@ -117,7 +121,7 @@ describe('store test', () => {
           ],
         },
         {
-          bundleId: 'some_bundleid2',
+          bundleId: "mock.mock2",
           type: 'keyword',
           command: 'ch > init',
           actions: [
@@ -131,7 +135,7 @@ describe('store test', () => {
       ],
       abc: [
         {
-          bundleId: 'some_bundleid2',
+          bundleId: "mock.mock2",
           type: 'keyword',
           command: 'abc',
           actions: [
@@ -154,7 +158,7 @@ describe('store test', () => {
     expect(commands).toStrictEqual({
       'ch > init': [
         {
-          bundleId: 'some_bundleid2',
+          bundleId: 'mock.mock2',
           type: 'keyword',
           command: 'ch > init',
           actions: [
@@ -168,7 +172,7 @@ describe('store test', () => {
       ],
       abc: [
         {
-          bundleId: 'some_bundleid2',
+          bundleId: 'mock.mock2',
           type: 'keyword',
           command: 'abc',
           actions: [
