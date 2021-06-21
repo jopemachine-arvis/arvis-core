@@ -10,6 +10,8 @@ import { getPluginInstalledPath } from '../config/path';
 import { getPluginList } from './pluginList';
 import { WorkManager } from './workManager';
 
+const arvisEnvs = process.env;
+
 /**
  * @param  {string} modulePath
  * @summary Remove cache from existing module for module updates,
@@ -49,22 +51,28 @@ const requireDynamically = (modulePath: string, envs: object = {}): any => {
   `);
 };
 
+interface PluginModule {
+  module: Function;
+  bindedEnvs: object;
+}
+
 interface PluginWorkspace {
-  pluginModules: object;
-  asyncWorks: PCancelable<any>[];
+  pluginModules: Map<string, PluginModule>;
+  asyncWorks: PCancelable<PluginExectionResult[]>[];
   asyncPluginTimer: number;
   setAsyncPluginTimer: (timer: number) => void;
   getAsyncWork: (
     pluginBundleId: string,
     asyncPluginPromise: Promise<any>
-  ) => PCancelable<any>;
+  ) => PCancelable<PluginExectionResult[]>;
   renew: (pluginInfos: any[], bundleId?: string) => void;
   search: (inputStr: string) => Promise<PluginExectionResult[]>;
   cancelPrevious: () => void;
+  restoreArvisEnvs: () => void;
 }
 
 const pluginWorkspace: PluginWorkspace = {
-  pluginModules: {},
+  pluginModules: new Map(),
 
   asyncWorks: [],
 
@@ -74,11 +82,17 @@ const pluginWorkspace: PluginWorkspace = {
     pluginWorkspace.asyncPluginTimer = timer;
   },
 
+  restoreArvisEnvs: () => {
+    process.env = arvisEnvs as any;
+  },
+
   /**
    * @param  {any[]} pluginInfos
    */
   renew: (pluginInfos: any[], bundleId?: string): void => {
-    const newPluginModules = bundleId ? pluginWorkspace.pluginModules : {};
+    const newPluginModules: Map<string, PluginModule> = bundleId
+      ? pluginWorkspace.pluginModules
+      : new Map();
 
     for (const pluginInfo of pluginInfos) {
       const modulePath = path.normalize(
@@ -96,10 +110,11 @@ const pluginWorkspace: PluginWorkspace = {
           vars: pluginInfo.variables,
         });
 
-        newPluginModules[pluginInfo.bundleId] = requireDynamically(
-          modulePath,
-          envs
-        );
+        newPluginModules.set(pluginInfo.bundleId, {
+          bindedEnvs: envs,
+          module: requireDynamically(modulePath, envs),
+        });
+
       } catch (err) {
         log(
           LogType.error,
@@ -172,9 +187,12 @@ const pluginWorkspace: PluginWorkspace = {
     const pluginExecutionResults: any[] = [];
     const asyncPluginWorks: PCancelable<any>[] = [];
 
-    for (const pluginBundleId of Object.keys(pluginWorkspace.pluginModules)) {
+    for (const pluginBundleId of pluginWorkspace.pluginModules.keys()) {
       if (!getPluginList()[pluginBundleId].enabled) continue;
-      const pluginModule = pluginWorkspace.pluginModules[pluginBundleId];
+      const { module: pluginModule, bindedEnvs } =
+        pluginWorkspace.pluginModules.get(pluginBundleId)!;
+
+      process.env = bindedEnvs as any;
 
       try {
         const pluginExecutionResult = (pluginModule as Function)({
@@ -210,6 +228,7 @@ const pluginWorkspace: PluginWorkspace = {
     pluginWorkspace.asyncWorks = asyncPluginWorks;
 
     const asyncPluginResults = await Promise.allSettled(asyncPluginWorks);
+    pluginWorkspace.restoreArvisEnvs();
 
     const successes = asyncPluginResults
       .filter((result) => result.status === 'fulfilled')
