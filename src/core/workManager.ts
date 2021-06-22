@@ -1,11 +1,7 @@
 // tslint:disable: no-string-literal
 
 import _ from 'lodash';
-import {
-  handleKeywordWaiting,
-  handleResetInputAction,
-  setKeywordItem,
-} from '../actions';
+import { handleKeywordAction, handleResetInputAction } from '../actions';
 import { scriptFilterExcute } from '../actions/scriptFilter';
 import { log, LogType, pushInputStrLog } from '../config';
 import {
@@ -22,7 +18,6 @@ import {
   extractArgsFromScriptFilterItem,
 } from './argsHandler';
 import { getPluginList } from './pluginList';
-import { extractScriptOnThisPlatform } from './scriptExtracter';
 import { getWorkflowList } from './workflowList';
 
 /**
@@ -60,6 +55,9 @@ export class WorkManager {
   public loggerColorType?: 'cui' | 'gui' = 'cui';
 
   public maxRetrieveCount?: number;
+
+  public needMoreUserInput?: boolean = true;
+  public isInitialTrigger?: boolean = true;
 
   public onWorkEndHandler?: () => void;
   public onItemPressHandler?: () => void;
@@ -100,6 +98,8 @@ export class WorkManager {
     this.workStk.length = 0;
     this.globalVariables = {};
     this.rerunTimer = undefined;
+    this.isInitialTrigger = true;
+    this.needMoreUserInput = true;
   }
 
   /**
@@ -122,6 +122,8 @@ export class WorkManager {
    * @summary
    */
   public workIsPending = () => {
+    if (this.getTopWork().type !== 'scriptFilter') return false;
+
     return (
       this.workStk.length >= 1 && this.getTopWork().workCompleted === false
     );
@@ -448,11 +450,7 @@ export class WorkManager {
       );
     }
 
-    // Handle Keyword-waiting
-    if (
-      this.getTopWork().type === 'keyword' ||
-      this.getTopWork().type === 'keywordWaiting'
-    ) {
+    if (this.getTopWork().type === 'keyword') {
       return applyExtensionVars(
         extractArgsFromQuery(inputStr.split(' ')),
         extensionVariables
@@ -505,14 +503,8 @@ export class WorkManager {
   private handleTriggerAction = (nextAction: Action, args: object): boolean => {
     this.throwErrOnRendererUpdaterNotSet();
 
-    if (
-      nextAction.type === 'scriptFilter' ||
-      nextAction.type === 'keyword' // ||
-      // nextAction.type === 'keywordWaiting'
-    ) {
+    if (nextAction.type === 'scriptFilter' || nextAction.type === 'keyword') {
       const nextInput = args['{query}'];
-
-      console.log('abc!', nextInput);
 
       this.pushWork({
         type: nextAction.type,
@@ -533,7 +525,7 @@ export class WorkManager {
           needItemsUpdate: false,
         });
       } else if (nextAction.type === 'keyword') {
-        setKeywordItem(nextAction as KeywordAction);
+        handleKeywordAction(nextAction as KeywordAction);
 
         this.onInputShouldBeUpdate!({
           str: nextInput ?? '',
@@ -618,19 +610,19 @@ export class WorkManager {
     modifier: ModifierInput;
   }): boolean => {
     this.throwErrOnRendererUpdaterNotSet();
+    const workManager = WorkManager.getInstance();
 
     let handleActionResult: {
       nextActions: Action[] | undefined;
       args: object;
     };
-
     while (targetActions && targetActions.length > 0) {
-      // Handle Keyword Action
-      // Assume
       if (
-        targetActions![0].type === 'keyword' &&
-        handleKeywordWaiting(item, targetActions![0] as KeywordAction, args)
+        !workManager.isInitialTrigger &&
+        targetActions[0].type === 'keyword'
       ) {
+        this.handleTriggerAction(targetActions[0], args);
+        this.needMoreUserInput = false;
         return false;
       }
 

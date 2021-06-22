@@ -6,7 +6,7 @@ declare global {
   export interface Work {
     /**
      * @description Work's type
-     *              Possible value is `keyword`, `keyword-waiting`, `scriptfilter`, `hotkey`
+     *              Possible value is `keyword`, `scriptfilter`, `hotkey`
      */
     readonly type: string;
 

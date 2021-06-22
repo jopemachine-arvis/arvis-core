@@ -91,6 +91,7 @@ function scriptFilterCompleteEventHandler(
     scriptFilterResult.stderr
   );
 
+  workManager.isInitialTrigger = false;
   workManager.printScriptfilter && log(LogType.info, '[SF Result]', stdio);
 
   const { items, rerun: rerunInterval, variables } = stdio;

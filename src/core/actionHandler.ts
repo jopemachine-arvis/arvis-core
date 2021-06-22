@@ -77,7 +77,9 @@ const throwReqAttrNotExtErr = (
   requiredAttributes: string[]
 ) => {
   throw new Error(
-    `'${typeName}' type should have '${requiredAttributes.join(', ')}' attributes`
+    `'${typeName}' type should have '${requiredAttributes.join(
+      ', '
+    )}' attributes`
   );
 };
 
@@ -87,15 +89,16 @@ const throwReqAttrNotExtErr = (
 const resolveActionType = (action: Action) => {
   const workManager = WorkManager.getInstance();
 
-  if (
-    !workManager.hasEmptyWorkStk() &&
-    workManager.getTopWork().type === 'keywordWaiting' &&
-    action.type === 'keyword'
-  ) {
-    return 'keywordWaitingResolve';
-  } else {
-    return action.type;
-  }
+  // if (
+  //   !workManager.hasEmptyWorkStk() &&
+  //   workManager.getTopWork().type === 'keywordWaiting' &&
+  //   action.type === 'keyword'
+  // ) {
+  //   return 'keywordWaitingResolve';
+  // } else {
+  //   return action.type;
+  // }
+  return action.type;
 };
 
 /**
@@ -157,6 +160,7 @@ function handleAction({
             extra: `script executed: '${target}'`,
           });
 
+          workManager.isInitialTrigger = false;
           asyncChain = handleScriptAction(action, queryArgs);
           asyncChainType = action.type;
           break;
@@ -170,29 +174,30 @@ function handleAction({
           }
 
           target = action.scriptFilter;
+          workManager.isInitialTrigger = false;
           nextAction = [action];
           break;
 
-        case 'keywordWaitingResolve':
-          action = action as KeywordAction;
-          if (!action.title) throwReqAttrNotExtErr(type, ['title']);
+        // case 'keywordWaitingResolve':
+        //   action = action as KeywordAction;
+        //   if (!action.title) throwReqAttrNotExtErr(type, ['title']);
 
-          target = action.title;
+        //   target = action.title;
 
-          printActionDebuggingLog({
-            action,
-            cuiColorApplier: chalk.blackBright,
-            guiColor: 'black',
-          });
+        //   printActionDebuggingLog({
+        //     action,
+        //     cuiColorApplier: chalk.blackBright,
+        //     guiColor: 'black',
+        //   });
 
-          if (nextAction) {
-            nextAction = handleAction({
-              actions: nextAction,
-              queryArgs,
-              modifiersInput,
-            }).nextActions;
-          }
-          break;
+        //   if (nextAction) {
+        //     nextAction = handleAction({
+        //       actions: nextAction,
+        //       queryArgs,
+        //       modifiersInput,
+        //     }).nextActions;
+        //   }
+        //   break;
 
         // Just execute next action if it is trigger.
         // In case of keyword action, wait for next user input
@@ -208,7 +213,10 @@ function handleAction({
             guiColor: 'black',
           });
 
-          if (workManager.getTopWork().type === 'keyword') {
+          if (workManager.isInitialTrigger || !workManager.needMoreUserInput) {
+            workManager.needMoreUserInput = false;
+            workManager.isInitialTrigger = false;
+
             if (nextAction) {
               nextAction = handleAction({
                 actions: nextAction,
@@ -218,8 +226,12 @@ function handleAction({
             }
           } else {
             // Wait for next 'user enter press' event
+            workManager.needMoreUserInput = true;
             nextAction = undefined;
           }
+
+          workManager.isInitialTrigger = false;
+
           break;
 
         // Push the work and execute next action
@@ -237,6 +249,8 @@ function handleAction({
             guiColor: 'white',
             extra: `pressed key: '${target}'`,
           });
+
+          workManager.isInitialTrigger = false;
 
           if (nextAction) {
             nextAction = handleAction({
@@ -261,6 +275,8 @@ function handleAction({
             extra: `open target: '${target}'`,
           });
 
+          workManager.isInitialTrigger = false;
+
           openFileAction(target);
           break;
 
@@ -283,6 +299,8 @@ function handleAction({
             extra: `copied string: '${target}'`,
           });
 
+          workManager.isInitialTrigger = false;
+
           asyncChain = copyToClipboardAction(target);
           asyncChainType = action.type;
 
@@ -296,6 +314,8 @@ function handleAction({
           const argToExtract = escapeBraket(action.arg).trim();
           queryArgs = argsExtractAction(queryArgs, argToExtract);
           target = queryArgs;
+
+          workManager.isInitialTrigger = false;
 
           printActionDebuggingLog({
             action,
@@ -354,6 +374,8 @@ function handleAction({
             extra: `condition is evaluated by '${condIsTrue}'`,
           });
 
+          workManager.isInitialTrigger = false;
+
           if (conditionalAction) {
             nextAction = handleAction({
               actions: conditionalAction,
@@ -372,6 +394,7 @@ function handleAction({
 
           nextAction = [action];
 
+          workManager.isInitialTrigger = false;
           printActionDebuggingLog({
             action,
             cuiColorApplier: chalk.blackBright,
