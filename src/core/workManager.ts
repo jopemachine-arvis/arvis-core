@@ -94,6 +94,10 @@ export class WorkManager {
    * @description cleanup work stack and other infomations
    */
   public clearWorkStack = () => {
+    if (!this.printWorkStack) {
+      log(LogType.info, 'stack cleared!');
+    }
+
     this.workStk.length = 0;
     this.globalVariables = {};
     this.rerunTimer = undefined;
@@ -154,11 +158,11 @@ export class WorkManager {
       });
 
       this.debugWorkStk();
-    } else {
+    } else if (this.workStk.length !== 0) {
       this.clearWorkStack();
-      this.onItemShouldBeUpdate!({ items: [], needIndexInfoClear: true });
+      this.onInputShouldBeUpdate!({ str: '', needItemsUpdate: true });
+    } else {
       this.onWorkEndHandler!();
-      return;
     }
   }
 
@@ -429,7 +433,13 @@ export class WorkManager {
 
     // Workflow Trigger: Hotkey
     if (this.hasEmptyWorkStk() && item['type'] === 'hotkey') {
-      return applyExtensionVars({}, extensionVariables);
+      return applyExtensionVars(
+        {
+          '{query}': '',
+          $1: '',
+        },
+        extensionVariables
+      );
     }
 
     // Workflow Trigger: Keyword, scriptfilter
@@ -464,7 +474,11 @@ export class WorkManager {
     }
 
     log(LogType.error, 'Args type infer failed');
-    return {};
+
+    return {
+      '{query}': '',
+      $1: '',
+    };
   }
 
   /**
@@ -744,7 +758,6 @@ export class WorkManager {
     }
 
     if (this.commandExcute(item, inputStr, modifier)) {
-      console.log('abc~~~~~');
       this.clearWorkStack();
       this.onItemShouldBeUpdate!({ items: [], needIndexInfoClear: true });
       this.onItemPressHandler!();

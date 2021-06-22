@@ -3,7 +3,6 @@ const {
   extractArgsFromPluginItem,
   extractArgsFromQuery,
   extractArgsFromScriptFilterItem,
-  getAppliedArgsFromScript,
 } = require('../../../dist/core/argsHandler');
 
 describe('argsExtract test', () => {
@@ -112,17 +111,4 @@ describe('argsExtract test', () => {
 
     expect(result).toStrictEqual(expected);
   });
-  
-//   test('getAppliedArgsFromScript test', () => {
-//     const scriptStr = `node abc.js '{query}' some_arg '{var:var1}'`;
-//     const args = {
-//       '{query}': 'abc',
-//       '{var:var1}': 'def',
-//     };
-
-//     const result = getAppliedArgsFromScript(scriptStr, args);
-//     const expected = 'node abc.js abc some_arg def';
-//     console.log('r', result);
-//     expect(result).toBe(expected);
-//   });
 });

@@ -48,15 +48,7 @@ const parseStdio = (stdout: string, stderr: string): ScriptFilterResult => {
         'Warning: XML scriptfilter format supporting could have defects yet.'
       );
 
-      const { items, variables, rerun } = xmlToJsonScriptFilterItemFormat(
-        stdout,
-        stderr
-      );
-      return {
-        items,
-        variables,
-        rerun,
-      };
+      return xmlToJsonScriptFilterItemFormat(stdout, stderr);
     } catch (err) {
       const error = new Error(
         `XML Scriptfilter format error!\n${err}\n\nstdout: ${stdout}\n\nstderr: ${stderr}\n`
@@ -119,9 +111,7 @@ function scriptFilterCompleteEventHandler(
     // Append bundleId to each ScriptFilterItem.
     item.bundleId = bundleId;
     // Append workflow's defaultIcon
-    item.icon = item.icon ?? {
-      path: defaultIcon,
-    };
+    item.icon = item.icon ?? defaultIcon;
   });
 
   if (!workManager.onItemShouldBeUpdate) {
@@ -144,10 +134,10 @@ function scriptErrorHandler(
   if (err['timedOut']) {
     log(LogType.error, `Script timeout!\n'${err}`);
   } else if (err['isCanceled']) {
-    // console.log('Command was canceled by other scriptfilter.');
+    // Command was canceled by other scriptfilter.
   } else {
     if (workManager.hasEmptyWorkStk()) {
-      // console.log('Command was canceled by user.');
+      // Command was canceled by user.
     } else {
       log(LogType.error, err);
       workManager.handleScriptFilterError(err, options);

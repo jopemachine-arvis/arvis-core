@@ -22,9 +22,7 @@ const handleKeywordAction = (item: KeywordAction) => {
           title: item.title ?? '',
           subtitle: item.subtitle ?? '',
           bundleId: workManager.getTopWork().bundleId,
-          icon: {
-            path: defaultIcon,
-          },
+          icon: defaultIcon,
         },
       ],
       needIndexInfoClear: true,
