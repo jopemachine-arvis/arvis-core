@@ -26,34 +26,6 @@ const applyArgsToScript = ({
 };
 
 /**
- * @param  {string} scriptStr
- * @param  {object} args
- * @return {string}
- * @summary Get args from script in correct order
- */
-const getAppliedArgsFromScript = (scriptStr: string, args: object): string => {
-  const strArr: string[] = scriptStr.split(' ');
-  const argsArr: string[] = new Array(strArr.length);
-  argsArr.fill('');
-
-  for (const arg of Object.keys(args)) {
-    if (strArr.includes(`'${arg}'`)) {
-      const order = strArr.indexOf(`'${arg}'`);
-      argsArr[order] = args[arg];
-    }
-  }
-
-  return _.reduce(
-    argsArr,
-    (ret, inputArg, idx) => {
-      if (inputArg === '') return '';
-      return ret + ' ' + inputArg;
-    },
-    ''
-  );
-};
-
-/**
  * @param  {string[]} querys
  * @return {object}
  */
@@ -146,5 +118,4 @@ export {
   extractArgsFromPluginItem,
   extractArgsFromScriptFilterItem,
   applyArgsToScript,
-  getAppliedArgsFromScript,
 };

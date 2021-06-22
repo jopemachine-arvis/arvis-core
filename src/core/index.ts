@@ -8,6 +8,7 @@ import { checkUpdatableExtensions } from './checkUpdatableExtensions';
 import { findCommands } from './commandFinder';
 import { getCommandList } from './commandList';
 import { decideExtensionType } from './decideExtensionType';
+import { findTriggers } from './findTriggers';
 import { getBundleId, getNameFromBundleId } from './getBundleId';
 import { getSystemPaths } from './getSystemPaths';
 import { findHotkeys } from './hotkeyFinder';
@@ -55,6 +56,7 @@ export {
   exportWorkflow,
   findCommands,
   findHotkeys,
+  findTriggers,
   getBundleId,
   getCommandList,
   getNameFromBundleId,

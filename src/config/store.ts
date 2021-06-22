@@ -2,7 +2,7 @@ import { validate as validateJson } from 'arvis-extension-validator';
 import fse from 'fs-extra';
 import _ from 'lodash';
 import path from 'path';
-import { getBundleId } from '../core';
+import { findTriggers, getBundleId } from '../core';
 import pluginWorkspace from '../core/pluginWorkspace';
 import { fetchExtensionJson, zipDirectory } from '../utils';
 import { log, LogType } from './index';
@@ -358,7 +358,12 @@ export class Store {
     // Update available commands
     let commands = this.getCommands();
     commands = removeOldCommand(commands, bundleId);
-    commands = addCommands(commands, workflow.commands, bundleId);
+    commands = addCommands(
+      commands,
+      findTriggers(['command'], workflow.commands),
+      bundleId
+    );
+
     this.store.set('commands', commands);
 
     // Update available hotkeys

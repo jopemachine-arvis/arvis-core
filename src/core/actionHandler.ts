@@ -154,7 +154,7 @@ function handleAction({
             action,
             cuiColorApplier: chalk.redBright,
             guiColor: 'red',
-            extra: `Script executed: ${target}`,
+            extra: `script executed: '${target}'`,
           });
 
           asyncChain = handleScriptAction(action, queryArgs);
@@ -165,8 +165,9 @@ function handleAction({
         // Because the action is not processed here, so it passes action as nextAction, not action.action
         case 'scriptFilter':
           action = action as ScriptFilterAction;
-          if (!action.scriptFilter)
+          if (!action.scriptFilter) {
             throwReqAttrNotExtErr(type, ['scriptFilter']);
+          }
 
           target = action.scriptFilter;
           nextAction = [action];
@@ -174,11 +175,13 @@ function handleAction({
 
         case 'keywordWaitingResolve':
           action = action as KeywordAction;
+          if (!action.title) throwReqAttrNotExtErr(type, ['title']);
+
           target = action.title;
 
           printActionDebuggingLog({
             action,
-            cuiColorApplier: chalk.yellowBright,
+            cuiColorApplier: chalk.blackBright,
             guiColor: 'black',
           });
 
@@ -195,14 +198,13 @@ function handleAction({
         // In case of keyword action, wait for next user input
         case 'keyword':
           action = action as KeywordAction;
-          if (!action.command && !action.title)
+          if (!action.command && !action.title) {
             throwReqAttrNotExtErr(type, ['command | title']);
-
-          target = action.command || action.title;
+          }
 
           printActionDebuggingLog({
             action,
-            cuiColorApplier: chalk.yellowBright,
+            cuiColorApplier: chalk.blackBright,
             guiColor: 'black',
           });
 
@@ -215,7 +217,7 @@ function handleAction({
               }).nextActions;
             }
           } else {
-            // Wait for next 'action' event
+            // Wait for next 'user enter press' event
             nextAction = undefined;
           }
           break;
@@ -223,7 +225,9 @@ function handleAction({
         // Push the work and execute next action
         case 'hotkey':
           action = action as HotkeyAction;
-          if (!action.hotkey) throwReqAttrNotExtErr(type, ['hotkey']);
+          if (!action.hotkey) {
+            throwReqAttrNotExtErr(type, ['hotkey']);
+          }
 
           target = action.hotkey;
 
@@ -231,6 +235,7 @@ function handleAction({
             action,
             cuiColorApplier: chalk.whiteBright,
             guiColor: 'white',
+            extra: `pressed key: '${target}'`,
           });
 
           if (nextAction) {
@@ -253,7 +258,7 @@ function handleAction({
             action,
             cuiColorApplier: chalk.blueBright,
             guiColor: 'blue',
-            extra: `Open target: ${target}`,
+            extra: `open target: '${target}'`,
           });
 
           openFileAction(target);
@@ -275,7 +280,7 @@ function handleAction({
             action,
             cuiColorApplier: chalk.greenBright,
             guiColor: 'green',
-            extra: `Copied string: ${target}`,
+            extra: `copied string: '${target}'`,
           });
 
           asyncChain = copyToClipboardAction(target);
@@ -296,6 +301,7 @@ function handleAction({
             action,
             cuiColorApplier: chalk.blueBright,
             guiColor: 'blue',
+            extra: `arg extracted: '${queryArgs['{query}']}'`,
           });
 
           if (nextAction) {
@@ -312,10 +318,12 @@ function handleAction({
         case 'cond':
           action = action as CondAction;
           if (!action.if) throwReqAttrNotExtErr(type, ['if']);
-          if (!action.if.cond || !action.if.actions)
+          if (!action.if.cond || !action.if.actions) {
             throwReqAttrNotExtErr('if', ['cond', 'actions']);
-          if (!action.if.actions.then)
+          }
+          if (!action.if.actions.then) {
             throwReqAttrNotExtErr('action of cond type', ['then']);
+          }
 
           target = applyArgsToScript({
             scriptStr: action.if.cond,
@@ -323,19 +331,19 @@ function handleAction({
             appendQuotes: true,
           });
 
-          let isTrue;
+          let condIsTrue;
           try {
             // tslint:disable-next-line: no-eval
-            isTrue = eval(target) === true;
+            condIsTrue = eval(target) === true;
           } catch (err) {
             console.error(
               `Below error occured while evaling cond target. target is evaluated by false.\n${err}`
             );
-            isTrue = false;
+            condIsTrue = false;
           }
 
           // To do:: Fix below logic safely
-          const conditionalAction = isTrue
+          const conditionalAction = condIsTrue
             ? action.if.actions.then
             : action.if.actions.else;
 
@@ -343,7 +351,7 @@ function handleAction({
             action,
             cuiColorApplier: chalk.magentaBright,
             guiColor: 'magenta',
-            extra: `'cond' is evaluated by ${isTrue}`,
+            extra: `condition is evaluated by '${condIsTrue}'`,
           });
 
           if (conditionalAction) {
@@ -368,7 +376,7 @@ function handleAction({
             action,
             cuiColorApplier: chalk.blackBright,
             guiColor: 'black',
-            extra: `new input: "${action.newInput}"`,
+            extra: `reset input by '${action.newInput}'`,
           });
           break;
         }

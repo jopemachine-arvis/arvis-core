@@ -20,7 +20,6 @@ import {
   extractArgsFromPluginItem,
   extractArgsFromQuery,
   extractArgsFromScriptFilterItem,
-  getAppliedArgsFromScript,
 } from './argsHandler';
 import { getPluginList } from './pluginList';
 import { extractScriptOnThisPlatform } from './scriptExtracter';
@@ -361,23 +360,6 @@ export class WorkManager {
   }
 
   /**
-   * @param  {Action} nextAction
-   * @param  {any} args
-   * @return {string}
-   */
-  public getNextActionsInput = (nextAction: Action, args: any): string => {
-    if (nextAction.type === 'scriptFilter') {
-      const { script } = extractScriptOnThisPlatform(
-        (nextAction as ScriptFilterAction).scriptFilter
-      );
-
-      return getAppliedArgsFromScript(script, args);
-    }
-    log(LogType.error, `Unsupported type, '${nextAction.type}'`);
-    return 'Unsupported type error';
-  }
-
-  /**
    * @summary
    */
   public debugWorkStk = (): void => {
@@ -523,8 +505,14 @@ export class WorkManager {
   private handleTriggerAction = (nextAction: Action, args: object): boolean => {
     this.throwErrOnRendererUpdaterNotSet();
 
-    if (nextAction.type === 'scriptFilter' || nextAction.type === 'keyword') {
-      const nextInput = this.getNextActionsInput(nextAction, args);
+    if (
+      nextAction.type === 'scriptFilter' ||
+      nextAction.type === 'keyword' // ||
+      // nextAction.type === 'keywordWaiting'
+    ) {
+      const nextInput = args['{query}'];
+
+      console.log('abc!', nextInput);
 
       this.pushWork({
         type: nextAction.type,
@@ -541,14 +529,14 @@ export class WorkManager {
         scriptFilterExcute(nextInput);
 
         this.onInputShouldBeUpdate!({
-          str: nextInput ? nextInput + ' ' : '',
+          str: nextInput ?? '',
           needItemsUpdate: false,
         });
       } else if (nextAction.type === 'keyword') {
         setKeywordItem(nextAction as KeywordAction);
 
         this.onInputShouldBeUpdate!({
-          str: '',
+          str: nextInput ?? '',
           needItemsUpdate: false,
         });
       }

@@ -23,9 +23,15 @@ const mockdata = {
           hotkey: 'Double + Ctrl',
           actions: [
             {
-              modifiers: 'normal',
-              type: 'script',
-              script: 'node src/init.js',
+              type: 'keyword',
+              command: 'chh',
+              actions: [
+                {
+                  modifiers: 'normal',
+                  type: 'script',
+                  script: 'node src/init.js',
+                },
+              ],
             },
           ],
         },
@@ -109,7 +115,7 @@ describe('store test', () => {
     expect(commands).toStrictEqual({
       'ch > init': [
         {
-          bundleId: "mock.mock1",
+          bundleId: 'mock.mock1',
           type: 'keyword',
           command: 'ch > init',
           actions: [
@@ -121,7 +127,7 @@ describe('store test', () => {
           ],
         },
         {
-          bundleId: "mock.mock2",
+          bundleId: 'mock.mock2',
           type: 'keyword',
           command: 'ch > init',
           actions: [
@@ -133,9 +139,23 @@ describe('store test', () => {
           ],
         },
       ],
+      chh: [
+        {
+          bundleId: 'mock.mock1',
+          type: 'keyword',
+          command: 'chh',
+          actions: [
+            {
+              modifiers: 'normal',
+              type: 'script',
+              script: 'node src/init.js',
+            },
+          ],
+        },
+      ],
       abc: [
         {
-          bundleId: "mock.mock2",
+          bundleId: 'mock.mock2',
           type: 'keyword',
           command: 'abc',
           actions: [
