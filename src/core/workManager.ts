@@ -56,7 +56,6 @@ export class WorkManager {
 
   public maxRetrieveCount?: number;
 
-  public needMoreUserInput?: boolean = true;
   public isInitialTrigger?: boolean = true;
 
   public onWorkEndHandler?: () => void;
@@ -99,7 +98,6 @@ export class WorkManager {
     this.globalVariables = {};
     this.rerunTimer = undefined;
     this.isInitialTrigger = true;
-    this.needMoreUserInput = true;
   }
 
   /**
@@ -122,11 +120,10 @@ export class WorkManager {
    * @summary
    */
   public workIsPending = () => {
-    if (this.getTopWork().type !== 'scriptFilter') return false;
+    if (this.hasEmptyWorkStk() || this.getTopWork().type !== 'scriptFilter')
+      return false;
 
-    return (
-      this.workStk.length >= 1 && this.getTopWork().workCompleted === false
-    );
+    return this.getTopWork().workCompleted === false;
   }
 
   /**
@@ -143,7 +140,6 @@ export class WorkManager {
   public popWork = () => {
     this.throwErrOnRendererUpdaterNotSet();
 
-    // To do:: Handle keyword, keywordWaiting here..
     if (this.hasNestedScriptFilters()) {
       this.workStk.pop();
       if (this.getTopWork().type !== 'scriptFilter') return;
@@ -504,7 +500,7 @@ export class WorkManager {
     this.throwErrOnRendererUpdaterNotSet();
 
     if (nextAction.type === 'scriptFilter' || nextAction.type === 'keyword') {
-      const nextInput = args['{query}'];
+      const nextInput = args['{query}'] ?? '';
 
       this.pushWork({
         type: nextAction.type,
@@ -521,14 +517,14 @@ export class WorkManager {
         scriptFilterExcute(nextInput);
 
         this.onInputShouldBeUpdate!({
-          str: nextInput ?? '',
+          str: nextInput,
           needItemsUpdate: false,
         });
       } else if (nextAction.type === 'keyword') {
         handleKeywordAction(nextAction as KeywordAction);
 
         this.onInputShouldBeUpdate!({
-          str: nextInput ?? '',
+          str: nextInput,
           needItemsUpdate: false,
         });
       }
@@ -595,6 +591,17 @@ export class WorkManager {
   }
 
   /**
+   * @description
+   */
+  private getParentAction = () => {
+    return !this.hasEmptyWorkStk()
+      ? this.getTopWork().actionTrigger
+        ? this.getTopWork().actionTrigger['type']
+        : undefined
+      : undefined;
+  }
+
+  /**
    * @returns {boolean} If return false, commandExcute quits to enable users to give more input
    * @description Handle Multiple Actions, Process a sequence of actions that follow back.
    */
@@ -616,13 +623,16 @@ export class WorkManager {
       nextActions: Action[] | undefined;
       args: object;
     };
+
     while (targetActions && targetActions.length > 0) {
+      const parentActionType = this.getParentAction();
+
       if (
-        !workManager.isInitialTrigger &&
-        targetActions[0].type === 'keyword'
+        ['keyword', 'scriptFilter'].includes(targetActions[0].type) &&
+        (!workManager.isInitialTrigger ||
+          ['keyword', 'scriptFilter'].includes(parentActionType))
       ) {
         this.handleTriggerAction(targetActions[0], args);
-        this.needMoreUserInput = false;
         return false;
       }
 
@@ -670,11 +680,11 @@ export class WorkManager {
    * @returns {boolean} If return value is true, no need more user input
    *                    If return value is false, need more user input
    */
-  public async commandExcute(
+  public commandExcute(
     item: Command | ScriptFilterItem | PluginItem,
     inputStr: string,
     modifier: ModifierInput
-  ): Promise<boolean> {
+  ): boolean {
     // If workStk is empty, the args becomes query, otherwise args becomes arg of items
     // If workStk is empty, the actions becomes command, otherwise the top action of the stack is 'actions'.
     const actions = this.prepareNextActions({ item });
@@ -682,7 +692,7 @@ export class WorkManager {
 
     if (this.printArgs) {
       // Print 'args' to debugging console
-      log(LogType.info, '[Args]', args);
+      log(LogType.info, '[Args] in commandExcute', args);
     }
 
     if (this.hasEmptyWorkStk()) {
@@ -706,13 +716,12 @@ export class WorkManager {
     // Renew input
     this.renewInput(inputStr);
 
-    if (
-      !this.handleActionChain({ item, args, modifier, targetActions: actions })
-    ) {
-      return false;
-    }
-
-    return true;
+    return this.handleActionChain({
+      item,
+      args,
+      modifier,
+      targetActions: actions,
+    });
   }
 
   /**
@@ -722,11 +731,11 @@ export class WorkManager {
    * @summary Handler for enter event.
    *          Handle command item properly and call renderer update functions
    */
-  public async handleItemPressEvent(
+  public handleItemPressEvent(
     item: Command | ScriptFilterItem | PluginItem,
     inputStr: string,
     modifier: ModifierInput
-  ): Promise<void> {
+  ): void {
     this.throwErrOnRendererUpdaterNotSet();
 
     // Ignore this exeution if previous work is pending.
@@ -734,7 +743,8 @@ export class WorkManager {
       return;
     }
 
-    if (await this.commandExcute(item, inputStr, modifier)) {
+    if (this.commandExcute(item, inputStr, modifier)) {
+      console.log('abc~~~~~');
       this.clearWorkStack();
       this.onItemShouldBeUpdate!({ items: [], needIndexInfoClear: true });
       this.onItemPressHandler!();

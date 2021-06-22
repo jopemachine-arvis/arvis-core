@@ -87,17 +87,6 @@ const throwReqAttrNotExtErr = (
  * @param  {Action} action
  */
 const resolveActionType = (action: Action) => {
-  const workManager = WorkManager.getInstance();
-
-  // if (
-  //   !workManager.hasEmptyWorkStk() &&
-  //   workManager.getTopWork().type === 'keywordWaiting' &&
-  //   action.type === 'keyword'
-  // ) {
-  //   return 'keywordWaitingResolve';
-  // } else {
-  //   return action.type;
-  // }
   return action.type;
 };
 
@@ -178,27 +167,6 @@ function handleAction({
           nextAction = [action];
           break;
 
-        // case 'keywordWaitingResolve':
-        //   action = action as KeywordAction;
-        //   if (!action.title) throwReqAttrNotExtErr(type, ['title']);
-
-        //   target = action.title;
-
-        //   printActionDebuggingLog({
-        //     action,
-        //     cuiColorApplier: chalk.blackBright,
-        //     guiColor: 'black',
-        //   });
-
-        //   if (nextAction) {
-        //     nextAction = handleAction({
-        //       actions: nextAction,
-        //       queryArgs,
-        //       modifiersInput,
-        //     }).nextActions;
-        //   }
-        //   break;
-
         // Just execute next action if it is trigger.
         // In case of keyword action, wait for next user input
         case 'keyword':
@@ -213,8 +181,15 @@ function handleAction({
             guiColor: 'black',
           });
 
-          if (workManager.isInitialTrigger || !workManager.needMoreUserInput) {
-            workManager.needMoreUserInput = false;
+          const nextFirstAction = action['actions']
+            ? action['actions'][0]
+            : undefined;
+
+          if (
+            workManager.isInitialTrigger &&
+            (!nextFirstAction ||
+              ['keyword', 'scriptFilter'].includes(nextFirstAction.type))
+          ) {
             workManager.isInitialTrigger = false;
 
             if (nextAction) {
@@ -226,12 +201,10 @@ function handleAction({
             }
           } else {
             // Wait for next 'user enter press' event
-            workManager.needMoreUserInput = true;
             nextAction = undefined;
           }
 
           workManager.isInitialTrigger = false;
-
           break;
 
         // Push the work and execute next action

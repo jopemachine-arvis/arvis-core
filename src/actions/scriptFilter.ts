@@ -259,7 +259,7 @@ async function scriptFilterExcute(
 
   if (workManager.printArgs) {
     // Print 'args' to debugging console
-    log(LogType.info, '[Args]', extractedArgs);
+    log(LogType.info, '[Args] in scriptFilterExcute', extractedArgs);
   }
 
   const scriptWork: PCancelable<execa.ExecaReturnValue<string>> =
