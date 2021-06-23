@@ -8,6 +8,7 @@ import {
   getPluginInstalledPath,
   getWorkflowInstalledPath,
 } from '../config/path';
+import { triggerTypes } from '../utils';
 
 import extractJson from '../utils/extractJson';
 import { handleAction } from './actionHandler';
@@ -496,13 +497,6 @@ export class WorkManager {
   }
 
   /**
-   * @summary
-   */
-  private hasTriggerAction = (nextAction: Action) => {
-    return nextAction.type === 'scriptFilter' || nextAction.type === 'keyword';
-  }
-
-  /**
    * @param  {Action} nextAction
    * @param  {object} args
    * @description This function handle Trigger as Actions.
@@ -642,9 +636,9 @@ export class WorkManager {
       const parentActionType = this.getParentAction();
 
       if (
-        ['keyword', 'scriptFilter'].includes(targetActions[0].type) &&
+        triggerTypes.includes(targetActions[0].type) &&
         (!workManager.isInitialTrigger ||
-          ['keyword', 'scriptFilter'].includes(parentActionType))
+          triggerTypes.includes(parentActionType))
       ) {
         this.handleTriggerAction(targetActions[0], args);
         return false;
@@ -675,7 +669,7 @@ export class WorkManager {
             return false;
           }
 
-          if (this.hasTriggerAction(nextAction)) {
+          if (triggerTypes.includes(nextAction.type)) {
             this.handleTriggerAction(nextAction, handleActionResult.args);
             return false;
           }

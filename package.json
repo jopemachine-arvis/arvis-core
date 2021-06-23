@@ -1,6 +1,6 @@
 {
   "name": "arvis-core",
-  "version": "0.1.24",
+  "version": "0.1.25",
   "description": "Core module of Arvis",
   "main": "dist/index.js",
   "files": [
@@ -29,7 +29,7 @@
   },
   "license": "MIT",
   "engines": {
-    "node": ">=12.x"
+    "node": ">=14.x"
   },
   "bugs": {
     "url": "https://github.com/jopemachine/arvis-core/issues"

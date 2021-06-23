@@ -3,7 +3,7 @@ import chalk from 'chalk';
 import _ from 'lodash';
 import PCancelable from 'p-cancelable';
 import parseJson from 'parse-json';
-import execa, { ExecaError } from '../../execa';
+import execa from '../../execa';
 import { log, LogType, pushInputStrLog } from '../config';
 import {
   getPluginList,
