@@ -241,9 +241,9 @@ async function scriptFilterExcute(
         actionTrigger as Command | Action | PluginItem,
         extractedArgs
       );
-      proc.then(resolve).catch((err: ExecaError) => {
-        scriptErrorHandler(err, { extractJson: err['extractJson'] ?? true });
-      });
+      proc.then(resolve).catch((err: ExecaError) =>
+        scriptErrorHandler(err, { extractJson: err['extractJson'] ?? true })
+      );
       proc.unref();
       onCancel(() => proc.cancel());
     });
@@ -271,6 +271,8 @@ async function scriptFilterExcute(
       }
     })
     .catch((err) => {
+      // In case of cancel command by user
+      if (_.isUndefined(workManager.getTopWork())) return;
       if (!scriptWork.isCanceled) {
         console.error(`Unexpected Error occurs:\n\n${err}`);
       }

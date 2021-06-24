@@ -498,6 +498,7 @@ export class WorkManager {
 
     if (nextAction.type === 'scriptFilter' || nextAction.type === 'keyword') {
       const nextInput = args['{query}'] ?? '';
+      const optinalWhitespace = (nextAction['withspace'] === true || nextAction['argType'] === 'required') ? ' ' : '';
 
       this.pushWork({
         actions: (nextAction as ScriptFilterAction | KeywordAction).actions,
@@ -514,14 +515,14 @@ export class WorkManager {
         scriptFilterExcute(nextInput);
 
         this.onInputShouldBeUpdate!({
-          str: nextInput,
+          str: nextInput + optinalWhitespace,
           needItemsUpdate: false,
         });
       } else if (nextAction.type === 'keyword') {
         handleKeywordAction(nextAction as KeywordAction);
 
         this.onInputShouldBeUpdate!({
-          str: nextInput,
+          str: nextInput + optinalWhitespace,
           needItemsUpdate: false,
         });
       }
