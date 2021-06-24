@@ -145,14 +145,24 @@ export class WorkManager {
   public popWork = () => {
     this.throwErrOnRendererUpdaterNotSet();
 
-    if (this.hasNestedScriptFilters()) {
+    if (this.workStk.length >= 2) {
       this.workStk.pop();
-      if (this.getTopWork().type !== 'scriptFilter') return;
+      if (this.getTopWork().type === 'scriptFilter') {
+        this.onItemShouldBeUpdate!({
+          items: this.getTopWork().items!,
+          needIndexInfoClear: true,
+        });
+      } else if (this.getTopWork().type === 'keyword') {
+        const keywordItem = (this.getTopWork().actionTrigger) as any;
+        this.onItemShouldBeUpdate!({
+          items: [{
+            title: keywordItem.title,
+            subtitle: keywordItem.subtitle
+          }],
+          needIndexInfoClear: true,
+        });
+      }
 
-      this.onItemShouldBeUpdate!({
-        items: this.getTopWork().items!,
-        needIndexInfoClear: true,
-      });
       this.onInputShouldBeUpdate!({
         str: this.getTopWork().input,
         needItemsUpdate: false,
@@ -333,17 +343,6 @@ export class WorkManager {
   }
 
   /**
-   * @summary
-   * @return {boolean}
-   */
-  public hasNestedScriptFilters = (): boolean => {
-    return (
-      this.workStk.filter((work: Work) => work.type === 'scriptFilter')
-        .length >= 2
-    );
-  }
-
-  /**
    * @param  {PluginItem|Command} item
    */
   public setExtensionInfo = (item: PluginItem | Command) => {
@@ -375,17 +374,6 @@ export class WorkManager {
       log(LogType.info, item);
     }
     log(LogType.info, '--------------------------------------');
-  }
-
-  /**
-   * @param  {string} str
-   * @return {void}
-   * @summary Update input of stack (Updated input could be used when popWork)
-   */
-  public renewInput = (str: string): void => {
-    if (this.getTopWork().type === 'scriptFilter') {
-      this.workStk[this.workStk.length - 1].input = str;
-    }
   }
 
   /**
@@ -426,6 +414,11 @@ export class WorkManager {
       ? getPluginList()[bundleId].variables
       : getWorkflowList()[bundleId].variables ?? {};
 
+    const emptyQuery = {
+      '{query}': '',
+      $1: '',
+    };
+
     // Plugin Trigger
     if (this.hasEmptyWorkStk() && item['isPluginItem']) {
       return applyExtensionVars(
@@ -437,10 +430,7 @@ export class WorkManager {
     // Workflow Trigger: Hotkey
     if (this.hasEmptyWorkStk() && item['type'] === 'hotkey') {
       return applyExtensionVars(
-        {
-          '{query}': '',
-          $1: '',
-        },
+        emptyQuery,
         extensionVariables
       );
     }
@@ -477,11 +467,7 @@ export class WorkManager {
     }
 
     log(LogType.error, 'Args type infer failed');
-
-    return {
-      '{query}': '',
-      $1: '',
-    };
+    return emptyQuery;
   }
 
   /**
@@ -700,11 +686,6 @@ export class WorkManager {
     const actions = this.prepareNextActions({ item });
     const args = this.prepareArgs({ item, inputStr });
 
-    if (this.printArgs) {
-      // Print 'args' to debugging console
-      log(LogType.info, '[Args] in commandExcute', args);
-    }
-
     if (this.hasEmptyWorkStk()) {
       // Trigger Type: one of 'keyword', 'scriptFilter'
       this.pushWork({
@@ -723,8 +704,11 @@ export class WorkManager {
       }
     }
 
-    // Renew input
-    this.renewInput(inputStr);
+    if (this.getTopWork().type === 'scriptFilter') {
+      this.updateTopWork({
+        input: inputStr
+      });
+    }
 
     return this.handleActionChain({
       item,

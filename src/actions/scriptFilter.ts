@@ -155,24 +155,13 @@ const getScriptFilterQuery = (
   command: string | undefined,
   withspace: boolean
 ): string[] => {
-  const workManager = WorkManager.getInstance();
-
-  const getQuery = () => {
-    // assert(command);
-    const targetCommand = withspace ? command! + ' ' : command!;
-    const arr = inputStr.split(targetCommand);
-    return arr.slice(1, arr.length).join(targetCommand).split(' ');
-  };
-
-  if (workManager.hasNestedScriptFilters()) {
+  if (_.isUndefined(command)) {
     return inputStr.split(' ');
-  } else if (workManager.hasEmptyWorkStk()) {
-    return getQuery();
-  } else if (workManager.getTopWork().type === 'scriptFilter') {
-    return getQuery();
   }
 
-  return [];
+  const targetCommand = withspace ? command! + ' ' : command!;
+  const arr = inputStr.split(targetCommand);
+  return arr.slice(1, arr.length).join(targetCommand).split(' ');
 };
 
 /**
@@ -193,12 +182,11 @@ async function scriptFilterExcute(
     }
     workManager.pushWork({
       type: 'scriptFilter',
-      // user input string
       input: inputStr,
       actions: commandWhenStackIsEmpty.actions,
       actionTrigger: commandWhenStackIsEmpty,
       bundleId: commandWhenStackIsEmpty.bundleId!,
-      args: null,
+      args: {},
       workProcess: null,
       workCompleted: false,
     });
@@ -220,37 +208,30 @@ async function scriptFilterExcute(
     clearInterval(workManager.rerunTimer);
   }
 
-  const { bundleId, actionTrigger, args } = workManager.getTopWork();
+  const { bundleId, actionTrigger } = workManager.getTopWork();
 
-  const withspace = commandWhenStackIsEmpty
+  const withspace: boolean = commandWhenStackIsEmpty
     ? commandWhenStackIsEmpty.withspace ?? true
-    : workManager.getTopWork().actionTrigger['withspace'];
+    : actionTrigger['withspace'] ?? true;
 
-  // 중첩된 스크립트 필터의 경우 command가 필요 없을 것임.
-  // 만약 필요하다면 firstTrigger를 따로 저장해놔야 할 수 있음
-  const command = commandWhenStackIsEmpty
+  const command: string | undefined = commandWhenStackIsEmpty
     ? commandWhenStackIsEmpty!.command
-    : (workManager.getTopWork().actionTrigger as Command).command;
+    : actionTrigger['command'];
 
-  const querys = getScriptFilterQuery(inputStr, command, withspace);
+  const querys: string[] = getScriptFilterQuery(inputStr, command, withspace);
 
   // If the ScriptFilters are nested, the first string element is query.
   // Otherwise, the first string element is command.
 
-  const extensionVariables =
+  const extensionVariables: object =
     workManager.extensionInfo!.type === 'plugin'
       ? getPluginList()[bundleId].variables
       : getWorkflowList()[bundleId].variables ?? {};
 
-  const extractedArgs = applyExtensionVars(
+  const extractedArgs: object = applyExtensionVars(
     extractArgsFromQuery(querys),
     extensionVariables
   );
-
-  if (workManager.printArgs) {
-    // Print 'args' to debugging console
-    log(LogType.info, '[Args] in scriptFilterExcute', extractedArgs);
-  }
 
   const scriptWork: PCancelable<execa.ExecaReturnValue<string>> =
     new PCancelable((resolve, reject, onCancel) => {
@@ -268,6 +249,7 @@ async function scriptFilterExcute(
     });
 
   workManager.updateTopWork({
+    args: extractedArgs,
     workProcess: scriptWork,
   });
 
