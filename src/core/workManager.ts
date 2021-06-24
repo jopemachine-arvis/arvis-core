@@ -188,7 +188,7 @@ export class WorkManager {
       throw new Error('Renderer update funtions are not set!');
     }
 
-    if (options && options.extractJson === true) {
+    if (options && options.extractJson === true && errorItems!.length >= 1) {
       if (errorItems) {
         this.onItemShouldBeUpdate({
           items: errorItems,
@@ -202,7 +202,7 @@ export class WorkManager {
     } else {
       if (!error) {
         throw new Error(
-          '"options.extractJson" is false but error is not given.'
+          '"options.extractJson" is false or errorItems is empty. but error is not given.'
         );
       }
 

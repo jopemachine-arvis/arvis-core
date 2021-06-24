@@ -3,7 +3,7 @@ import chalk from 'chalk';
 import _ from 'lodash';
 import PCancelable from 'p-cancelable';
 import parseJson from 'parse-json';
-import execa from '../../execa';
+import execa, { ExecaError } from '../../execa';
 import { log, LogType, pushInputStrLog } from '../config';
 import {
   getPluginList,
@@ -126,14 +126,14 @@ function scriptFilterCompleteEventHandler(
  * @description Handler when scriptfilter's script fails
  */
 function scriptErrorHandler(
-  err: Error,
+  err: ExecaError,
   options?: { extractJson?: boolean } | undefined
 ) {
   const workManager = WorkManager.getInstance();
 
-  if (err['timedOut']) {
+  if (err.timedOut) {
     log(LogType.error, `Script timeout!\n'${err}`);
-  } else if (err['isCanceled']) {
+  } else if (err.isCanceled) {
     // Command was canceled by other scriptfilter.
   } else {
     if (workManager.hasEmptyWorkStk()) {
@@ -260,7 +260,7 @@ async function scriptFilterExcute(
         actionTrigger as Command | Action | PluginItem,
         extractedArgs
       );
-      proc.then(resolve).catch((err) => {
+      proc.then(resolve).catch((err: ExecaError) => {
         scriptErrorHandler(err, { extractJson: err['extractJson'] ?? true });
       });
       proc.unref();
