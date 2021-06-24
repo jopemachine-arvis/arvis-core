@@ -163,6 +163,8 @@ export class WorkManager {
       this.clearWorkStack();
       this.onInputShouldBeUpdate!({ str: '', needItemsUpdate: true });
     } else {
+      this.clearWorkStack();
+      this.onInputShouldBeUpdate!({ str: '', needItemsUpdate: true });
       this.onWorkEndHandler!();
     }
   }

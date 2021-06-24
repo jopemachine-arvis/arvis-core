@@ -56,18 +56,15 @@ export const isInputMeetWithspaceCond = ({
 }) => {
   if (item.type === 'scriptFilter') {
     const workManager = WorkManager.getInstance();
-
-    if (workManager.hasNestedScriptFilters()) {
-      return true;
-    }
+    const targetStr = workManager.hasEmptyWorkStk() ? item.command : workManager.getTopWork().input;
 
     const { withspace } = item;
 
     const withWithspace =
       withspace &&
-      (inputStr === item.command || inputStr.includes(`${item.command} `));
+      (inputStr === targetStr || inputStr.includes(`${targetStr} `));
 
-    const withoutWithspace = !withspace && inputStr.includes(item.command!);
+    const withoutWithspace = !withspace && inputStr.includes(targetStr!);
 
     if (!withWithspace && !withoutWithspace) return false;
     return true;
