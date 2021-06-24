@@ -19,7 +19,7 @@ export const determineIconPath = (
     ? getPluginInstalledPath(command.bundleId)
     : getWorkflowInstalledPath(command.bundleId);
 
-  let iconPath;
+  let iconPath: string | undefined;
   try {
     if (command.icon) {
       // In case of 'icon' is string

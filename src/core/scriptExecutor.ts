@@ -30,9 +30,9 @@ const execute = ({
   const { execPath, name, version, type } =
     WorkManager.getInstance().extensionInfo!;
 
-  let all;
-  let timeout;
-  let shell;
+  let all: boolean | undefined;
+  let timeout: number | undefined;
+  let shell: string | boolean | undefined;
 
   if (options) {
     all = options.all;

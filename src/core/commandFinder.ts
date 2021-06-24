@@ -51,7 +51,7 @@ const findWorkflowCommands = async (inputStr: string): Promise<Command[]> => {
     // e.g. when given inputStr is 'en' => output: en, enc, enct..
     const isForwardCandidates = commandStr.startsWith(inputStr);
 
-    const same = isBackwardCandidates && isForwardCandidates;
+    // const same = isBackwardCandidates && isForwardCandidates;
 
     if (isForwardCandidates || isBackwardCandidates) {
       for (const command of commands[commandStr]) {

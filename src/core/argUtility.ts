@@ -16,7 +16,7 @@ export const hasRequiredArg = ({
   // 'optional', 'no' always return true.
   if (item.argType === 'required') {
     // e.g. "npm query".split("npm") => ["", " query"]
-    const [emptyStr, ...querys] = inputStr.split(item.command);
+    const [_emptyStr, ...querys] = inputStr.split(item.command);
     if (!querys) return false;
     // There must be valid input (Assume only whitespaces are not valid)
     return querys.length >= 1 && querys[0].trim() !== '';
@@ -36,7 +36,7 @@ export const isArgTypeNoButHaveArg = ({
   inputStr: string;
 }): boolean | undefined => {
   // argType's default value is optional
-  const [emptyStr, ...querys] = inputStr.split(item.command);
+  const [_emptyStr, ...querys] = inputStr.split(item.command);
   if (item.argType === 'no') {
     if (querys.length >= 1 && querys[0] !== '') return true;
   }

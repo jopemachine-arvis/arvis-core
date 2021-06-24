@@ -33,7 +33,7 @@ const handleScriptFilterChange = (
     (command as ScriptFilterAction).scriptFilter!
   );
 
-  const scriptStr = applyArgsToScript({
+  const scriptStr: string = applyArgsToScript({
     scriptStr: script,
     queryArgs,
   });
@@ -44,7 +44,7 @@ const handleScriptFilterChange = (
     log(LogType.info, '[SF Script]', scriptStr);
   }
 
-  const vars = extractVarEnv(queryArgs);
+  const vars: object = extractVarEnv(queryArgs);
 
   return execute({ bundleId, scriptStr, vars, options: { ...options, shell } });
 };

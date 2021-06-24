@@ -21,7 +21,7 @@ export const checkUpdatableExtensions = async (
   try {
     const jsonDatas = await Promise.all(readJsonWorks);
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, _reject) => {
       jsonDatas.map((jsonData) => {
         if (jsonData.latest && jsonData.version) {
           if (semver.gt(jsonData.latest, jsonData.version)) {
@@ -39,7 +39,7 @@ export const checkUpdatableExtensions = async (
   } catch (err) {
     log(
       LogType.error,
-      `Error occured in json parsing in checkUpdatableExtensions\n\n${err}`
+      `Error occured in json parsing in 'checkUpdatableExtensions'\n\n${err}`
     );
     return [];
   }

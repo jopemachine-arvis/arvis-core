@@ -234,7 +234,7 @@ async function scriptFilterExcute(
   );
 
   const scriptWork: PCancelable<execa.ExecaReturnValue<string>> =
-    new PCancelable((resolve, reject, onCancel) => {
+    new PCancelable((resolve, _reject, onCancel) => {
       const proc: execa.ExecaChildProcess<string> = handleScriptFilterChange(
         bundleId,
         // Assume

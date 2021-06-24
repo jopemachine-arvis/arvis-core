@@ -7,14 +7,14 @@ enum LogType {
   error,
 }
 
-const defaultLogLevels = [LogType.debug, LogType.error, LogType.info];
+const defaultLogLevels: LogType[] = [LogType.debug, LogType.error, LogType.info];
 let logLevels: LogType[] = defaultLogLevels;
 
 /**
  * @param  {LogType[]} types
  * @description Print out the logs that are included in the "types".
  */
-const setLogLevels = (types: LogType[]) => {
+const setLogLevels = (types: LogType[]): void => {
   logLevels = types;
 };
 
@@ -23,7 +23,7 @@ const setLogLevels = (types: LogType[]) => {
  * @param  {any} message
  * @param  {any[]} optionalParams optionalParams of console.log, console.error
  */
-const log = (type: LogType, message?: any, ...optionalParams: any[]) => {
+const log = (type: LogType, message?: any, ...optionalParams: any[]): void => {
   if (type === LogType.error) {
     console.error(message, ...optionalParams);
   } else if (logLevels.includes(type)) {
@@ -34,7 +34,7 @@ const log = (type: LogType, message?: any, ...optionalParams: any[]) => {
 /**
  * @param  {Error} err
  */
-const trace = (err: Error) => {
+const trace = (err: Error): void => {
   if (logLevels.includes(LogType.error)) {
     console.trace(err);
   }

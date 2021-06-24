@@ -8,11 +8,11 @@ import { pluginInstallPath, workflowInstallPath } from '../config/path';
 export const fetchExtensionJson = async (
   type: 'workflow' | 'plugin'
 ): Promise<string[]> => {
-  const targetFiles: any[] = [];
+  const targetFiles: string[] = [];
   const targetDir =
     type === 'workflow' ? workflowInstallPath : pluginInstallPath;
 
-  return new Promise<any[]>((resolve, reject) => {
+  return new Promise<string[]>((resolve, reject) => {
     readdirp(targetDir, {
       fileFilter: `arvis-${type}.json`,
       depth: 1,

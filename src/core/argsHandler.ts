@@ -26,6 +26,18 @@ const applyArgsToScript = ({
 };
 
 /**
+ * @param  {object} args
+ * @param  {object} vars
+ * @returns variable
+ */
+const applyExtensionVars = (args: object, vars: object): object => {
+  for (const variable in vars) {
+    args[`{var:${variable}}`] = `${vars[variable]}`;
+  }
+  return args;
+};
+
+/**
  * @param  {string[]} querys
  * @return {object}
  */
@@ -100,22 +112,10 @@ const extractArgsFromScriptFilterItem = (
   return args;
 };
 
-/**
- * @param  {object} args
- * @param  {object} vars
- * @returns variable
- */
-const applyExtensionVars = (args: object, vars: object): object => {
-  for (const variable in vars) {
-    args[`{var:${variable}}`] = `${vars[variable]}`;
-  }
-  return args;
-};
-
 export {
-  applyExtensionVars,
-  extractArgsFromQuery,
-  extractArgsFromPluginItem,
-  extractArgsFromScriptFilterItem,
   applyArgsToScript,
+  applyExtensionVars,
+  extractArgsFromPluginItem,
+  extractArgsFromQuery,
+  extractArgsFromScriptFilterItem,
 };

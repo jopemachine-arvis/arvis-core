@@ -12,5 +12,6 @@ declare global {
     readme?: string;
     version?: string;
     webAddress?: string;
+    bundleId?: string;
   }
 }

@@ -16,7 +16,7 @@ import {
  * @param  {string} bundleId
  * @return {object} Commands except for the command equivalent of bundleId.
  */
-const removeOldCommand = (commands: object, bundleId: string) => {
+const removeOldCommand = (commands: object, bundleId: string): object => {
   const ret = commands;
   for (const commandKey of Object.keys(commands)) {
     const commandObj = commands[commandKey];
@@ -41,7 +41,7 @@ const addCommands = (
   commands: object,
   newCommands: any[],
   bundleId: string
-) => {
+): object => {
   const ret = commands;
   for (const commandObj of newCommands) {
     if (!commandObj.command) continue;
@@ -117,7 +117,7 @@ export class Store {
    * @param  {string} outputPath
    * @description Create zip file exporting plugin with bundleId to outputPath
    */
-  public exportPlugin(bundleId: string, outputPath: string) {
+  public async exportPlugin(bundleId: string, outputPath: string): Promise<void> {
     return zipDirectory(getPluginInstalledPath(bundleId), outputPath);
   }
 
@@ -126,7 +126,7 @@ export class Store {
    * @param  {string} outputPath
    * @description Create zip file exporting workflow with bundleId to outputPath
    */
-  public exportWorkflow(bundleId: string, outputPath: string) {
+  public async exportWorkflow(bundleId: string, outputPath: string): Promise<void> {
     return zipDirectory(getWorkflowInstalledPath(bundleId), outputPath);
   }
 
@@ -136,7 +136,7 @@ export class Store {
    *          This funtion is called by file watcher if arvis-workflow.json's changes are detected.
    * @description If bundleId is given, renew only that workflow info.
    */
-  public async renewWorkflows(bundleId?: string) {
+  public async renewWorkflows(bundleId?: string): Promise<boolean> {
     return new Promise(async (resolve, reject) => {
       this.setStoreAvailability(false);
       try {
@@ -219,12 +219,12 @@ export class Store {
   }: {
     initializePluginWorkspace: boolean;
     bundleId?: string | undefined;
-  }) => {
+  }): Promise<boolean> => {
     return new Promise(async (resolve, reject) => {
       this.setStoreAvailability(false);
 
       try {
-        let files = await fetchExtensionJson('plugin');
+        let files: string[] = await fetchExtensionJson('plugin');
         files = files.filter((filePath) => {
           if (bundleId)
             return filePath.endsWith(`${bundleId}${path.sep}arvis-plugin.json`);
@@ -242,9 +242,9 @@ export class Store {
           }
         }
 
-        const readJsonsResult = await Promise.allSettled(readJsonPromises);
+        const readJsonsResult: PromiseSettledResult<any>[] = await Promise.allSettled(readJsonPromises);
 
-        const pluginInfoArr = readJsonsResult
+        const pluginInfoArr: PluginConfigFile[] = readJsonsResult
           .filter((jsonResult) => jsonResult.status === 'fulfilled')
           .map((jsonResult) => (jsonResult as any).value)
           .filter((pluginInfo) => {
@@ -279,7 +279,7 @@ export class Store {
         this.setStoreAvailability(true);
         resolve(true);
 
-        const errorCnt = readJsonsResult.filter(
+        const errorCnt: number = readJsonsResult.filter(
           (jsonResult) => jsonResult.status === 'rejected'
         ).length;
 
@@ -331,7 +331,7 @@ export class Store {
   /**
    * @param  {any} workflow
    */
-  public setPlugin(plugin: any) {
+  public setPlugin(plugin: any): void {
     const bundleId = getBundleId(plugin.creator, plugin.name);
     this.store.set('plugins', {
       ...this.getPlugins(),
@@ -343,7 +343,7 @@ export class Store {
    *
    * @param  {any} workflow
    */
-  public setWorkflow(workflow: any) {
+  public setWorkflow(workflow: any): void {
     const bundleId = getBundleId(workflow.creator, workflow.name);
 
     // Update workflow installation info
@@ -387,7 +387,7 @@ export class Store {
    * @param  {string} bundleId
    * @summary Called to unInstaller to remove information from the workflow from the Store
    */
-  public deleteWorkflow(bundleId: string) {
+  public deleteWorkflow(bundleId: string): void {
     // Update workflow installation info
     const installedWorkflows = this.getInstalledWorkflows();
     delete installedWorkflows[bundleId];

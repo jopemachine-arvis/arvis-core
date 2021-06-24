@@ -156,8 +156,8 @@ const pluginWorkspace: PluginWorkspace = {
           if (!result.items || !result.items.length) resolve({ items: [] });
 
           result.items = result.items
-            .filter((item) => !!item)
-            .map((item) => {
+            .filter((item: any) => !!item)
+            .map((item: any) => {
               item.bundleId = pluginBundleId;
               return item;
             });
@@ -209,8 +209,8 @@ const pluginWorkspace: PluginWorkspace = {
           );
         } else {
           pluginExecutionResult.items
-            .filter((item) => !!item)
-            .forEach((item) => {
+            .filter((item: any) => !!item)
+            .forEach((item: any) => {
               item.bundleId = pluginBundleId;
               return item;
             });
@@ -252,8 +252,8 @@ const pluginWorkspace: PluginWorkspace = {
       .map((result) => result.items)
       .map((items) =>
         items
-          .filter((item) => !!item)
-          .map((item) => {
+          .filter((item: any) => !!item)
+          .map((item: any) => {
             if (!item.icon && getPluginList()[item.bundleId].defaultIcon) {
               item.icon = {
                 path: getPluginList()[item.bundleId].defaultIcon,
@@ -276,7 +276,7 @@ const pluginWorkspace: PluginWorkspace = {
 
     for (const pluginExecutionResult of pluginExecutionResults) {
       pluginExecutionResult.items = pluginExecutionResult.items.filter(
-        (item) => !item.command || item.command.startsWith(inputStr)
+        (item: any) => !item.command || item.command.startsWith(inputStr)
       );
     }
 

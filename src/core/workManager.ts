@@ -103,6 +103,7 @@ export class WorkManager {
     this.globalVariables = {};
     this.rerunTimer = undefined;
     this.isInitialTrigger = true;
+    this.extensionInfo = undefined;
   }
 
   /**
@@ -437,7 +438,7 @@ export class WorkManager {
 
     // Workflow Trigger: Keyword, scriptfilter
     if (this.hasEmptyWorkStk()) {
-      const [_commandTitle, queryStr] = inputStr.split(
+      const [_emptyStr, queryStr] = inputStr.split(
         (item as Command).command!
       );
 
@@ -499,14 +500,14 @@ export class WorkManager {
       const nextInput = args['{query}'] ?? '';
 
       this.pushWork({
-        type: nextAction.type,
-        input: nextInput,
         actions: (nextAction as ScriptFilterAction | KeywordAction).actions,
         actionTrigger: nextAction,
-        bundleId: this.getTopWork().bundleId,
         args,
-        workProcess: null,
+        bundleId: this.getTopWork().bundleId,
+        input: nextInput,
+        type: nextAction.type,
         workCompleted: false,
+        workProcess: null,
       });
 
       if (nextAction.type === 'scriptFilter') {
@@ -689,12 +690,12 @@ export class WorkManager {
     if (this.hasEmptyWorkStk()) {
       // Trigger Type: one of 'keyword', 'scriptFilter'
       this.pushWork({
-        args,
-        input: inputStr,
         actions,
         actionTrigger: item as Command | PluginItem,
-        type: (item as Command | PluginItem).type,
+        args,
         bundleId: (item as Command | PluginItem).bundleId!,
+        input: inputStr,
+        type: (item as Command | PluginItem).type,
       });
 
       this.setExtensionInfo(item as Command | PluginItem);
