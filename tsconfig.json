@@ -6,7 +6,6 @@
     "stripInternal": true,
     "noEmitOnError": true,
     "skipLibCheck": false,
-    "noImplicitOverride": true,
     /* Basic Options */
     "skipDefaultLibCheck": false,
     // "incremental": true,                   /* Enable incremental compilation */

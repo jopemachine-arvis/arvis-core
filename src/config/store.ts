@@ -101,6 +101,7 @@ export class Store {
     this.store.set('commands', {});
     this.store.set('workflows', {});
     this.store.set('hotkeys', {});
+    this.store.set('triggers', {});
   }
 
   private clearPluginsInfo() {
@@ -303,6 +304,13 @@ export class Store {
   /**
    * @param  {} {}
    */
+  public getTriggers() {
+    return this.getter('triggers', {});
+  }
+
+  /**
+   * @param  {} {}
+   */
   public getCommands() {
     return this.getter('commands', {});
   }
@@ -381,6 +389,11 @@ export class Store {
 
     hotkeys = _.keyBy(hotkeys, (item) => item.hotkey);
     this.store.set('hotkeys', { ...hotkeys, ...this.getHotkeys() });
+
+    // Update available triggers
+    const triggers = this.getTriggers();
+    triggers[bundleId] = findTriggers(['command', 'hotkey'], workflow.commands, 'commands');
+    this.store.set('triggers', triggers);
   }
 
   /**
@@ -424,5 +437,10 @@ export class Store {
     );
 
     this.store.set('hotkeys', hotkeys);
+
+    // Update triggers
+    const existingTriggers = this.getTriggers();
+    delete existingTriggers[bundleId];
+    this.store.set('triggers', existingTriggers);
   }
 }

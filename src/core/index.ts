@@ -29,6 +29,7 @@ import {
 import { setAsyncPluginTimer } from './setAsyncPluginTimer';
 import { setExternalEnvs } from './setExternalEnvs';
 import { setStoreAvailabiltyChecker } from './setStoreAvailabiltyChecker';
+import { getTriggers } from './triggerList';
 import { exportWorkflow } from './workflowExporter';
 import {
   install as installWorkflow,
@@ -36,6 +37,7 @@ import {
 } from './workflowInstaller';
 import { getWorkflowList } from './workflowList';
 import { renewWorkflows } from './workflowRenewer';
+import { updateWorkflowTrigger } from './workflowTriggerUpdater';
 import { WorkManager } from './workManager';
 
 import { Store } from '../config';
@@ -62,13 +64,14 @@ export {
   getNameFromBundleId,
   getPluginList,
   getSystemPaths,
+  getTriggers,
   getWorkflowList,
   handleAction,
-  isArgTypeNoButHaveArg,
   hasRequiredArg,
   history,
   installPlugin,
   installWorkflow,
+  isArgTypeNoButHaveArg,
   isInputMeetWithspaceCond,
   logger,
   path,
@@ -83,6 +86,7 @@ export {
   Store,
   uninstallPlugin,
   uninstallWorkflow,
+  updateWorkflowTrigger,
   WorkManager,
   xmlExtractGlobalVars,
   xmlScriptFilterItemToJsonScriptFilterItem,

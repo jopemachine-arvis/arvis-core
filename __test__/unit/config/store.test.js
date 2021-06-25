@@ -9,6 +9,8 @@ const mockdata = {
       commands: [
         {
           type: 'keyword',
+          // mock bundleId
+          bundleId: 'mock.mock1',
           command: 'ch > init',
           actions: [
             {
