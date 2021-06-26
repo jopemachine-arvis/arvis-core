@@ -17,7 +17,7 @@ export function findTriggers(
   let actionIdx: number = 0;
   for (const action of actions) {
     for (const targetAttr of targetAttrs) {
-      if ((action as any)[targetAttr]) {
+      if ((action as any)[targetAttr] || (action as any)[targetAttr] === '') {
         const trigger: any = { ...action };
         if (triggerBasePath) {
           const triggerPath = `${triggerBasePath}.${actionIdx}`;
