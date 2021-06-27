@@ -170,7 +170,7 @@ export class Store {
           .filter((workflowInfo) => {
             const { valid, errorMsg } = validateJson(workflowInfo, 'workflow');
             if (errorMsg) {
-              const err = `${workflowInfo.name} has invalid format. skip ${workflowInfo.name}..\n\n${errorMsg}`;
+              const err = `${workflowInfo.name} has invalid format. skip loading '${workflowInfo.name}'..\n\n${errorMsg}`;
               console.error(err);
             }
             return valid;
@@ -251,7 +251,7 @@ export class Store {
           .filter((pluginInfo) => {
             const { valid, errorMsg } = validateJson(pluginInfo, 'plugin');
             if (errorMsg) {
-              const err = `${pluginInfo.name} has invalid format. skip ${pluginInfo.name}..\n\n${errorMsg}`;
+              const err = `${pluginInfo.name} has invalid format. skip loading '${pluginInfo.name}'..\n\n${errorMsg}`;
               console.error(err);
             }
             return valid;

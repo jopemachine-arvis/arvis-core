@@ -155,6 +155,7 @@ function handleAction({
         case 'script':
           action = action as ScriptAction;
           if (!action.script) throwReqAttrNotExtErr(type, ['script']);
+          target = action.script;
 
           printActionDebuggingLog({
             action,
@@ -252,6 +253,7 @@ function handleAction({
         case 'open':
           action = action as OpenAction;
           if (!action.target) throwReqAttrNotExtErr(type, ['target']);
+          target = action.target;
 
           printActionDebuggingLog({
             action,
@@ -274,6 +276,7 @@ function handleAction({
         case 'clipboard':
           action = action as ClipboardAction;
           if (!action.text) throwReqAttrNotExtErr(type, ['text']);
+          target = action.text;
 
           printActionDebuggingLog({
             action,
@@ -327,6 +330,8 @@ function handleAction({
           if (!action.if.actions.then) {
             throwReqAttrNotExtErr('action of cond type', ['then']);
           }
+
+          target = action.if.cond;
 
           let condIsTrue;
           try {
