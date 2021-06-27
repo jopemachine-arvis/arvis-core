@@ -9,9 +9,8 @@ import {
 } from '../actions';
 import { log, LogType, pushActionLog } from '../config';
 import { escapeBraket } from '../utils';
-import { applyArgsToScript } from './argsHandler';
+import { applyArgs } from './argsHandler';
 import { handleModifiers } from './modifierHandler';
-import { extractScriptOnThisPlatform } from './scriptExtracter';
 import { WorkManager } from './workManager';
 
 /**
@@ -91,6 +90,25 @@ const resolveActionType = (action: Action) => {
 };
 
 /**
+ * @param  {object} args
+ * @param  {Action} action
+ */
+const applyArgsInAction = (args: object, action: Action) => {
+  const actionKeys = Object.keys(action);
+  for (const actionKey of actionKeys) {
+    if (typeof action[actionKey] === 'string') {
+      const appendQuotes = actionKey === 'cond' ? true : false;
+      action[actionKey] = applyArgs({ str: action[actionKey], queryArgs: args, appendQuotes });
+    } else if (typeof action[actionKey] === 'object') {
+      if (actionKey !== 'actions') {
+        applyArgsInAction(args, action[actionKey]);
+      }
+    }
+  }
+  return action;
+};
+
+/**
  * @param  {Action[]} actions
  * @param  {object} queryArgs
  * @param  {ModifierInput} modifiersInput
@@ -124,23 +142,19 @@ function handleAction({
     // tslint:disable-next-line: no-string-literal
     nextAction = action['actions'];
 
+    action = applyArgsInAction(queryArgs, action);
+    pushActionLog(action);
+
     if (customActions[action.type]) {
       customActions[action.type](action);
       return;
     }
-
-    pushActionLog(action);
 
     try {
       switch (type) {
         case 'script':
           action = action as ScriptAction;
           if (!action.script) throwReqAttrNotExtErr(type, ['script']);
-
-          const { script: scriptStr } = extractScriptOnThisPlatform(
-            action.script
-          );
-          target = applyArgsToScript({ scriptStr, queryArgs });
 
           printActionDebuggingLog({
             action,
@@ -239,8 +253,6 @@ function handleAction({
           action = action as OpenAction;
           if (!action.target) throwReqAttrNotExtErr(type, ['target']);
 
-          target = applyArgsToScript({ scriptStr: action.target, queryArgs });
-
           printActionDebuggingLog({
             action,
             cuiColorApplier: chalk.blueBright,
@@ -262,8 +274,6 @@ function handleAction({
         case 'clipboard':
           action = action as ClipboardAction;
           if (!action.text) throwReqAttrNotExtErr(type, ['text']);
-
-          target = applyArgsToScript({ scriptStr: action.text, queryArgs });
 
           printActionDebuggingLog({
             action,
@@ -318,12 +328,6 @@ function handleAction({
             throwReqAttrNotExtErr('action of cond type', ['then']);
           }
 
-          target = applyArgsToScript({
-            scriptStr: action.if.cond,
-            queryArgs,
-            appendQuotes: true,
-          });
-
           let condIsTrue;
           try {
             // tslint:disable-next-line: no-eval
@@ -360,10 +364,6 @@ function handleAction({
 
         case 'resetInput': {
           action = action as ResetInputAction;
-          action.newInput = applyArgsToScript({
-            scriptStr: action.newInput,
-            queryArgs,
-          });
 
           nextAction = [action];
 

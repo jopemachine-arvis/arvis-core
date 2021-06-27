@@ -6,23 +6,23 @@ import { escapeBraket, replaceAll } from '../utils';
  * @param  {string} scriptStr
  * @param  {object} queryArgs
  * @param  {boolean} appendQuotes
- * @return {string} argsAppliedScriptStr
+ * @return {string} args applied string
  */
-const applyArgsToScript = ({
-  scriptStr,
+const applyArgs = ({
+  str,
   queryArgs,
   appendQuotes,
 }: {
-  scriptStr: string;
+  str: string;
   queryArgs: object;
   appendQuotes?: boolean;
 }): string => {
   for (const key of Object.keys(queryArgs)) {
     const newStr =
       appendQuotes === true ? `"${queryArgs[key].trim()}"` : queryArgs[key];
-    scriptStr = replaceAll(scriptStr, key, newStr);
+    str = replaceAll(str, key, newStr);
   }
-  return scriptStr.trim();
+  return str.trim();
 };
 
 /**
@@ -113,7 +113,7 @@ const extractArgsFromScriptFilterItem = (
 };
 
 export {
-  applyArgsToScript,
+  applyArgs,
   applyExtensionVars,
   extractArgsFromPluginItem,
   extractArgsFromQuery,

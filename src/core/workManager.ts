@@ -563,9 +563,9 @@ export class WorkManager {
       (targetAction) => targetAction !== nextAction
     );
 
-    nextAction['asyncChain'].then((result) => {
+    nextAction['asyncChain'].then((result: any) => {
       switch (nextAction['asyncChainType']) {
-        case 'keyword': {
+        case 'script': {
           args['{query}'] = result.all;
           args['$1'] = result.all;
           break;

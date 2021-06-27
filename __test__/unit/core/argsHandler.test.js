@@ -1,31 +1,31 @@
 const {
-  applyArgsToScript,
+  applyArgs,
   extractArgsFromPluginItem,
   extractArgsFromQuery,
   extractArgsFromScriptFilterItem,
 } = require('../../../dist/core/argsHandler');
 
 describe('argsExtract test', () => {
-  test('applyArgsToScript with no appendQuote test', () => {
+  test('applyArgs with no appendQuote test', () => {
     const scriptStr = 'node {query}';
     const queryArgs = {
       '{query}': 'abc',
     };
     const appendQuotes = false;
 
-    const result = applyArgsToScript({ scriptStr, queryArgs, appendQuotes });
+    const result = applyArgs({ str: scriptStr, queryArgs, appendQuotes });
 
     expect(result).toStrictEqual('node abc');
   });
 
-  test('applyArgsToScript with appendQuote test', () => {
+  test('applyArgs with appendQuote test', () => {
     const scriptStr = 'node {query}';
     const queryArgs = {
       '{query}': 'abc',
     };
     const appendQuotes = true;
 
-    const result = applyArgsToScript({ scriptStr, queryArgs, appendQuotes });
+    const result = applyArgs({ str: scriptStr, queryArgs, appendQuotes });
 
     expect(result).toStrictEqual(`node "abc"`);
   });
