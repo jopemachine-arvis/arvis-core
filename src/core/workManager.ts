@@ -709,6 +709,8 @@ export class WorkManager {
       if (!item['isPluginItem']) {
         pushInputStrLog((item as Command).command!);
       }
+    } else {
+      this.isInitialTrigger = false;
     }
 
     if (this.getTopWork().type === 'scriptFilter') {
