@@ -3,7 +3,7 @@ import chalk from 'chalk';
 import _ from 'lodash';
 import PCancelable from 'p-cancelable';
 import parseJson from 'parse-json';
-import execa, { ExecaError } from '../../execa';
+import execa, { ExecaError, ExecaReturnValue } from '../../execa';
 import { log, LogType, pushInputStrLog } from '../config';
 import {
   getPluginList,
@@ -17,7 +17,7 @@ import { handleScriptFilterChange } from '../core/scriptFilterChangeHandler';
 /**
  * @summary
  */
-const printActionLog = () => {
+const printActionLog = (): void => {
   const workManager = WorkManager.getInstance();
   if (workManager.printActionType) {
     if (workManager.loggerColorType === 'gui') {
@@ -75,7 +75,7 @@ const parseStdio = (stdout: string, stderr: string): ScriptFilterResult => {
  */
 function scriptFilterCompleteEventHandler(
   scriptFilterResult: execa.ExecaReturnValue<string>
-) {
+): void {
   const workManager = WorkManager.getInstance();
 
   const stdio = parseStdio(
@@ -128,7 +128,7 @@ function scriptFilterCompleteEventHandler(
 function scriptErrorHandler(
   err: ExecaError,
   options?: { extractJson?: boolean } | undefined
-) {
+): void {
   const workManager = WorkManager.getInstance();
 
   if (err.timedOut) {
@@ -155,7 +155,8 @@ const getScriptFilterQuery = (
   command: string | undefined,
   withspace: boolean
 ): string[] => {
-  if (_.isUndefined(command)) {
+  const workManager = WorkManager.getInstance();
+  if (!workManager.isInitialTrigger) {
     return inputStr.split(' ');
   }
 
@@ -166,33 +167,34 @@ const getScriptFilterQuery = (
 
 /**
  * @param  {string} inputStr
- * @param  {Command} commandWhenStackIsEmpty? command object should be given when stack is empty
+ * @param  {Command} commandObj? command object should be given when stack is empty
  */
 async function scriptFilterExcute(
   inputStr: string,
-  commandWhenStackIsEmpty?: Command
-): Promise<void> {
+  commandObj?: Command
+): Promise<void | ExecaReturnValue<string>> {
   // If WorkStk is empty, users can enter the script filter without a return event.
   // To handle this, push this command to WorkStk
   const workManager = WorkManager.getInstance();
 
+  // To do:: Change below code with 'workManager.isInitialTrigger'
   if (workManager.hasEmptyWorkStk()) {
-    if (!commandWhenStackIsEmpty) {
+    if (!commandObj) {
       throw new Error('Error - command should be given when stack is empty');
     }
     workManager.pushWork({
       type: 'scriptFilter',
       input: inputStr,
-      actions: commandWhenStackIsEmpty.actions,
-      actionTrigger: commandWhenStackIsEmpty,
-      bundleId: commandWhenStackIsEmpty.bundleId!,
+      actions: commandObj.actions,
+      actionTrigger: commandObj,
+      bundleId: commandObj.bundleId!,
       args: {},
       workProcess: null,
       workCompleted: false,
     });
 
-    pushInputStrLog(commandWhenStackIsEmpty.command!);
-    workManager.setExtensionInfo(commandWhenStackIsEmpty);
+    pushInputStrLog(commandObj.command!);
+    workManager.setExtensionInfo(commandObj);
   } else {
     const newScriptFilterNeedsToExecuted =
       workManager.getTopWork().type === 'scriptFilter' &&
@@ -210,12 +212,12 @@ async function scriptFilterExcute(
 
   const { bundleId, actionTrigger } = workManager.getTopWork();
 
-  const withspace: boolean = commandWhenStackIsEmpty
-    ? commandWhenStackIsEmpty.withspace ?? true
+  const withspace: boolean = commandObj
+    ? commandObj.withspace ?? true
     : actionTrigger['withspace'] ?? true;
 
-  const command: string | undefined = commandWhenStackIsEmpty
-    ? commandWhenStackIsEmpty!.command
+  const command: string | undefined = commandObj
+    ? commandObj!.command
     : actionTrigger['command'];
 
   const querys: string[] = getScriptFilterQuery(inputStr, command, withspace);
@@ -253,7 +255,7 @@ async function scriptFilterExcute(
     workProcess: scriptWork,
   });
 
-  scriptWork
+  return scriptWork
     .then((result) => {
       if (
         workManager.getTopWork().workProcess &&
@@ -269,6 +271,7 @@ async function scriptFilterExcute(
           }, workManager.getTopWork().rerunInterval);
         }
       }
+      return result;
     })
     .catch((err) => {
       // In case of cancel command by user

@@ -12,10 +12,18 @@ export const hasRequiredArg = ({
   item: any;
   inputStr: string;
 }) => {
+  const workManager = WorkManager.getInstance();
+
+  if (!workManager.isInitialTrigger) {
+    if (inputStr === '') return false;
+    return true;
+  }
+
   // argType's default value is optional
   // 'optional', 'no' always return true.
   if (item.argType === 'required') {
-    // e.g. "npm query".split("npm") => ["", " query"]
+    // e.g. "npm query".split("npm") => ["", " query"].
+
     const [_emptyStr, ...querys] = inputStr.split(item.command);
     if (!querys) return false;
     // There must be valid input (Assume only whitespaces are not valid)
@@ -56,7 +64,7 @@ export const isInputMeetWithspaceCond = ({
 }) => {
   if (item.type === 'scriptFilter') {
     const workManager = WorkManager.getInstance();
-    const targetStr = workManager.hasEmptyWorkStk() ? item.command : workManager.getTopWork().input;
+    const targetStr = workManager.isInitialTrigger ? item.command : workManager.getTopWork().input;
 
     const { withspace } = item;
 

@@ -5,7 +5,7 @@ import { getPluginList, getWorkflowList, WorkManager } from '../core';
  * @description Used in only keyword action, not keyword trigger.
  *              (Because keyword trigger is immediately executed)
  */
-const handleKeywordAction = (item: KeywordAction) => {
+const handleKeywordAction = (item: KeywordAction): void => {
   const workManager = WorkManager.getInstance();
 
   const infolist =

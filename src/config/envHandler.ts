@@ -11,7 +11,7 @@ let externalEnv: object = {};
  * @param  {string} path
  * @description Because mac gui apps doesn't inherit PATH env, need to set it manually
  */
-const setMacPathsEnv = (path: string) => {
+const setMacPathsEnv = (path: string): void => {
   macPathsEnv = path;
 };
 
@@ -19,14 +19,14 @@ const setMacPathsEnv = (path: string) => {
  * @param  {string} path
  * @description Sets environment variables outside core lib
  */
-const setExternalEnvs = (envs: object) => {
+const setExternalEnvs = (envs: object): void => {
   externalEnv = envs;
 };
 
 /**
  * @param  {object} queryArgs
  */
-const extractVarEnv = (queryArgs: object) => {
+const extractVarEnv = (queryArgs: object): object => {
   const vars = {};
 
   Object.keys(queryArgs)
@@ -55,7 +55,7 @@ const getEnvs = ({
   vars: object;
   name?: string;
   version?: string;
-}) => {
+}): any => {
   const env = {
     arvis_extension_bundleid: bundleId,
     arvis_extension_cache: getExtensionCachePath(bundleId),

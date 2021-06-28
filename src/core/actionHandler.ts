@@ -222,33 +222,6 @@ function handleAction({
           workManager.isInitialTrigger = false;
           break;
 
-        // Push the work and execute next action
-        case 'hotkey':
-          action = action as HotkeyAction;
-          if (!action.hotkey) {
-            throwReqAttrNotExtErr(type, ['hotkey']);
-          }
-
-          target = action.hotkey;
-
-          printActionDebuggingLog({
-            action,
-            cuiColorApplier: chalk.whiteBright,
-            guiColor: 'white',
-            extra: `pressed key: '${target}'`,
-          });
-
-          workManager.isInitialTrigger = false;
-
-          if (nextAction) {
-            nextAction = handleAction({
-              actions: nextAction,
-              queryArgs,
-              modifiersInput,
-            }).nextActions;
-          }
-          break;
-
         // Open specific program, url..
         case 'open':
           action = action as OpenAction;
@@ -381,6 +354,10 @@ function handleAction({
           });
           break;
         }
+
+        case 'hotkey':
+          log(LogType.error, 'Error: hotkey action should be most front');
+          break;
 
         default:
           log(LogType.error, 'Error: Not supported type, ' + type);

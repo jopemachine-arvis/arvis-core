@@ -147,6 +147,11 @@ export class WorkManager {
     this.throwErrOnRendererUpdaterNotSet();
 
     if (this.workStk.length >= 2) {
+      if (this.getTopWork().type === 'hotkey') {
+        // Double pop when executed through hotkey
+        this.workStk.pop();
+      }
+
       this.workStk.pop();
       if (this.getTopWork().type === 'scriptFilter') {
         this.onItemShouldBeUpdate!({
@@ -498,7 +503,7 @@ export class WorkManager {
 
     if (nextAction.type === 'scriptFilter' || nextAction.type === 'keyword') {
       const nextInput = args['{query}'] ?? '';
-      const optinalWhitespace = (nextAction['withspace'] === true || nextAction['argType'] === 'required') ? ' ' : '';
+      const optionalWhitespace = (nextAction['withspace'] === true || nextAction['argType'] === 'required') ? ' ' : '';
 
       this.pushWork({
         actions: (nextAction as ScriptFilterAction | KeywordAction).actions,
@@ -515,14 +520,14 @@ export class WorkManager {
         scriptFilterExcute(nextInput);
 
         this.onInputShouldBeUpdate!({
-          str: nextInput + optinalWhitespace,
+          str: nextInput + optionalWhitespace,
           needItemsUpdate: false,
         });
       } else if (nextAction.type === 'keyword') {
         handleKeywordAction(nextAction as KeywordAction);
 
         this.onInputShouldBeUpdate!({
-          str: nextInput + optinalWhitespace,
+          str: nextInput + optionalWhitespace,
           needItemsUpdate: false,
         });
       }
