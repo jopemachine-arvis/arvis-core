@@ -137,7 +137,7 @@ export class Store {
    *          This funtion is called by file watcher if arvis-workflow.json's changes are detected.
    * @description If bundleId is given, renew only that workflow info.
    */
-  public async renewWorkflows(bundleId?: string): Promise<boolean> {
+  public async renewWorkflows(bundleId?: string): Promise<void> {
     return new Promise(async (resolve, reject) => {
       this.setStoreAvailability(false);
       try {
@@ -164,6 +164,7 @@ export class Store {
 
         const readJsonsResult = await Promise.allSettled(readJsonPromises);
 
+        let invalidCnt = 0;
         const workflowInfoArr = readJsonsResult
           .filter((jsonResult) => jsonResult.status === 'fulfilled')
           .map((jsonResult) => (jsonResult as any).value)
@@ -171,7 +172,8 @@ export class Store {
             const { valid, errorMsg } = validateJson(workflowInfo, 'workflow');
             if (errorMsg) {
               const err = `${workflowInfo.name} has invalid format. skip loading '${workflowInfo.name}'..\n\n${errorMsg}`;
-              console.error(err);
+              log(LogType.error, err);
+              invalidCnt += 1;
             }
             return valid;
           });
@@ -191,15 +193,17 @@ export class Store {
         }
 
         this.setStoreAvailability(true);
-        resolve(true);
 
         const errorCnt = readJsonsResult.filter(
           (jsonResult) => jsonResult.status === 'rejected'
-        ).length;
+        ).length + invalidCnt;
 
         if (errorCnt !== 0) {
-          log(LogType.error, `${errorCnt} workflows have json format errors`);
+          reject(new Error(`${errorCnt} workflows have json format errors. Open devtools to check which workflow has invalid format.`));
+        } else {
+          resolve();
         }
+
       } catch (err) {
         reject(err);
         this.setStoreAvailability(true);
@@ -220,7 +224,7 @@ export class Store {
   }: {
     initializePluginWorkspace: boolean;
     bundleId?: string | undefined;
-  }): Promise<boolean> => {
+  }): Promise<void> => {
     return new Promise(async (resolve, reject) => {
       this.setStoreAvailability(false);
 
@@ -245,6 +249,7 @@ export class Store {
 
         const readJsonsResult: PromiseSettledResult<any>[] = await Promise.allSettled(readJsonPromises);
 
+        let invalidCnt = 0;
         const pluginInfoArr: PluginConfigFile[] = readJsonsResult
           .filter((jsonResult) => jsonResult.status === 'fulfilled')
           .map((jsonResult) => (jsonResult as any).value)
@@ -252,7 +257,8 @@ export class Store {
             const { valid, errorMsg } = validateJson(pluginInfo, 'plugin');
             if (errorMsg) {
               const err = `${pluginInfo.name} has invalid format. skip loading '${pluginInfo.name}'..\n\n${errorMsg}`;
-              console.error(err);
+              log(LogType.error, err);
+              invalidCnt += 1;
             }
             return valid;
           });
@@ -278,14 +284,15 @@ export class Store {
         }
 
         this.setStoreAvailability(true);
-        resolve(true);
 
         const errorCnt: number = readJsonsResult.filter(
           (jsonResult) => jsonResult.status === 'rejected'
-        ).length;
+        ).length + invalidCnt;
 
         if (errorCnt !== 0) {
-          log(LogType.error, `${errorCnt} plugins have json format errors`);
+          reject(new Error(`${errorCnt} plugins have json format errors. Open devtools to check which plugins has invalid format.`));
+        } else {
+          resolve();
         }
       } catch (err) {
         reject(err);
