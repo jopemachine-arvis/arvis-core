@@ -503,7 +503,7 @@ export class WorkManager {
 
     if (nextAction.type === 'scriptFilter' || nextAction.type === 'keyword') {
       const nextInput = args['{query}'] ?? '';
-      const optionalWhitespace = (nextAction['withspace'] === true || nextAction['argType'] === 'required') ? ' ' : '';
+      const optionalWhitespace = nextAction['argType'] === 'required' ? ' ' : '';
 
       this.pushWork({
         actions: (nextAction as ScriptFilterAction | KeywordAction).actions,
