@@ -102,8 +102,8 @@ const applyArgsInAction = (args: object, action: Action) => {
       const appendQuotes = actionKey === 'cond' ? true : false;
       targetAction[actionKey] = applyArgs({ str: targetAction[actionKey], queryArgs: args, appendQuotes });
     } else if (typeof targetAction[actionKey] === 'object') {
-      if (actionKey !== 'actions') {
-        applyArgsInAction(args, targetAction[actionKey]);
+      if (actionKey !== 'actions' || targetAction['actions']['then']) {
+        targetAction[actionKey] = applyArgsInAction(args, targetAction[actionKey]);
       }
     }
   }
@@ -269,7 +269,7 @@ function handleAction({
           if (!action.arg) throwReqAttrNotExtErr(type, ['arg']);
 
           const argToExtract = escapeBraket(action.arg).trim();
-          queryArgs = argsExtractAction(queryArgs, argToExtract);
+          const nextQueryArgs = argsExtractAction(queryArgs, argToExtract);
 
           workManager.isInitialTrigger = false;
 
@@ -277,13 +277,13 @@ function handleAction({
             action,
             cuiColorApplier: chalk.blueBright,
             guiColor: 'blue',
-            extra: `arg extracted: '${queryArgs['{query}']}'`,
+            extra: `arg extracted: '${nextQueryArgs['{query}']}'`,
           });
 
           if (nextAction) {
             nextAction = handleAction({
               actions: nextAction,
-              queryArgs,
+              queryArgs: nextQueryArgs,
               modifiersInput,
             }).nextActions;
           }

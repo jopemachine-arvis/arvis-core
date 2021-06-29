@@ -1,4 +1,3 @@
-import { log, LogType } from '../config';
 import { replaceAll } from '../utils';
 
 /**
@@ -16,8 +15,9 @@ const argsExtract = (queryArgs: object, argToExtract: string): object => {
     }
   }
 
+  // Assume argToExtract is constant string.
   if (targetString === argToExtract) {
-    log(LogType.info, 'Arg selection could be wrong. {query} not changed.');
+    targetString = argToExtract;
   }
 
   result[`{query}`] = targetString;
