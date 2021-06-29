@@ -560,11 +560,11 @@ export class WorkManager {
   private handleAsyncActionChain = (
     item: Command | ScriptFilterItem | PluginItem,
     args: object,
-    targetActions: Action[] | undefined,
+    targetActions: Action[],
     modifier: ModifierInput,
     nextAction: Action
-  ): Action[] | undefined => {
-    targetActions = targetActions!.filter(
+  ): Action[] => {
+    targetActions = targetActions.filter(
       (targetAction) => targetAction !== nextAction
     );
 
@@ -616,44 +616,56 @@ export class WorkManager {
   }: {
     item: Command | ScriptFilterItem | PluginItem;
     args: object;
-    targetActions: Action[] | undefined;
+    targetActions: Action[];
     modifier: ModifierInput;
   }): boolean => {
     this.throwErrOnRendererUpdaterNotSet();
     const workManager = WorkManager.getInstance();
 
     let handleActionResult: {
-      nextActions: Action[] | undefined;
+      nextActions: Action[];
       args: object;
-    };
+    } = { args, nextActions: [] };
 
-    while (targetActions && targetActions.length > 0) {
+    let quit = true;
+    let actionsPointer = targetActions ? [...targetActions] : [];
+
+    actionsPointer.sort((actionA, actionB) => {
+      const aIsTrig = triggerTypes.includes(actionA.type);
+      const bIsTrig = triggerTypes.includes(actionB.type);
+      if ((aIsTrig && !bIsTrig) || (!aIsTrig && bIsTrig)) return 1;
+      return -1;
+    });
+
+    while (actionsPointer.length > 0) {
       const parentActionType = this.getParentAction();
 
       if (
-        triggerTypes.includes(targetActions[0].type) &&
+        triggerTypes.includes(actionsPointer[0].type) &&
         (!workManager.isInitialTrigger ||
           triggerTypes.includes(parentActionType))
       ) {
-        this.handleTriggerAction(targetActions[0], args);
-        return false;
+        this.handleTriggerAction(actionsPointer[0], args);
+        quit = false;
+        actionsPointer.splice(0, 1);
+        continue;
+      } else {
+        handleActionResult = handleAction({
+          actions: actionsPointer,
+          queryArgs: args,
+          modifiersInput: modifier,
+        });
+
+        actionsPointer = handleActionResult.nextActions;
       }
 
-      handleActionResult = handleAction({
-        actions: targetActions!,
-        queryArgs: args,
-        modifiersInput: modifier,
-      });
-
-      targetActions = handleActionResult.nextActions;
-
-      if (targetActions) {
-        for (const nextAction of targetActions!) {
+      if (actionsPointer) {
+        for (const nextAction of actionsPointer) {
           if (this.hasAsyncActionChain(nextAction)) {
-            targetActions = this.handleAsyncActionChain(
+            actionsPointer = this.handleAsyncActionChain(
               item,
               args,
-              targetActions,
+              actionsPointer,
               modifier,
               nextAction
             );
@@ -661,18 +673,18 @@ export class WorkManager {
 
           if (nextAction.type === 'resetInput') {
             handleResetInputAction(nextAction.newInput);
-            return false;
+            quit = false;
           }
 
           if (triggerTypes.includes(nextAction.type)) {
             this.handleTriggerAction(nextAction, handleActionResult.args);
-            return false;
+            quit = false;
           }
         }
       }
     }
 
-    return true;
+    return quit;
   }
 
   /**
@@ -723,7 +735,7 @@ export class WorkManager {
       item,
       args,
       modifier,
-      targetActions: actions,
+      targetActions: actions ?? [],
     });
   }
 

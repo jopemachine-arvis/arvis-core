@@ -94,18 +94,21 @@ const resolveActionType = (action: Action) => {
  * @param  {Action} action
  */
 const applyArgsInAction = (args: object, action: Action) => {
-  const actionKeys = Object.keys(action);
+  const targetAction = { ...action };
+
+  const actionKeys = Object.keys(targetAction);
   for (const actionKey of actionKeys) {
-    if (typeof action[actionKey] === 'string') {
+    if (typeof targetAction[actionKey] === 'string') {
       const appendQuotes = actionKey === 'cond' ? true : false;
-      action[actionKey] = applyArgs({ str: action[actionKey], queryArgs: args, appendQuotes });
-    } else if (typeof action[actionKey] === 'object') {
+      targetAction[actionKey] = applyArgs({ str: targetAction[actionKey], queryArgs: args, appendQuotes });
+    } else if (typeof targetAction[actionKey] === 'object') {
       if (actionKey !== 'actions') {
-        applyArgsInAction(args, action[actionKey]);
+        applyArgsInAction(args, targetAction[actionKey]);
       }
     }
   }
-  return action;
+
+  return targetAction;
 };
 
 /**
@@ -129,7 +132,6 @@ function handleAction({
   const workManager = WorkManager.getInstance();
   actions = handleModifiers(actions, modifiersInput);
 
-  let target;
   let nextActions: Action[] = [];
 
   _.map(actions, (action) => {
@@ -155,13 +157,12 @@ function handleAction({
         case 'script':
           action = action as ScriptAction;
           if (!action.script) throwReqAttrNotExtErr(type, ['script']);
-          target = action.script;
 
           printActionDebuggingLog({
             action,
             cuiColorApplier: chalk.redBright,
             guiColor: 'red',
-            extra: `script executed: '${target}'`,
+            extra: `script executed: '${action.script}'`,
           });
 
           workManager.isInitialTrigger = false;
@@ -177,7 +178,6 @@ function handleAction({
             throwReqAttrNotExtErr(type, ['scriptFilter']);
           }
 
-          target = action.scriptFilter;
           workManager.isInitialTrigger = false;
           nextAction = [action];
           break;
@@ -226,18 +226,17 @@ function handleAction({
         case 'open':
           action = action as OpenAction;
           if (!action.target) throwReqAttrNotExtErr(type, ['target']);
-          target = action.target;
 
           printActionDebuggingLog({
             action,
             cuiColorApplier: chalk.blueBright,
             guiColor: 'blue',
-            extra: `open target: '${target}'`,
+            extra: `open target: '${action.target}'`,
           });
 
           workManager.isInitialTrigger = false;
 
-          openFileAction(target);
+          openFileAction(action.target);
           break;
 
         // Notification (Not implemented on here)
@@ -249,18 +248,17 @@ function handleAction({
         case 'clipboard':
           action = action as ClipboardAction;
           if (!action.text) throwReqAttrNotExtErr(type, ['text']);
-          target = action.text;
 
           printActionDebuggingLog({
             action,
             cuiColorApplier: chalk.greenBright,
             guiColor: 'green',
-            extra: `copied string: '${target}'`,
+            extra: `copied string: '${action.text}'`,
           });
 
           workManager.isInitialTrigger = false;
 
-          asyncChain = copyToClipboardAction(target);
+          asyncChain = copyToClipboardAction(action.text);
           asyncChainType = action.type;
 
           break;
@@ -272,7 +270,6 @@ function handleAction({
 
           const argToExtract = escapeBraket(action.arg).trim();
           queryArgs = argsExtractAction(queryArgs, argToExtract);
-          target = queryArgs;
 
           workManager.isInitialTrigger = false;
 
@@ -304,12 +301,11 @@ function handleAction({
             throwReqAttrNotExtErr('action of cond type', ['then']);
           }
 
-          target = action.if.cond;
+          let condIsTrue: boolean;
 
-          let condIsTrue;
           try {
             // tslint:disable-next-line: no-eval
-            condIsTrue = eval(target) === true;
+            condIsTrue = eval(action.if.cond) === true;
           } catch (err) {
             console.error(
               `Below error occured while evaling cond target. target is evaluated by false.\n${err}`
@@ -382,7 +378,7 @@ function handleAction({
   // Theoretically, nextAction may have more than one script filter, but the case is not considered yet..
 
   return {
-    nextActions,
+    nextActions: nextActions ?? [],
     args: queryArgs,
   };
 }
