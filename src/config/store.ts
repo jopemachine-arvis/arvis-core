@@ -199,7 +199,7 @@ export class Store {
         ).length + invalidCnt;
 
         if (errorCnt !== 0) {
-          reject(new Error(`${errorCnt} workflows have json format errors. Open devtools to check which workflow has invalid format.`));
+          reject(new Error(`${errorCnt} workflows have json format errors.\nOpen devtools to check which workflow has invalid format.`));
         } else {
           resolve();
         }
@@ -290,7 +290,7 @@ export class Store {
         ).length + invalidCnt;
 
         if (errorCnt !== 0) {
-          reject(new Error(`${errorCnt} plugins have json format errors. Open devtools to check which plugins has invalid format.`));
+          reject(new Error(`${errorCnt} plugins have json format errors.\nOpen devtools to check which plugins has invalid format.`));
         } else {
           resolve();
         }

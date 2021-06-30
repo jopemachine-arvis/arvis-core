@@ -27,6 +27,19 @@ const conf = new Conf({
 /**
  * @summary
  */
+const discardOldAndGetLogs = (): Log[] => {
+  let logs = conf.get('logs') as Log[];
+  const maxLogCnt = conf.get('maxCount') as number;
+
+  // Considering the log to be pushed, add 1.
+  const sIdx = logs.length - maxLogCnt + 1;
+  if (sIdx > 0) logs = logs.slice(sIdx);
+  return logs;
+};
+
+/**
+ * @summary
+ */
 export const getHistory = (): Log[] => {
   return conf.get('logs') as Log[];
 };
@@ -39,16 +52,37 @@ export const setMaxLogCnt = (count: number): void => {
 };
 
 /**
- * @summary
+ * @param  {string} str
  */
-const getLogs = (): Log[] => {
-  const logs = conf.get('logs') as any;
-  const maxLogCnt = conf.get('maxCount') as number;
+export const getBestMatch = (str: string) => {
+  if (str.trim() === '') return '';
 
-  // Considering the log to be pushed, add 1.
-  const sIdx = logs.length - maxLogCnt + 1;
-  if (sIdx > 0) logs.slice(sIdx);
-  return logs;
+  const history = getHistory();
+
+  const dict: any = {};
+
+  history
+    .filter((historyLog) =>
+      historyLog.inputStr && historyLog.inputStr.includes(str)
+    )
+    .forEach((historyLog) => {
+      if (dict[historyLog.inputStr!]) {
+        dict[historyLog.inputStr!] += 1;
+      } else {
+        dict[historyLog.inputStr!] = 1;
+      }
+    });
+
+  let max: number = 0;
+  let inputOnMax: string = '';
+  for (const input of Object.keys(dict)) {
+    if (dict[input] > max) {
+      max = dict[input];
+      inputOnMax = input;
+    }
+  }
+
+  return inputOnMax;
 };
 
 /**
@@ -57,7 +91,7 @@ const getLogs = (): Log[] => {
 export const pushInputStrLog = (inputStr: string | undefined): void => {
   if (!inputStr || inputStr === '') return;
 
-  const logs: Log[] = getLogs();
+  const logs: Log[] = discardOldAndGetLogs();
 
   logs.push({
     inputStr,
@@ -74,7 +108,7 @@ export const pushInputStrLog = (inputStr: string | undefined): void => {
 export const pushActionLog = (action: Action): void => {
   const availableTypes: string[] = getActionTypesToLog();
   if (!availableTypes.includes(action.type)) return;
-  const logs: Log[] = getLogs();
+  const logs: Log[] = discardOldAndGetLogs();
 
   logs.push({
     action,

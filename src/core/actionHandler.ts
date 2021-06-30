@@ -102,6 +102,7 @@ const applyArgsInAction = (args: object, action: Action) => {
       const appendQuotes = actionKey === 'cond' ? true : false;
       targetAction[actionKey] = applyArgs({ str: targetAction[actionKey], queryArgs: args, appendQuotes });
     } else if (typeof targetAction[actionKey] === 'object') {
+      // Stop iterating under actions (except for cond)
       if (actionKey !== 'actions' || targetAction['actions']['then']) {
         targetAction[actionKey] = applyArgsInAction(args, targetAction[actionKey]);
       }
