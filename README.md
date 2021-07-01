@@ -40,7 +40,7 @@ The storage path for all installed extension files is stored in the `data` path 
 ## Related
 
 - [arvis](https://github.com/jopemachine/arvis) - Arvis GUI
-- 
+
 - [arvis-extension-validator](https://github.com/jopemachine/arvis-extension-validator) - Arvis extension's JSON schema, cli and library to validate these.
 
 - [alfred-to-arvis](https://github.com/jopemachine/alfred-to-arvis) - Help to convert alfred 4 workflow's info.plist to arvis-workflow.json
