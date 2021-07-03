@@ -1,4 +1,5 @@
 import Conf from 'conf';
+import _ from 'lodash';
 
 import { log, LogType } from './logger';
 
@@ -59,30 +60,9 @@ export const getBestMatch = (str: string) => {
 
   const history = getHistory();
 
-  const dict: any = {};
-
-  history
-    .filter((historyLog) =>
-      historyLog.inputStr && historyLog.inputStr.includes(str)
-    )
-    .forEach((historyLog) => {
-      if (dict[historyLog.inputStr!]) {
-        dict[historyLog.inputStr!] += 1;
-      } else {
-        dict[historyLog.inputStr!] = 1;
-      }
-    });
-
-  let max: number = 0;
-  let inputOnMax: string = '';
-  for (const input of Object.keys(dict)) {
-    if (dict[input] > max) {
-      max = dict[input];
-      inputOnMax = input;
-    }
-  }
-
-  return inputOnMax;
+  return _.find(history, historyLog =>
+    historyLog.inputStr && historyLog.inputStr.startsWith(str)
+  );
 };
 
 /**
