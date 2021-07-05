@@ -15,7 +15,7 @@ const scriptErrorHandler = (err: ExecaError) => {
   } else if (err.isCanceled) {
     log(LogType.error, `Script canceled`);
   } else {
-    log(LogType.error, `Script Error\n${err}`);
+    log(LogType.error, `Script Error\n\n${err}`);
   }
 };
 

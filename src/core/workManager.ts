@@ -717,7 +717,9 @@ export class WorkManager {
 
       this.setExtensionInfo(item as Command | PluginItem);
 
-      if (!item['isPluginItem']) {
+      if (item['isPluginItem']) {
+        pushInputStrLog((item as PluginItem).title);
+      } else {
         pushInputStrLog((item as Command).command!);
       }
     } else {
