@@ -1,6 +1,6 @@
 {
   "name": "arvis-core",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "description": "Core module of Arvis",
   "main": "dist/index.js",
   "files": [
@@ -25,7 +25,8 @@
   ],
   "author": {
     "name": "jopemachine",
-    "email": "jopemachine@gmail.com"
+    "email": "jopemachine@gmail.com",
+    "url": "https://jopemachine.github.io/arvis-intro"
   },
   "license": "MIT",
   "engines": {
