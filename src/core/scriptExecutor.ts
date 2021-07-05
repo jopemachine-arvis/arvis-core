@@ -1,5 +1,5 @@
+import execa from 'execa';
 import _ from 'lodash';
-import execa from '../../execa';
 import { getEnvs } from '../config';
 import { getWorkflowInstalledPath } from '../config/path';
 import { WorkManager } from './workManager';

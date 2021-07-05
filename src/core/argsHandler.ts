@@ -3,7 +3,7 @@ import _ from 'lodash';
 import { escapeBraket, replaceAll } from '../utils';
 
 /**
- * @param  {string} scriptStr
+ * @param  {string} str
  * @param  {object} queryArgs
  * @param  {boolean} appendQuotes
  * @return {string} args applied string
@@ -24,6 +24,57 @@ const applyArgs = ({
   }
   return str.trim();
 };
+
+/**
+ * @param  {string} script
+ * @param  {object} queryArgs
+ * @param  {boolean} appendQuotes
+ * @return {string} args applied string
+ * @description In script, all white space characters in 'args' should be escaped.
+ */
+const applyArgsToScript = ({
+  script,
+  queryArgs,
+}: {
+  script: string;
+  queryArgs: object;
+}): string => {
+  for (const key of Object.keys(queryArgs)) {
+    const newStr = queryArgs[key].split(' ').filter((str: string) => str).join('\\ ');
+    script = replaceAll(script, key, newStr);
+  }
+  return script;
+};
+
+/**
+ * @param  {object} args
+ * @param  {Action} action
+ */
+const applyArgsInAction = (args: object, action: Action) => {
+  const targetAction = { ...action };
+
+  const actionKeys = Object.keys(targetAction);
+  for (const actionKey of actionKeys) {
+    if (typeof targetAction[actionKey] === 'string') {
+      const appendQuotes = actionKey === 'cond' ? true : false;
+
+      // tslint:disable: prefer-conditional-expression
+      if (actionKey === 'script' || actionKey === 'scriptFilter') {
+        targetAction[actionKey] = applyArgsToScript({ script: targetAction[actionKey], queryArgs: args });
+      } else {
+        targetAction[actionKey] = applyArgs({ str: targetAction[actionKey], queryArgs: args, appendQuotes });
+      }
+    } else if (typeof targetAction[actionKey] === 'object') {
+      // Stop iterating under actions (except for cond)
+      if (actionKey !== 'actions' || targetAction['actions']['then']) {
+        targetAction[actionKey] = applyArgsInAction(args, targetAction[actionKey]);
+      }
+    }
+  }
+
+  return targetAction;
+};
+
 
 /**
  * @param  {object} args
@@ -114,6 +165,8 @@ const extractArgsFromScriptFilterItem = (
 
 export {
   applyArgs,
+  applyArgsToScript,
+  applyArgsInAction,
   applyExtensionVars,
   extractArgsFromPluginItem,
   extractArgsFromQuery,

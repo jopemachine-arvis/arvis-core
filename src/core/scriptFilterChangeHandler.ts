@@ -1,8 +1,7 @@
-import execa from '../../execa';
+import execa from 'execa';
 import { log, LogType } from '../config';
 import { extractVarEnv } from '../config/envHandler';
-
-import { applyArgs } from './argsHandler';
+import { applyArgsToScript } from './argsHandler';
 import { execute } from './scriptExecutor';
 import { extractScriptOnThisPlatform } from './scriptExtracter';
 import { WorkManager } from './workManager';
@@ -33,8 +32,8 @@ const handleScriptFilterChange = (
     (command as ScriptFilterAction).scriptFilter!
   );
 
-  const scriptStr: string = applyArgs({
-    str: script,
+  const scriptStr: string = applyArgsToScript({
+    script,
     queryArgs,
   });
 

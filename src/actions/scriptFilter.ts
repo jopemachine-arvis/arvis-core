@@ -1,9 +1,9 @@
 // tslint:disable: no-string-literal
 import chalk from 'chalk';
+import execa, { ExecaError, ExecaReturnValue } from 'execa';
 import _ from 'lodash';
 import PCancelable from 'p-cancelable';
 import parseJson from 'parse-json';
-import execa, { ExecaError, ExecaReturnValue } from '../../execa';
 import { log, LogType, pushInputStrLog } from '../config';
 import {
   getPluginList,

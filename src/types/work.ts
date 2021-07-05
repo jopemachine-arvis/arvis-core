@@ -1,5 +1,5 @@
+import execa from 'execa';
 import PCancelable from 'p-cancelable';
-import execa from '../../execa';
 export {};
 
 declare global {

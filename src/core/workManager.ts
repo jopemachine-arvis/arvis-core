@@ -9,7 +9,6 @@ import {
   getWorkflowInstalledPath,
 } from '../config/path';
 import { triggerTypes } from '../utils';
-
 import extractJson from '../utils/extractJson';
 import { handleAction } from './actionHandler';
 import {

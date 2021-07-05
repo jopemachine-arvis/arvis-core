@@ -9,7 +9,7 @@ import {
 } from '../actions';
 import { log, LogType, pushActionLog } from '../config';
 import { escapeBraket } from '../utils';
-import { applyArgs } from './argsHandler';
+import { applyArgsInAction } from './argsHandler';
 import { handleModifiers } from './modifierHandler';
 import { WorkManager } from './workManager';
 
@@ -87,29 +87,6 @@ const throwReqAttrNotExtErr = (
  */
 const resolveActionType = (action: Action) => {
   return action.type;
-};
-
-/**
- * @param  {object} args
- * @param  {Action} action
- */
-const applyArgsInAction = (args: object, action: Action) => {
-  const targetAction = { ...action };
-
-  const actionKeys = Object.keys(targetAction);
-  for (const actionKey of actionKeys) {
-    if (typeof targetAction[actionKey] === 'string') {
-      const appendQuotes = actionKey === 'cond' ? true : false;
-      targetAction[actionKey] = applyArgs({ str: targetAction[actionKey], queryArgs: args, appendQuotes });
-    } else if (typeof targetAction[actionKey] === 'object') {
-      // Stop iterating under actions (except for cond)
-      if (actionKey !== 'actions' || targetAction['actions']['then']) {
-        targetAction[actionKey] = applyArgsInAction(args, targetAction[actionKey]);
-      }
-    }
-  }
-
-  return targetAction;
 };
 
 /**
