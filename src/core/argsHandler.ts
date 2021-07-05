@@ -20,6 +20,8 @@ const applyArgs = ({
   for (const key of Object.keys(queryArgs)) {
     const newStr =
       appendQuotes === true ? `"${queryArgs[key].trim()}"` : queryArgs[key];
+    str = replaceAll(str, `"${key}"`, newStr);
+    str = replaceAll(str, `'${key}'`, newStr);
     str = replaceAll(str, key, newStr);
   }
   return str.trim();
@@ -41,6 +43,8 @@ const applyArgsToScript = ({
 }): string => {
   for (const key of Object.keys(queryArgs)) {
     const newStr = queryArgs[key].split(' ').filter((str: string) => str).join('\\ ');
+    script = replaceAll(script, `"${key}"`, newStr);
+    script = replaceAll(script, `'${key}'`, newStr);
     script = replaceAll(script, key, newStr);
   }
   return script;
