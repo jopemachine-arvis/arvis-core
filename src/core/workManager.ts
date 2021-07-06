@@ -94,8 +94,8 @@ export class WorkManager {
    * @description cleanup work stack and other infomations
    */
   public clearWorkStack = () => {
-    if (!this.printWorkStack) {
-      log(LogType.info, 'stack cleared!');
+    if (this.printWorkStack) {
+      log(LogType.info, 'Trigger stack cleared!');
     }
 
     this.workStk.length = 0;
@@ -374,11 +374,11 @@ export class WorkManager {
   public debugWorkStk = (): void => {
     if (!this.printWorkStack) return;
 
-    log(LogType.info, '---------- Debug work stack ----------');
+    log(LogType.info, '* ---------- Debug trigger stack ---------- *');
     for (const item of this.workStk) {
       log(LogType.info, item);
     }
-    log(LogType.info, '--------------------------------------');
+    log(LogType.info, '* ----------------------------------------- *');
   }
 
   /**
@@ -639,12 +639,13 @@ export class WorkManager {
     while (actionsPointer.length > 0) {
       const parentActionType = this.getParentAction();
 
-      if (
-        triggerTypes.includes(actionsPointer[0].type) &&
+      const needToPreventQuit = triggerTypes.includes(actionsPointer[0].type) &&
         (!workManager.isInitialTrigger ||
-          triggerTypes.includes(parentActionType))
-      ) {
+          triggerTypes.includes(parentActionType));
+
+      if (needToPreventQuit) {
         this.handleTriggerAction(actionsPointer[0], args);
+        workManager.isInitialTrigger = false;
         quit = false;
         actionsPointer.splice(0, 1);
         continue;

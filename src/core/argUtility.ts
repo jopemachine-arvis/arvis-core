@@ -66,6 +66,8 @@ export const isInputMeetWithspaceCond = ({
     const workManager = WorkManager.getInstance();
     const targetStr = workManager.isInitialTrigger ? item.command : workManager.getTopWork().input;
 
+    if (!targetStr) return true;
+
     const { withspace } = item;
 
     const withWithspace =
