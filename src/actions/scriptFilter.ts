@@ -277,6 +277,7 @@ async function scriptFilterExcute(
       if (_.isUndefined(workManager.getTopWork())) return;
       if (!scriptWork.isCanceled) {
         console.error(`Unexpected Error occurs:\n\n${err}`);
+        workManager.handleScriptFilterError(err, { extractJson: false });
       }
     });
 }
