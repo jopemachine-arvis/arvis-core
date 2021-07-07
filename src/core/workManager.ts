@@ -495,10 +495,14 @@ export class WorkManager {
    * @description This function handle Trigger as Actions.
    *              Which means keyword, scriptfilter.
    *              If one of those would be Action, force users to enter input and enter again.
-   *              If nextAction is not Trigger, return false.
    */
-  private handleTriggerAction = (nextAction: Action, args: object): boolean => {
+  private handleTriggerAction = (nextAction: Action, args: object): void => {
     this.throwErrOnRendererUpdaterNotSet();
+
+    if (nextAction.type === 'resetInput') {
+      handleResetInputAction(nextAction.newInput);
+      return;
+    }
 
     if (nextAction.type === 'scriptFilter' || nextAction.type === 'keyword') {
       const nextInput = args['{query}'] ?? '';
@@ -532,10 +536,8 @@ export class WorkManager {
       }
 
       this.onItemPressHandler!();
-      return true;
+      return;
     }
-
-    return false;
   }
 
   /**
@@ -672,8 +674,7 @@ export class WorkManager {
           }
 
           if (nextAction.type === 'resetInput') {
-            handleResetInputAction(nextAction.newInput);
-            quit = false;
+            actionsPointer = [];
           }
 
           if (triggerTypes.includes(nextAction.type)) {
