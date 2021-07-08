@@ -1,13 +1,14 @@
 import { validate as validateJson } from 'arvis-extension-validator';
 import fse from 'fs-extra';
 import _ from 'lodash';
-import path from 'path';
 import { findTriggers, getBundleId } from '../core';
 import pluginWorkspace from '../core/pluginWorkspace';
 import { fetchAllExtensionJsonPaths, zipDirectory } from '../utils';
 import { log, LogType } from './index';
 import {
+  getPluginConfigJsonPath,
   getPluginInstalledPath,
+  getWorkflowConfigJsonPath,
   getWorkflowInstalledPath,
 } from './path';
 
@@ -142,7 +143,7 @@ export class Store {
       this.setStoreAvailability(false);
       try {
         const extensionInfoFiles: string[] = bundleId ?
-          [`${bundleId}${path.sep}arvis-workflow.json`] :
+          [getWorkflowConfigJsonPath(bundleId)] :
           (await fetchAllExtensionJsonPaths('workflow')).filter((filePath) => {
             return filePath.endsWith('arvis-workflow.json');
           });
@@ -226,7 +227,7 @@ export class Store {
 
       try {
         const extensionInfoFiles: string[] = bundleId ?
-          [`${bundleId}${path.sep}arvis-plugin.json`] :
+          [getPluginConfigJsonPath(bundleId)] :
           (await fetchAllExtensionJsonPaths('plugin')).filter((filePath) => {
             return filePath.endsWith('arvis-plugin.json');
           });
