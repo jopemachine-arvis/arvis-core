@@ -12,6 +12,21 @@ import { getWorkflowInstalledPath, tempPath } from '../config/path';
 import { Store } from '../config/store';
 import { sleep } from '../utils';
 import { getBundleId } from './getBundleId';
+import { getWorkflowList } from './workflowList';
+
+/**
+ * @description Migrate previous extenion's setting
+ */
+const updateHandler = (prevConfig: any, newConfig: any) => {
+  const config = { ...newConfig };
+
+  // Migrate variables
+  for (const variable of Object.keys(prevConfig.variables)) {
+    config.variables[variable] = prevConfig.variables[variable];
+  }
+
+  return config;
+};
 
 /**
  * @param  {string} installedPath
