@@ -35,7 +35,7 @@ export class WorkManager {
   }
 
   workStk: Work[];
-  globalVariables?: object;
+  globalVariables?: Record<string, any>;
   rerunTimer?: NodeJS.Timeout | undefined;
 
   extensionInfo?: {
@@ -108,7 +108,7 @@ export class WorkManager {
   /**
    * @summary
    */
-  public updateTopWork = (keyValueDict: object) => {
+  public updateTopWork = (keyValueDict: Record<string, any>) => {
     for (const key of Object.keys(keyValueDict)) {
       this.workStk[this.workStk.length - 1][key] = keyValueDict[key];
     }
@@ -401,7 +401,7 @@ export class WorkManager {
   /**
    * @param  {Command | ScriptFilterItem | PluginItem} item
    * @param  {string} inputStr
-   * @return {object}
+   * @return {Record<string, any>}
    * @description Returns args using according args extraction method
    */
   private prepareArgs = ({
@@ -410,7 +410,7 @@ export class WorkManager {
   }: {
     item: Command | ScriptFilterItem | PluginItem;
     inputStr: string;
-  }): object => {
+  }): Record<string, any> => {
     const bundleId: string = this.hasEmptyWorkStk()
       ? item.bundleId!
       : this.getTopWork().bundleId;
@@ -491,12 +491,12 @@ export class WorkManager {
 
   /**
    * @param  {Action} nextAction
-   * @param  {object} args
+   * @param  {Record<string, any>} args
    * @description This function handle Trigger as Actions.
    *              Which means keyword, scriptfilter.
    *              If one of those would be Action, force users to enter input and enter again.
    */
-  private handleTriggerAction = (nextAction: Action, args: object): void => {
+  private handleTriggerAction = (nextAction: Action, args: Record<string, any>): void => {
     this.throwErrOnRendererUpdaterNotSet();
 
     if (nextAction.type === 'resetInput') {
@@ -549,7 +549,7 @@ export class WorkManager {
 
   /**
    * @param  {Command|ScriptFilterItem|PluginItem} item
-   * @param  {object} args
+   * @param  {Record<string, any>} args
    * @param  {Action[]|undefined} targetActions
    * @param  {ModifierInput} modifier
    * @param  {Action} nextAction
@@ -560,7 +560,7 @@ export class WorkManager {
    */
   private handleAsyncActionChain = (
     item: Command | ScriptFilterItem | PluginItem,
-    args: object,
+    args: Record<string, any>,
     targetActions: Action[],
     modifier: ModifierInput,
     nextAction: Action
@@ -616,7 +616,7 @@ export class WorkManager {
     modifier,
   }: {
     item: Command | ScriptFilterItem | PluginItem;
-    args: object;
+    args: Record<string, any>;
     targetActions: Action[];
     modifier: ModifierInput;
   }): boolean => {
@@ -625,7 +625,7 @@ export class WorkManager {
 
     let handleActionResult: {
       nextActions: Action[];
-      args: object;
+      args: Record<string, any>;
     } = { args, nextActions: [] };
 
     let quit = true;

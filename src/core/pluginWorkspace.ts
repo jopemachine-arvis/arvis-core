@@ -18,7 +18,7 @@ const arvisEnvs = process.env;
  *          Add environment variables,
  *          And dynamically require new modules using eval.
  */
-const requireDynamically = (modulePath: string, envs: object = {}): any => {
+const requireDynamically = (modulePath: string, envs: Record<string, any> = {}): any => {
   modulePath = modulePath.split('\\').join('/');
 
   try {
@@ -53,7 +53,7 @@ const requireDynamically = (modulePath: string, envs: object = {}): any => {
 
 interface PluginModule {
   module: Function;
-  bindedEnvs: object;
+  bindedEnvs: Record<string, any>;
 }
 
 interface PluginWorkspace {

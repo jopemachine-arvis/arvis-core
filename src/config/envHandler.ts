@@ -5,7 +5,7 @@ import {
 } from './path';
 
 let macPathsEnv: string = '';
-let externalEnv: object = {};
+let externalEnv: Record<string, any> = {};
 
 /**
  * @param  {string} path
@@ -19,14 +19,14 @@ const setMacPathsEnv = (path: string): void => {
  * @param  {string} path
  * @description Sets environment variables outside core lib
  */
-const setExternalEnvs = (envs: object): void => {
+const setExternalEnvs = (envs: Record<string, any>): void => {
   externalEnv = envs;
 };
 
 /**
- * @param  {object} queryArgs
+ * @param  {Record<string, any>} queryArgs
  */
-const extractVarEnv = (queryArgs: object): object => {
+const extractVarEnv = (queryArgs: Record<string, any>): Record<string, any> => {
   const vars = {};
 
   Object.keys(queryArgs)
@@ -40,7 +40,7 @@ const extractVarEnv = (queryArgs: object): object => {
 };
 
 /**
- * @param  {string;vars:object;name?:string;version?:string;}
+ * @param  {string;vars:Record<string, any>;name?:string;version?:string;}
  * @returns
  */
 const getEnvs = ({
@@ -52,7 +52,7 @@ const getEnvs = ({
 }: {
   extensionType: 'workflow' | 'plugin';
   bundleId: string;
-  vars: object;
+  vars: Record<string, any>;
   name?: string;
   version?: string;
 }): any => {

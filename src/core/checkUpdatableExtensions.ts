@@ -1,7 +1,7 @@
 import fse from 'fs-extra';
 import semver from 'semver';
 import { log, LogType } from '../config';
-import { fetchExtensionJson } from '../utils';
+import { fetchAllExtensionJsonPaths } from '../utils';
 
 /**
  * @summary
@@ -12,7 +12,7 @@ export const checkUpdatableExtensions = async (
   const updatable: any[] = [];
   const readJsonWorks: Promise<any>[] = [];
 
-  const files = await fetchExtensionJson(type);
+  const files = await fetchAllExtensionJsonPaths(type);
 
   files.forEach((file) => {
     readJsonWorks.push(fse.readJSON(file));

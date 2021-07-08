@@ -1,5 +1,5 @@
-import { setExternalEnvs as _setExternalEnvs } from '../config/envHandler';
+import { setExternalEnvs as setExternalEnvsInMemory } from '../config/envHandler';
 
-export const setExternalEnvs = (envs: object) => {
-  _setExternalEnvs(envs);
+export const setExternalEnvs = (envs: Record<string, any>) => {
+  setExternalEnvsInMemory(envs);
 };

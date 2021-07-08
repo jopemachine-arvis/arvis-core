@@ -21,9 +21,9 @@ const scriptErrorHandler = (err: ExecaError) => {
 
 /**
  * @param  {ScriptAction} action
- * @param  {object} queryArgs
+ * @param  {Record<string, any>} queryArgs
  */
-const handleScriptAction = async (action: ScriptAction, queryArgs: object) => {
+const handleScriptAction = async (action: ScriptAction, queryArgs: Record<string, any>) => {
   const workManager = WorkManager.getInstance();
   const { script: scriptStr, shell } = extractScriptOnThisPlatform(
     action.script

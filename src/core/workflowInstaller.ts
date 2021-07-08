@@ -1,6 +1,7 @@
 import { validate as validateJson } from 'arvis-extension-validator';
 import chmodr from 'chmodr';
 import * as fse from 'fs-extra';
+import _ from 'lodash';
 import path from 'path';
 import pathExists from 'path-exists';
 import rimraf from 'rimraf';
@@ -49,12 +50,19 @@ const installByPath = async (installedPath: string): Promise<void | Error> => {
       return;
     }
 
+    const bundleId = getBundleId(workflowConfig.creator, workflowConfig.name);
     const arr = workflowConfFilePath.split(path.sep);
     const workflowConfDirPath = arr.slice(0, arr.length - 1).join(path.sep);
 
     const destinationPath = getWorkflowInstalledPath(
-      getBundleId(workflowConfig.creator, workflowConfig.name)
+      bundleId
     );
+
+    const isUpdate = !_.isUndefined(getWorkflowList()[bundleId]);
+
+    if (isUpdate) {
+      workflowConfig = updateHandler(getWorkflowList()[bundleId], workflowConfig);
+    }
 
     if (await pathExists(destinationPath)) {
       await fse.remove(destinationPath);

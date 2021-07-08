@@ -8,8 +8,8 @@ declare global {
     readonly valid?: boolean;
     readonly subtitle?: string;
     readonly autocomplete?: string;
-    readonly arg?: object | string;
-    readonly variables?: object;
+    readonly arg?: Record<string, any> | string;
+    readonly variables?: Record<string, any>;
     readonly actions?: Action[];
     readonly text?: {
       copy?: string;

@@ -7,7 +7,7 @@ declare global {
     command?: string;
     bundleId?: string;
     modifiers?: string;
-    scriptFilter?: string | object;
+    scriptFilter?: string | Record<string, any>;
     runningSubtext?: string;
     withspace?: boolean;
     readonly argType?: 'required' | 'optional' | 'no';

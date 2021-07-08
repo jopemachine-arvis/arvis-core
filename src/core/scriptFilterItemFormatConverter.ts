@@ -52,7 +52,7 @@ export const xmlExtractGlobalVars = (variables: any) => {
 export const xmlScriptFilterItemToJsonScriptFilterItem = (
   xmlScriptFilterItem: any
 ) => {
-  const extractValue = (obj: object | undefined, key: string) => {
+  const extractValue = (obj: Record<string, any> | undefined, key: string) => {
     if (obj) return obj[key];
     return undefined;
   };

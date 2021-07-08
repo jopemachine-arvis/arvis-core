@@ -224,12 +224,12 @@ async function scriptFilterExcute(
   // If the ScriptFilters are nested, the first string element is query.
   // Otherwise, the first string element is command.
 
-  const extensionVariables: object =
+  const extensionVariables: Record<string, any> =
     workManager.extensionInfo!.type === 'plugin'
       ? getPluginList()[bundleId].variables
       : getWorkflowList()[bundleId].variables ?? {};
 
-  const extractedArgs: object = applyExtensionVars(
+  const extractedArgs: Record<string, any> = applyExtensionVars(
     extractArgsFromQuery(querys),
     extensionVariables
   );

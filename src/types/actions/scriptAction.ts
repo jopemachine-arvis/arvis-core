@@ -3,7 +3,7 @@ export {};
 declare global {
   export interface ScriptAction {
     readonly type: 'script';
-    script: string | object;
+    script: string | Record<string, any>;
     modifiers?: string;
     actions?: Action[];
   }

@@ -23,7 +23,7 @@ declare global {
     /**
      * @description Applied args
      */
-    args: object | null;
+    args: Record<string, any> | null;
 
     /**
      * @description nextActions to execute

@@ -1,6 +1,7 @@
 import { validate as validateJson } from 'arvis-extension-validator';
 import chmodr from 'chmodr';
 import * as fse from 'fs-extra';
+import _ from 'lodash';
 import path from 'path';
 import pathExists from 'path-exists';
 import rimraf from 'rimraf';
@@ -9,9 +10,23 @@ import { v4 as uuidv4 } from 'uuid';
 import { log, LogType } from '../config';
 import { getPluginInstalledPath, tempPath } from '../config/path';
 import { Store } from '../config/store';
-
 import { sleep } from '../utils';
 import { getBundleId } from './getBundleId';
+import { getPluginList } from './pluginList';
+
+/**
+ * @description Migrate previous extenion's setting
+ */
+const updateHandler = (prevConfig: any, newConfig: any) => {
+  const config = { ...newConfig };
+
+  // Migrate variables
+  for (const variable of Object.keys(prevConfig.variables)) {
+    config.variables[variable] = prevConfig.variables[variable];
+  }
+
+  return config;
+};
 
 /**
  * @param  {string} installedPath
@@ -47,12 +62,19 @@ const installByPath = async (installedPath: string): Promise<void | Error> => {
       return;
     }
 
+    const bundleId = getBundleId(pluginConfig.creator, pluginConfig.name);
     const arr = pluginConfFilePath.split(path.sep);
     const pluginConfDirPath = arr.slice(0, arr.length - 1).join(path.sep);
 
     const destinationPath = getPluginInstalledPath(
-      getBundleId(pluginConfig.creator, pluginConfig.name)
+      bundleId
     );
+
+    const isUpdate = !_.isUndefined(getPluginList()[bundleId]);
+
+    if (isUpdate) {
+      pluginConfig = updateHandler(getPluginList()[bundleId], pluginConfig);
+    }
 
     if (await pathExists(destinationPath)) {
       await fse.remove(destinationPath);

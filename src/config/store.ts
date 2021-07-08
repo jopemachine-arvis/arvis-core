@@ -4,7 +4,7 @@ import _ from 'lodash';
 import path from 'path';
 import { findTriggers, getBundleId } from '../core';
 import pluginWorkspace from '../core/pluginWorkspace';
-import { fetchExtensionJson, zipDirectory } from '../utils';
+import { fetchAllExtensionJsonPaths, zipDirectory } from '../utils';
 import { log, LogType } from './index';
 import {
   getPluginInstalledPath,
@@ -12,11 +12,11 @@ import {
 } from './path';
 
 /**
- * @param  {object} commands
+ * @param  {Record<string, any>} commands
  * @param  {string} bundleId
- * @return {object} Commands except for the command equivalent of bundleId.
+ * @return {Record<string, any>} Commands except for the command equivalent of bundleId.
  */
-const removeOldCommand = (commands: object, bundleId: string): object => {
+const removeOldCommand = (commands: Record<string, any>, bundleId: string): Record<string, any> => {
   const ret = commands;
   for (const commandKey of Object.keys(commands)) {
     const commandObj = commands[commandKey];
@@ -32,16 +32,16 @@ const removeOldCommand = (commands: object, bundleId: string): object => {
 };
 
 /**
- * @param  {object} commands
+ * @param  {Record<string, any>} commands
  * @param  {any[]} newCommands
  * @param  {string} bundleId
- * @returns {object} Command object with new commands
+ * @returns {Record<string, any>} Command object with new commands
  */
 const addCommands = (
-  commands: object,
+  commands: Record<string, any>,
   newCommands: any[],
   bundleId: string
-): object => {
+): Record<string, any> => {
   const ret = commands;
   for (const commandObj of newCommands) {
     if (!commandObj.command) continue;
@@ -141,19 +141,15 @@ export class Store {
     return new Promise(async (resolve, reject) => {
       this.setStoreAvailability(false);
       try {
-        let files = await fetchExtensionJson('workflow');
-
-        files = files.filter((filePath) => {
-          if (bundleId)
-            return filePath.endsWith(
-              `${bundleId}${path.sep}arvis-workflow.json`
-            );
-          return filePath.endsWith('arvis-workflow.json');
-        });
+        const extensionInfoFiles: string[] = bundleId ?
+          [`${bundleId}${path.sep}arvis-workflow.json`] :
+          (await fetchAllExtensionJsonPaths('workflow')).filter((filePath) => {
+            return filePath.endsWith('arvis-workflow.json');
+          });
 
         const readJsonPromises: Promise<any>[] = [];
 
-        for (const workflow of files) {
+        for (const workflow of extensionInfoFiles) {
           try {
             readJsonPromises.push(fse.readJson(workflow));
           } catch (err) {
@@ -162,16 +158,16 @@ export class Store {
           }
         }
 
-        const readJsonsResult = await Promise.allSettled(readJsonPromises);
+        const readJsonsResult: PromiseSettledResult<any>[] = await Promise.allSettled(readJsonPromises);
 
-        let invalidCnt = 0;
+        let invalidCnt: number = 0;
         const workflowInfoArr = readJsonsResult
           .filter((jsonResult) => jsonResult.status === 'fulfilled')
           .map((jsonResult) => (jsonResult as any).value)
           .filter((workflowInfo) => {
             const { valid, errorMsg } = validateJson(workflowInfo, 'workflow');
             if (errorMsg) {
-              const err = `${workflowInfo.name} has invalid format. skip loading '${workflowInfo.name}'..\n\n${errorMsg}`;
+              const err = `'${workflowInfo.name}' has invalid json format. skip loading '${workflowInfo.name}'..\n\n${errorMsg}`;
               log(LogType.error, err);
               invalidCnt += 1;
             }
@@ -194,12 +190,12 @@ export class Store {
 
         this.setStoreAvailability(true);
 
-        const errorCnt = readJsonsResult.filter(
+        const errorCnt: number = readJsonsResult.filter(
           (jsonResult) => jsonResult.status === 'rejected'
         ).length + invalidCnt;
 
         if (errorCnt !== 0) {
-          reject(new Error(`${errorCnt} workflows have json format errors.\nOpen devtools to check which workflow has invalid format.`));
+          reject(new Error(`${errorCnt} workflows have format errors in arvis-workflow.json\nOpen devtools to check which workflow has invalid format.`));
         } else {
           resolve();
         }
@@ -229,16 +225,15 @@ export class Store {
       this.setStoreAvailability(false);
 
       try {
-        let files: string[] = await fetchExtensionJson('plugin');
-        files = files.filter((filePath) => {
-          if (bundleId)
-            return filePath.endsWith(`${bundleId}${path.sep}arvis-plugin.json`);
-          return filePath.endsWith('arvis-plugin.json');
-        });
+        const extensionInfoFiles: string[] = bundleId ?
+          [`${bundleId}${path.sep}arvis-plugin.json`] :
+          (await fetchAllExtensionJsonPaths('plugin')).filter((filePath) => {
+            return filePath.endsWith('arvis-plugin.json');
+          });
 
         const readJsonPromises: Promise<any>[] = [];
 
-        for (const pluginJson of files) {
+        for (const pluginJson of extensionInfoFiles) {
           try {
             readJsonPromises.push(fse.readJson(pluginJson));
           } catch (err) {
@@ -249,14 +244,14 @@ export class Store {
 
         const readJsonsResult: PromiseSettledResult<any>[] = await Promise.allSettled(readJsonPromises);
 
-        let invalidCnt = 0;
+        let invalidCnt: number = 0;
         const pluginInfoArr: PluginConfigFile[] = readJsonsResult
           .filter((jsonResult) => jsonResult.status === 'fulfilled')
           .map((jsonResult) => (jsonResult as any).value)
           .filter((pluginInfo) => {
             const { valid, errorMsg } = validateJson(pluginInfo, 'plugin');
             if (errorMsg) {
-              const err = `${pluginInfo.name} has invalid format. skip loading '${pluginInfo.name}'..\n\n${errorMsg}`;
+              const err = `'${pluginInfo.name}' has invalid json format. skip loading '${pluginInfo.name}'..\n\n${errorMsg}`;
               log(LogType.error, err);
               invalidCnt += 1;
             }
@@ -290,7 +285,7 @@ export class Store {
         ).length + invalidCnt;
 
         if (errorCnt !== 0) {
-          reject(new Error(`${errorCnt} plugins have json format errors.\nOpen devtools to check which plugins has invalid format.`));
+          reject(new Error(`${errorCnt} plugins have format errors in arvis-plugin.json\nOpen devtools to check which plugins has invalid format.`));
         } else {
           resolve();
         }

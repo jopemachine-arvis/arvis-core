@@ -5,7 +5,7 @@ import { pluginInstallPath, workflowInstallPath } from '../config/path';
 /**
  * @summary
  */
-export const fetchExtensionJson = async (
+export const fetchAllExtensionJsonPaths = async (
   type: 'workflow' | 'plugin'
 ): Promise<string[]> => {
   const targetFiles: string[] = [];

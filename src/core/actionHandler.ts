@@ -91,7 +91,7 @@ const resolveActionType = (action: Action) => {
 
 /**
  * @param  {Action[]} actions
- * @param  {object} queryArgs
+ * @param  {Record<string, any>} queryArgs
  * @param  {ModifierInput} modifiersInput
  * @summary The actions arrangement is taken as a factor to branch according to cond or modifiers.
  */
@@ -101,11 +101,11 @@ function handleAction({
   modifiersInput,
 }: {
   actions: Action[];
-  queryArgs: object;
+  queryArgs: Record<string, any>;
   modifiersInput: ModifierInput;
 }): {
   nextActions: Action[];
-  args: object;
+  args: Record<string, any>;
 } {
   const workManager = WorkManager.getInstance();
   actions = handleModifiers(actions, modifiersInput);

@@ -4,7 +4,7 @@ import { escapeBraket, replaceAll } from '../utils';
 
 /**
  * @param  {string} str
- * @param  {object} queryArgs
+ * @param  {Record<string, any>} queryArgs
  * @param  {boolean} appendQuotes
  * @return {string} args applied string
  */
@@ -14,7 +14,7 @@ const applyArgs = ({
   appendQuotes,
 }: {
   str: string;
-  queryArgs: object;
+  queryArgs: Record<string, any>;
   appendQuotes?: boolean;
 }): string => {
   for (const key of Object.keys(queryArgs)) {
@@ -29,7 +29,7 @@ const applyArgs = ({
 
 /**
  * @param  {string} script
- * @param  {object} queryArgs
+ * @param  {Record<string, any>} queryArgs
  * @param  {boolean} appendQuotes
  * @return {string} args applied string
  * @description In script, all white space characters in 'args' should be escaped.
@@ -39,7 +39,7 @@ const applyArgsToScript = ({
   queryArgs,
 }: {
   script: string;
-  queryArgs: object;
+  queryArgs: Record<string, any>;
 }): string => {
   for (const key of Object.keys(queryArgs)) {
     const newStr = queryArgs[key].split(' ').filter((str: string) => str).join('\\ ');
@@ -51,10 +51,10 @@ const applyArgsToScript = ({
 };
 
 /**
- * @param  {object} args
+ * @param  {Record<string, any>} args
  * @param  {Action} action
  */
-const applyArgsInAction = (args: object, action: Action) => {
+const applyArgsInAction = (args: Record<string, any>, action: Action) => {
   const targetAction = { ...action };
 
   const actionKeys = Object.keys(targetAction);
@@ -81,11 +81,11 @@ const applyArgsInAction = (args: object, action: Action) => {
 
 
 /**
- * @param  {object} args
- * @param  {object} vars
+ * @param  {Record<string, any>} args
+ * @param  {Record<string, any>} vars
  * @returns variable
  */
-const applyExtensionVars = (args: object, vars: object): object => {
+const applyExtensionVars = (args: Record<string, any>, vars: Record<string, any>): Record<string, any> => {
   for (const variable in vars) {
     args[`{var:${variable}}`] = `${vars[variable]}`;
   }
@@ -94,9 +94,9 @@ const applyExtensionVars = (args: object, vars: object): object => {
 
 /**
  * @param  {string[]} querys
- * @return {object}
+ * @return {Record<string, any>}
  */
-const extractArgsFromQuery = (querys: string[]): object => {
+const extractArgsFromQuery = (querys: string[]): Record<string, any> => {
   const args = { '{query}': querys.join(' '), $1: '' };
 
   for (const qIdx in querys) {
@@ -111,9 +111,9 @@ const extractArgsFromQuery = (querys: string[]): object => {
 
 /**
  * @param  {PluginItem} item
- * @return {object}
+ * @return {Record<string, any>}
  */
-const extractArgsFromPluginItem = (item: PluginItem): object => {
+const extractArgsFromPluginItem = (item: PluginItem): Record<string, any> => {
   let args = {};
 
   if (item.arg) {
@@ -137,12 +137,12 @@ const extractArgsFromPluginItem = (item: PluginItem): object => {
 /**
  * @param  {ScriptFilterItem} item
  * @param  {any} vars
- * @return {object}
+ * @return {Record<string, any>}
  */
 const extractArgsFromScriptFilterItem = (
   item: ScriptFilterItem,
-  vars: object
-): object => {
+  vars: Record<string, any>
+): Record<string, any> => {
   let args = {};
 
   if (item.arg) {

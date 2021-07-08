@@ -24,7 +24,7 @@ const execute = ({
 }: {
   bundleId: string;
   scriptStr: string;
-  vars: object;
+  vars: Record<string, any>;
   options?: ScriptExecuterOption | undefined;
 }): execa.ExecaChildProcess<string> => {
   const { execPath, name, version, type } =

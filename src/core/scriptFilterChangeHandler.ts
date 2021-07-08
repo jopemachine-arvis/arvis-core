@@ -14,14 +14,14 @@ type ScriptFilterChangeHandlerOption = {
 /**
  * @param  {string} bundleId
  * @param  {Command} command
- * @param  {object} queryArgs
+ * @param  {Record<string, any>} queryArgs
  * @param  {ScriptFilterChangeHandlerOption} options?
  * @return {execa.ExecaChildProcess<string>} Executed process
  */
 const handleScriptFilterChange = (
   bundleId: string,
   command: Command | PluginItem | Action,
-  queryArgs: object,
+  queryArgs: Record<string, any>,
   options?: ScriptFilterChangeHandlerOption
 ): execa.ExecaChildProcess<string> => {
   if (command.type !== 'scriptFilter') {
@@ -43,7 +43,7 @@ const handleScriptFilterChange = (
     log(LogType.info, '[SF Script]', scriptStr);
   }
 
-  const vars: object = extractVarEnv(queryArgs);
+  const vars: Record<string, any> = extractVarEnv(queryArgs);
 
   return execute({ bundleId, scriptStr, vars, options: { ...options, shell } });
 };
