@@ -21,8 +21,11 @@ const getUserConfigs = async () => {
   return fse.readJSON(userConfigPath);
 };
 
-const addUserConfigs = async (bundleId: string, type: 'variable', target: any) => {
+const addUserConfigs = async (bundleId: string, type: 'variables', target: any) => {
   const userConfigs = await getUserConfigs();
+
+  if (!userConfigs[bundleId]) userConfigs[bundleId] = {};
+
   userConfigs[bundleId][type] = target;
   await fse.writeJSON(userConfigPath, userConfigs, { encoding: 'utf-8' });
 };
