@@ -37,18 +37,9 @@ const requireDynamically = (modulePath: string, envs: Record<string, any> = {}):
     log(LogType.debug, 'Plugin module cache not deleted', err);
   }
 
-  // For windows support
-  const envsStr = JSON.stringify(envs).split(path.sep).join('/');
+  process.env = { ...process.env, ...envs };
 
-  return eval(`
-    const envs = JSON.parse('${envsStr}');
-
-    Object.keys(envs).forEach(function(env) {
-      process.env[env] = envs[env];
-    });
-
-    require('${modulePath}');
-  `);
+  return eval(`require('${modulePath}');`);
 };
 
 interface PluginModule {
@@ -107,7 +98,7 @@ const pluginWorkspace: PluginWorkspace = {
           bundleId: pluginInfo.bundleId,
           name: pluginInfo.name,
           version: pluginInfo.version,
-          vars: pluginInfo.variables,
+          vars: pluginInfo.variables ?? {},
         });
 
         newPluginModules.set(pluginInfo.bundleId, {

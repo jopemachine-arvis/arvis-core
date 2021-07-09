@@ -65,7 +65,7 @@ const execute = ({
       bundleId,
       name: name ?? '',
       version: version ?? '',
-      vars,
+      vars: vars ?? {},
     }),
   });
 };

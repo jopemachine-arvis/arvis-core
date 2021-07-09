@@ -92,8 +92,13 @@ const getEnvs = ({
     alfred_version_build: '277',
   };
 
+  const transformedVars = { ...vars };
+  for (const variable of Object.keys(vars)) {
+    transformedVars[variable] = JSON.stringify(vars[variable]);
+  }
+
   return {
-    ...vars,
+    ...transformedVars,
     ...env,
     ...alfredWorkflowEnv,
     ...externalEnv,

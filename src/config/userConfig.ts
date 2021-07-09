@@ -8,7 +8,7 @@ const applyUserConfigs = (userConfig: any, extensionInfo: any) => {
   const result = { ...extensionInfo };
 
   // Migrate previous variables
-  if (userConfig.variables) {
+  if (userConfig && userConfig.variables) {
     for (const variable of Object.keys(userConfig.variables)) {
       result.variables[variable] = userConfig.variables[variable];
     }
