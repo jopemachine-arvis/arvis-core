@@ -8,6 +8,12 @@ const envPaths = envPathsGenerator('arvis');
 
 const installedDataPath = envPaths.data;
 const cachePath = envPaths.cache;
+const configPath = envPaths.config;
+
+/**
+ * @description User config value
+ */
+const userConfigPath = path.resolve(configPath, 'user-configs.json');
 
 /**
  * @description Store workflow, plugin data
@@ -38,21 +44,24 @@ const tempPath = envPaths.temp;
  * @summary Create the necessary paths for the Arvis if they don't exists
  */
 const initializePath = async () => {
-  const checkAndCreatePath = async (dir: string) => {
-    if (!(await pathExists(dir))) {
-      await fse.mkdir(dir, { recursive: true });
+  const ensureFileExist = async (filePath: string, type: 'directory' | 'json') => {
+    if (!(await pathExists(filePath))) {
+      if (type === 'directory') {
+        await fse.mkdir(filePath, { recursive: true });
+      } else if (type === 'json') {
+        await fse.writeJSON(userConfigPath, {});
+      }
     }
   };
 
-  const works = [
-    checkAndCreatePath(workflowInstallPath),
-    checkAndCreatePath(pluginInstallPath),
-    checkAndCreatePath(extensionDataPath),
-    checkAndCreatePath(extensionCachePath),
-    checkAndCreatePath(tempPath),
-  ];
-
-  await Promise.all(works).catch(console.error);
+  await Promise.all([
+    ensureFileExist(workflowInstallPath, 'directory'),
+    ensureFileExist(pluginInstallPath, 'directory'),
+    ensureFileExist(extensionDataPath, 'directory'),
+    ensureFileExist(extensionCachePath, 'directory'),
+    ensureFileExist(tempPath, 'directory'),
+    ensureFileExist(userConfigPath, 'json'),
+  ]).catch(console.error);
 };
 
 /**
@@ -106,6 +115,7 @@ const getPluginConfigJsonPath = (bundleId: string) => {
 
 export {
   cachePath,
+  configPath,
   envPathsGenerator,
   getExtensionCachePath,
   getExtensionDataPath,
@@ -118,11 +128,13 @@ export {
   installedDataPath,
   pluginInstallPath,
   tempPath,
+  userConfigPath,
   workflowInstallPath,
 };
 
 export default {
   cachePath,
+  configPath,
   envPathsGenerator,
   getExtensionCachePath,
   getExtensionDataPath,
@@ -134,5 +146,6 @@ export default {
   installedDataPath,
   pluginInstallPath,
   tempPath,
+  userConfigPath,
   workflowInstallPath,
 };

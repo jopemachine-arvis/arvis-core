@@ -7,26 +7,11 @@ import pathExists from 'path-exists';
 import rimraf from 'rimraf';
 import unzipper from 'unzipper';
 import { v4 as uuidv4 } from 'uuid';
-import { log, LogType } from '../config';
+import { applyUserConfigs, getUserConfigs, log, LogType } from '../config';
 import { getPluginInstalledPath, tempPath } from '../config/path';
 import { Store } from '../config/store';
 import { sleep } from '../utils';
 import { getBundleId } from './getBundleId';
-import { getPluginList } from './pluginList';
-
-/**
- * @description Migrate previous extenion's setting
- */
-const updateHandler = (prevConfig: any, newConfig: any) => {
-  const config = { ...newConfig };
-
-  // Migrate variables
-  for (const variable of Object.keys(prevConfig.variables)) {
-    config.variables[variable] = prevConfig.variables[variable];
-  }
-
-  return config;
-};
 
 /**
  * @param  {string} installedPath
@@ -63,31 +48,28 @@ const installByPath = async (installedPath: string): Promise<void | Error> => {
     }
 
     const bundleId = getBundleId(pluginConfig.creator, pluginConfig.name);
-    const arr = pluginConfFilePath.split(path.sep);
-    const pluginConfDirPath = arr.slice(0, arr.length - 1).join(path.sep);
-
-    const destinationPath = getPluginInstalledPath(
+    const sourcePath = pluginConfFilePath.split(path.sep).slice(0, -1).join(path.sep);
+    const destPath = getPluginInstalledPath(
       bundleId
     );
 
-    const isUpdate = !_.isUndefined(getPluginList()[bundleId]);
+    pluginConfig = applyUserConfigs((await getUserConfigs())[bundleId], pluginConfig);
 
-    if (isUpdate) {
-      pluginConfig = updateHandler(getPluginList()[bundleId], pluginConfig);
+    await fse.writeJSON(pluginConfFilePath, pluginConfig, { encoding: 'utf-8', spaces: 4 });
+
+    // In case of update
+    if (await pathExists(destPath)) {
+      await fse.remove(destPath);
     }
 
-    if (await pathExists(destinationPath)) {
-      await fse.remove(destinationPath);
-    }
-
-    await fse.copy(pluginConfDirPath, destinationPath, {
+    await fse.copy(sourcePath, destPath, {
       recursive: true,
       overwrite: true,
       preserveTimestamps: false,
     });
 
     // Makes scripts, binaries of installed paths executable
-    chmodr(destinationPath, 0o777, () => {
+    chmodr(destPath, 0o777, () => {
       pluginConfig.enabled = pluginConfig.enabled ?? true;
       store.setPlugin(pluginConfig);
       resolve();

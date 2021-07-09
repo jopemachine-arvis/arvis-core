@@ -10,11 +10,14 @@ import {
 import { log, LogType, setLogLevels, trace } from './logger';
 import pathConfig from './path';
 import { Store } from './store';
+import { applyUserConfigs, getUserConfigs } from './userConfig';
 
 export {
+  applyUserConfigs,
   getEnvs,
   getHistory,
   getHistoryFilePath,
+  getUserConfigs,
   initHistory,
   log,
   LogType,

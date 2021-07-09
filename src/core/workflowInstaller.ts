@@ -7,26 +7,12 @@ import pathExists from 'path-exists';
 import rimraf from 'rimraf';
 import unzipper from 'unzipper';
 import { v4 as uuidv4 } from 'uuid';
+import { applyUserConfigs, getUserConfigs } from '.';
 import { log, LogType } from '../config';
 import { getWorkflowInstalledPath, tempPath } from '../config/path';
 import { Store } from '../config/store';
 import { sleep } from '../utils';
 import { getBundleId } from './getBundleId';
-import { getWorkflowList } from './workflowList';
-
-/**
- * @description Migrate previous extenion's setting
- */
-const updateHandler = (prevConfig: any, newConfig: any) => {
-  const config = { ...newConfig };
-
-  // Migrate variables
-  for (const variable of Object.keys(prevConfig.variables)) {
-    config.variables[variable] = prevConfig.variables[variable];
-  }
-
-  return config;
-};
 
 /**
  * @param  {string} installedPath
@@ -66,31 +52,28 @@ const installByPath = async (installedPath: string): Promise<void | Error> => {
     }
 
     const bundleId = getBundleId(workflowConfig.creator, workflowConfig.name);
-    const arr = workflowConfFilePath.split(path.sep);
-    const workflowConfDirPath = arr.slice(0, arr.length - 1).join(path.sep);
-
-    const destinationPath = getWorkflowInstalledPath(
+    const sourcePath = workflowConfFilePath.split(path.sep).slice(0, -1).join(path.sep);
+    const destPath = getWorkflowInstalledPath(
       bundleId
     );
 
-    const isUpdate = !_.isUndefined(getWorkflowList()[bundleId]);
+    workflowConfig = applyUserConfigs((await getUserConfigs())[bundleId], workflowConfig);
 
-    if (isUpdate) {
-      workflowConfig = updateHandler(getWorkflowList()[bundleId], workflowConfig);
+    await fse.writeJSON(workflowConfFilePath, workflowConfig, { encoding: 'utf-8', spaces: 4 });
+
+    // In case of update
+    if (await pathExists(destPath)) {
+      await fse.remove(destPath);
     }
 
-    if (await pathExists(destinationPath)) {
-      await fse.remove(destinationPath);
-    }
-
-    await fse.copy(workflowConfDirPath, destinationPath, {
+    await fse.copy(sourcePath, destPath, {
       recursive: true,
       overwrite: true,
       preserveTimestamps: false,
     });
 
     // Makes scripts, binaries of installed paths executable
-    chmodr(destinationPath, 0o777, () => {
+    chmodr(destPath, 0o777, () => {
       workflowConfig.enabled = workflowConfig.enabled ?? true;
       store.setWorkflow(workflowConfig);
       resolve();

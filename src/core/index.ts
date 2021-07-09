@@ -45,10 +45,13 @@ import { setMacPathsEnv } from '../config/envHandler';
 import * as history from '../config/history';
 import * as logger from '../config/logger';
 import * as path from '../config/path';
+import { addUserConfigs, applyUserConfigs, getUserConfigs, initialzeUserConfigs } from '../config/userConfig';
 
 import { registerCustomAction, scriptFilterExcute } from '../actions';
 
 export {
+  addUserConfigs,
+  applyUserConfigs,
   checkUpdatableExtensions,
   decideExtensionType,
   determineDefaultIconPath,
@@ -65,10 +68,12 @@ export {
   getPluginList,
   getSystemPaths,
   getTriggers,
+  getUserConfigs,
   getWorkflowList,
   handleAction,
   hasRequiredArg,
   history,
+  initialzeUserConfigs,
   installPlugin,
   installWorkflow,
   isArgTypeNoButHaveArg,
