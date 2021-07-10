@@ -6,9 +6,9 @@ import PCancelable from 'p-cancelable';
 import parseJson from 'parse-json';
 import { log, LogType, pushInputStrLog } from '../config';
 import {
+  ActionFlowManager,
   getPluginList,
   getWorkflowList,
-  WorkManager,
   xmlToJsonScriptFilterItemFormat,
 } from '../core';
 import { applyExtensionVars, extractArgsFromQuery } from '../core/argsHandler';
@@ -18,21 +18,21 @@ import { handleScriptFilterChange } from '../core/scriptFilterChangeHandler';
  * @summary
  */
 const printActionLog = (): void => {
-  const workManager = WorkManager.getInstance();
-  if (workManager.printActionType) {
-    if (workManager.loggerColorType === 'gui') {
+  const actionFlowManager = ActionFlowManager.getInstance();
+  if (actionFlowManager.printActionType) {
+    if (actionFlowManager.loggerColorType === 'gui') {
       log(
         LogType.info,
         `%c[Action: scriptfilter]%c `,
         'color: red',
         'color: unset',
-        workManager.getTopWork().actionTrigger
+        actionFlowManager.getTopTrigger().actionTrigger
       );
     } else {
       log(
         LogType.info,
         chalk.redBright(`[Action: scriptfilter] `),
-        workManager.getTopWork().actionTrigger
+        actionFlowManager.getTopTrigger().actionTrigger
       );
     }
   }
@@ -76,31 +76,31 @@ const parseStdio = (stdout: string, stderr: string): ScriptFilterResult => {
 function scriptFilterCompleteEventHandler(
   scriptFilterResult: execa.ExecaReturnValue<string>
 ): void {
-  const workManager = WorkManager.getInstance();
+  const actionFlowManager = ActionFlowManager.getInstance();
 
   const stdio = parseStdio(
     scriptFilterResult.stdout,
     scriptFilterResult.stderr
   );
 
-  workManager.printScriptfilter && log(LogType.info, '[SF Result]', stdio);
+  actionFlowManager.printScriptfilter && log(LogType.info, '[SF Result]', stdio);
 
-  const { items, rerun: rerunInterval, variables } = stdio;
+  const { items, rerun: scriptfilterRerun, variables } = stdio;
 
-  workManager.updateTopWork({
+  actionFlowManager.updateTopTrigger({
     items,
-    rerunInterval,
-    workCompleted: true,
+    scriptfilterRerun,
+    scriptfilterCompleted: true,
     globalVariables: {
       ...variables,
-      ...workManager.globalVariables,
+      ...actionFlowManager.globalVariables,
     },
   });
 
-  const { bundleId } = workManager.getTopWork();
+  const { bundleId } = actionFlowManager.getTopTrigger();
 
   const infolist =
-    workManager.extensionInfo!.type === 'workflow'
+    actionFlowManager.extensionInfo!.type === 'workflow'
       ? getWorkflowList()
       : getPluginList();
 
@@ -113,11 +113,11 @@ function scriptFilterCompleteEventHandler(
     item.icon = item.icon ?? defaultIcon;
   });
 
-  if (!workManager.onItemShouldBeUpdate) {
+  if (!actionFlowManager.onItemShouldBeUpdate) {
     throw new Error('Renderer update funtions are not set!');
   }
 
-  workManager.onItemShouldBeUpdate({ items, needIndexInfoClear: true });
+  actionFlowManager.onItemShouldBeUpdate({ items, needIndexInfoClear: true });
 }
 
 /**
@@ -128,18 +128,18 @@ function scriptErrorHandler(
   err: ExecaError,
   options?: { extractJson?: boolean } | undefined
 ): void {
-  const workManager = WorkManager.getInstance();
+  const actionFlowManager = ActionFlowManager.getInstance();
 
   if (err.timedOut) {
     log(LogType.error, `Script timeout!\n'${err}`);
   } else if (err.isCanceled) {
     // Command was canceled by other scriptfilter.
   } else {
-    if (workManager.hasEmptyWorkStk()) {
+    if (actionFlowManager.hasEmptyTriggerStk()) {
       // Command was canceled by user.
     } else {
       log(LogType.error, err);
-      workManager.handleScriptFilterError(err, options);
+      actionFlowManager.handleScriptFilterError(err, options);
     }
   }
 }
@@ -154,8 +154,8 @@ const getScriptFilterQuery = (
   command: string | undefined,
   withspace: boolean
 ): string[] => {
-  const workManager = WorkManager.getInstance();
-  if (!workManager.isInitialTrigger) {
+  const actionFlowManager = ActionFlowManager.getInstance();
+  if (!actionFlowManager.isInitialTrigger) {
     return inputStr.split(' ');
   }
 
@@ -172,44 +172,44 @@ async function scriptFilterExcute(
   inputStr: string,
   commandObj?: Command
 ): Promise<void | ExecaReturnValue<string>> {
-  // If WorkStk is empty, users can enter the script filter without a return event.
-  // To handle this, push this command to WorkStk
-  const workManager = WorkManager.getInstance();
+  // If triggerStk is empty, users can enter the script filter without a return event.
+  // To handle this, push this command to triggerStk
+  const actionFlowManager = ActionFlowManager.getInstance();
 
-  // To do:: Change below code with 'workManager.isInitialTrigger'
-  if (workManager.hasEmptyWorkStk()) {
+  // To do:: Change below code with 'actionFlowManager.isInitialTrigger'
+  if (actionFlowManager.hasEmptyTriggerStk()) {
     if (!commandObj) {
       throw new Error('Error - command should be given when stack is empty');
     }
-    workManager.pushWork({
+    actionFlowManager.pushTrigger({
       type: 'scriptFilter',
       input: inputStr,
       actions: commandObj.actions,
       actionTrigger: commandObj,
       bundleId: commandObj.bundleId!,
       args: {},
-      workProcess: null,
-      workCompleted: false,
+      scriptfilterProc: null,
+      scriptfilterCompleted: false,
     });
 
     pushInputStrLog(commandObj.bundleId!, commandObj.command!);
-    workManager.setExtensionInfo(commandObj);
+    actionFlowManager.setExtensionInfo(commandObj);
   } else {
     const newScriptFilterNeedsToExecuted =
-      workManager.getTopWork().type === 'scriptFilter' &&
-      workManager.getTopWork().workProcess &&
-      !workManager.getTopWork().workCompleted;
+      actionFlowManager.getTopTrigger().type === 'scriptFilter' &&
+      actionFlowManager.getTopTrigger().scriptfilterProc &&
+      !actionFlowManager.getTopTrigger().scriptfilterCompleted;
 
     if (newScriptFilterNeedsToExecuted) {
-      workManager.getTopWork().workProcess!.cancel();
+      actionFlowManager.getTopTrigger().scriptfilterProc!.cancel();
     }
   }
 
-  if (workManager.rerunTimer) {
-    clearInterval(workManager.rerunTimer);
+  if (actionFlowManager.rerunTimer) {
+    clearInterval(actionFlowManager.rerunTimer);
   }
 
-  const { bundleId, actionTrigger } = workManager.getTopWork();
+  const { bundleId, actionTrigger } = actionFlowManager.getTopTrigger();
 
   const withspace: boolean = commandObj
     ? commandObj.withspace ?? true
@@ -225,7 +225,7 @@ async function scriptFilterExcute(
   // Otherwise, the first string element is command.
 
   const extensionVariables: Record<string, any> =
-    workManager.extensionInfo!.type === 'plugin'
+    actionFlowManager.extensionInfo!.type === 'plugin'
       ? getPluginList()[bundleId].variables
       : getWorkflowList()[bundleId].variables ?? {};
 
@@ -249,35 +249,35 @@ async function scriptFilterExcute(
       onCancel(() => proc.cancel());
     });
 
-  workManager.updateTopWork({
+  actionFlowManager.updateTopTrigger({
     args: extractedArgs,
-    workProcess: scriptWork,
+    scriptfilterProc: scriptWork,
   });
 
   return scriptWork
     .then((result) => {
       if (
-        workManager.getTopWork().workProcess &&
-        !workManager.getTopWork().workProcess!.isCanceled &&
-        workManager.getTopWork().workProcess === scriptWork
+        actionFlowManager.getTopTrigger().scriptfilterProc &&
+        !actionFlowManager.getTopTrigger().scriptfilterProc!.isCanceled &&
+        actionFlowManager.getTopTrigger().scriptfilterProc === scriptWork
       ) {
         printActionLog();
         scriptFilterCompleteEventHandler(result);
-        if (workManager.getTopWork().rerunInterval) {
-          // Run recursive every rerunInterval
-          workManager.rerunTimer = setTimeout(() => {
+        if (actionFlowManager.getTopTrigger().scriptfilterRerun) {
+          // Run recursive every scriptfilterRerun
+          actionFlowManager.rerunTimer = setTimeout(() => {
             scriptFilterExcute(inputStr);
-          }, workManager.getTopWork().rerunInterval);
+          }, actionFlowManager.getTopTrigger().scriptfilterRerun);
         }
       }
       return result;
     })
     .catch((err) => {
       // In case of cancel command by user
-      if (_.isUndefined(workManager.getTopWork())) return;
+      if (_.isUndefined(actionFlowManager.getTopTrigger())) return;
       if (!scriptWork.isCanceled) {
         console.error(`Unexpected Error occurs:\n\n${err}`);
-        workManager.handleScriptFilterError(err, { extractJson: false });
+        actionFlowManager.handleScriptFilterError(err, { extractJson: false });
       }
     });
 }

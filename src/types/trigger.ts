@@ -3,9 +3,9 @@ import PCancelable from 'p-cancelable';
 export {};
 
 declare global {
-  export interface Work {
+  export interface Trigger {
     /**
-     * @description Work's type
+     * @description Trigger's type
      *              Possible value is `keyword`, `scriptfilter`, `hotkey`
      */
     readonly type: string;
@@ -16,7 +16,7 @@ declare global {
     input: string;
 
     /**
-     * @description Workflow or plugin's bundleId
+     * @description Extension bundleId
      */
     bundleId: string;
 
@@ -40,19 +40,19 @@ declare global {
      * @description Used in only type is 'scriptFilter'
      *              Indicates whether scriptfilter script is running
      */
-    workCompleted?: boolean;
+    scriptfilterCompleted?: boolean;
 
     /**
      * @description Used in only type is 'scriptFilter'
      *              ExecaChildProcess object (promise)
      */
-    workProcess?: PCancelable<execa.ExecaReturnValue<string>> | null;
+    scriptfilterProc?: PCancelable<execa.ExecaReturnValue<string>> | null;
 
     /**
      * @description Used in only type is 'scriptFilter'
      *              Scriptfilter's rerun interval
      */
-    rerunInterval?: number;
+    scriptfilterRerun?: number;
 
     /**
      * @description Used in only type is 'scriptFilter'

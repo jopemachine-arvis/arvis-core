@@ -2,7 +2,7 @@ import execa from 'execa';
 import _ from 'lodash';
 import { getEnvs } from '../config';
 import { getWorkflowInstalledPath } from '../config/path';
-import { WorkManager } from './workManager';
+import { ActionFlowManager } from './actionFlowManager';
 
 type ScriptExecuterOption = {
   all?: boolean;
@@ -28,7 +28,7 @@ const execute = ({
   options?: ScriptExecuterOption | undefined;
 }): execa.ExecaChildProcess<string> => {
   const { execPath, name, version, type } =
-    WorkManager.getInstance().extensionInfo!;
+    ActionFlowManager.getInstance().extensionInfo!;
 
   let all: boolean | undefined;
   let timeout: number | undefined;

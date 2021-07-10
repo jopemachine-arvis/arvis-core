@@ -1,5 +1,5 @@
 import { log, LogType } from '../config';
-import { WorkManager } from './workManager';
+import { ActionFlowManager } from './actionFlowManager';
 
 /**
  * @param  {{item:any;inputStr:string;}}
@@ -12,9 +12,9 @@ export const hasRequiredArg = ({
   item: any;
   inputStr: string;
 }) => {
-  const workManager = WorkManager.getInstance();
+  const actionFlowManager = ActionFlowManager.getInstance();
 
-  if (!workManager.isInitialTrigger) {
+  if (!actionFlowManager.isInitialTrigger) {
     if (inputStr === '') return false;
     return true;
   }
@@ -63,8 +63,8 @@ export const isInputMeetWithspaceCond = ({
   inputStr: string;
 }) => {
   if (item.type === 'scriptFilter') {
-    const workManager = WorkManager.getInstance();
-    const targetStr = workManager.isInitialTrigger ? item.command : workManager.getTopWork().input;
+    const actionFlowManager = ActionFlowManager.getInstance();
+    const targetStr = actionFlowManager.isInitialTrigger ? item.command : actionFlowManager.getTopTrigger().input;
 
     if (!targetStr) return true;
 

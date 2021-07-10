@@ -21,20 +21,20 @@ import { getPluginList } from './pluginList';
 import { getWorkflowList } from './workflowList';
 
 /**
- * @description Manage the execution of tasks (works)
+ * @description Manage the execution of tasks
  *              In the CUI, GUI, create a singleton object of this class to execute action, scriptfilter
  */
-export class WorkManager {
-  private static instance: WorkManager;
+export class ActionFlowManager {
+  private static instance: ActionFlowManager;
 
   static getInstance() {
-    if (!WorkManager.instance) {
-      WorkManager.instance = new WorkManager();
+    if (!ActionFlowManager.instance) {
+      ActionFlowManager.instance = new ActionFlowManager();
     }
-    return WorkManager.instance;
+    return ActionFlowManager.instance;
   }
 
-  workStk: Work[];
+  triggerStk: Trigger[];
   globalVariables?: Record<string, any>;
   rerunTimer?: NodeJS.Timeout | undefined;
 
@@ -47,11 +47,12 @@ export class WorkManager {
 
   // For debugging, set below variables
   public printActionType?: boolean;
-  public printWorkStack?: boolean;
+  public printTriggerStack?: boolean;
   public printScriptOutput?: boolean;
   public printArgs?: boolean;
   public printScriptfilter?: boolean;
   public printPluginItems?: boolean;
+
   public loggerColorType?: 'cui' | 'gui' = 'cui';
 
   public maxRetrieveCount?: number;
@@ -78,27 +79,27 @@ export class WorkManager {
   }) => void;
 
   private constructor() {
-    this.workStk = [];
+    this.triggerStk = [];
     this.globalVariables = {};
   }
 
   /**
    * @summary
    */
-  public getTopWork = () => {
-    return this.workStk[this.workStk.length - 1];
+  public getTopTrigger = () => {
+    return this.triggerStk[this.triggerStk.length - 1];
   }
 
   /**
    * @summary
    * @description cleanup work stack and other infomations
    */
-  public clearWorkStack = () => {
-    if (this.printWorkStack) {
+  public clearTriggerStk = () => {
+    if (this.printTriggerStack) {
       log(LogType.info, 'Trigger stack cleared!');
     }
 
-    this.workStk.length = 0;
+    this.triggerStk.length = 0;
     this.globalVariables = {};
     this.rerunTimer = undefined;
     this.isInitialTrigger = true;
@@ -108,57 +109,57 @@ export class WorkManager {
   /**
    * @summary
    */
-  public updateTopWork = (keyValueDict: Record<string, any>) => {
+  public updateTopTrigger = (keyValueDict: Record<string, any>) => {
     for (const key of Object.keys(keyValueDict)) {
-      this.workStk[this.workStk.length - 1][key] = keyValueDict[key];
+      this.triggerStk[this.triggerStk.length - 1][key] = keyValueDict[key];
     }
   }
 
   /**
    * @summary
    */
-  public hasEmptyWorkStk = () => {
-    return this.workStk.length === 0;
+  public hasEmptyTriggerStk = () => {
+    return this.triggerStk.length === 0;
   }
 
   /**
    * @summary
    */
-  public workIsPending = () => {
-    if (this.hasEmptyWorkStk() || this.getTopWork().type !== 'scriptFilter')
+  public prevScriptfilterIsExecuting = () => {
+    if (this.hasEmptyTriggerStk() || this.getTopTrigger().type !== 'scriptFilter')
       return false;
 
-    return this.getTopWork().workCompleted === false;
+    return this.getTopTrigger().scriptfilterCompleted === false;
   }
 
   /**
-   * @param {Work} work
+   * @param {Trigger} work
    */
-  public pushWork = (work: Work) => {
-    this.workStk.push(work);
-    this.debugWorkStk();
+  public pushTrigger = (work: Trigger) => {
+    this.triggerStk.push(work);
+    this.debugTriggerStk();
   }
 
   /**
    * @summary If the script filters are nested, return to the previous script filter.
    */
-  public popWork = () => {
+  public popTrigger = () => {
     this.throwErrOnRendererUpdaterNotSet();
 
-    if (this.workStk.length >= 2) {
-      if (this.getTopWork().type === 'hotkey') {
+    if (this.triggerStk.length >= 2) {
+      if (this.getTopTrigger().type === 'hotkey') {
         // Double pop when executed through hotkey
-        this.workStk.pop();
+        this.triggerStk.pop();
       }
 
-      this.workStk.pop();
-      if (this.getTopWork().type === 'scriptFilter') {
+      this.triggerStk.pop();
+      if (this.getTopTrigger().type === 'scriptFilter') {
         this.onItemShouldBeUpdate!({
-          items: this.getTopWork().items!,
+          items: this.getTopTrigger().items!,
           needIndexInfoClear: true,
         });
-      } else if (this.getTopWork().type === 'keyword') {
-        const keywordItem = (this.getTopWork().actionTrigger) as any;
+      } else if (this.getTopTrigger().type === 'keyword') {
+        const keywordItem = (this.getTopTrigger().actionTrigger) as any;
         this.onItemShouldBeUpdate!({
           items: [{
             title: keywordItem.title,
@@ -169,16 +170,16 @@ export class WorkManager {
       }
 
       this.onInputShouldBeUpdate!({
-        str: this.getTopWork().input,
+        str: this.getTopTrigger().input,
         needItemsUpdate: false,
       });
 
-      this.debugWorkStk();
-    } else if (this.workStk.length !== 0) {
-      this.clearWorkStack();
+      this.debugTriggerStk();
+    } else if (this.triggerStk.length !== 0) {
+      this.clearTriggerStk();
       this.onInputShouldBeUpdate!({ str: '', needItemsUpdate: true });
     } else {
-      this.clearWorkStack();
+      this.clearTriggerStk();
       this.onInputShouldBeUpdate!({ str: '', needItemsUpdate: true });
       this.onWorkEndHandler!();
     }
@@ -250,9 +251,9 @@ export class WorkManager {
     this.throwErrOnRendererUpdaterNotSet();
 
     if (
-      this.hasEmptyWorkStk() ||
-      this.getTopWork().type !== 'scriptFilter' ||
-      !this.getTopWork().workCompleted
+      this.hasEmptyTriggerStk() ||
+      this.getTopTrigger().type !== 'scriptFilter' ||
+      !this.getTopTrigger().scriptfilterCompleted
     ) {
       return;
     }
@@ -264,7 +265,7 @@ export class WorkManager {
       }
     )[0];
 
-    const items = _.map(this.getTopWork().items, _.cloneDeep);
+    const items = _.map(this.getTopTrigger().items, _.cloneDeep);
 
     if (!pressedModifier || !items || !items.length) {
       return;
@@ -297,15 +298,15 @@ export class WorkManager {
     this.throwErrOnRendererUpdaterNotSet();
 
     if (
-      this.hasEmptyWorkStk() ||
-      this.getTopWork().type !== 'scriptFilter' ||
-      !this.getTopWork().workCompleted
+      this.hasEmptyTriggerStk() ||
+      this.getTopTrigger().type !== 'scriptFilter' ||
+      !this.getTopTrigger().scriptfilterCompleted
     ) {
       return;
     }
 
     this.onItemShouldBeUpdate!({
-      items: this.getTopWork().items!,
+      items: this.getTopTrigger().items!,
       needIndexInfoClear: false,
     });
   }
@@ -371,11 +372,11 @@ export class WorkManager {
   /**
    * @summary
    */
-  public debugWorkStk = (): void => {
-    if (!this.printWorkStack) return;
+  public debugTriggerStk = (): void => {
+    if (!this.printTriggerStack) return;
 
     log(LogType.info, '* ---------- Debug trigger stack ---------- *');
-    for (const item of this.workStk) {
+    for (const item of this.triggerStk) {
       log(LogType.info, item);
     }
     log(LogType.info, '* ----------------------------------------- *');
@@ -383,7 +384,7 @@ export class WorkManager {
 
   /**
    * @param  {Command | ScriptFilterItem | PluginItem} item
-   * @description If workStk is empty, return item's action
+   * @description If triggerStk is empty, return item's action
    *              otherwise, return nextAction (topWork's action)
    */
   private prepareNextActions = ({
@@ -391,10 +392,10 @@ export class WorkManager {
   }: {
     item: Command | ScriptFilterItem | PluginItem;
   }): Action[] | undefined => {
-    if (this.hasEmptyWorkStk()) {
+    if (this.hasEmptyTriggerStk()) {
       return (item as Command | PluginItem).actions;
     } else {
-      return this.getTopWork().actions;
+      return this.getTopTrigger().actions;
     }
   }
 
@@ -411,9 +412,9 @@ export class WorkManager {
     item: Command | ScriptFilterItem | PluginItem;
     inputStr: string;
   }): Record<string, any> => {
-    const bundleId: string = this.hasEmptyWorkStk()
+    const bundleId: string = this.hasEmptyTriggerStk()
       ? item.bundleId!
-      : this.getTopWork().bundleId;
+      : this.getTopTrigger().bundleId;
 
     const extensionVariables = item['isPluginItem']
       ? getPluginList()[bundleId].variables
@@ -425,7 +426,7 @@ export class WorkManager {
     };
 
     // Plugin Trigger
-    if (this.hasEmptyWorkStk() && item['isPluginItem']) {
+    if (this.hasEmptyTriggerStk() && item['isPluginItem']) {
       return applyExtensionVars(
         extractArgsFromPluginItem(item as PluginItem),
         extensionVariables
@@ -433,7 +434,7 @@ export class WorkManager {
     }
 
     // Workflow Trigger: Hotkey
-    if (this.hasEmptyWorkStk() && item['type'] === 'hotkey') {
+    if (this.hasEmptyTriggerStk() && item['type'] === 'hotkey') {
       return applyExtensionVars(
         emptyQuery,
         extensionVariables
@@ -441,7 +442,7 @@ export class WorkManager {
     }
 
     // Workflow Trigger: Keyword, scriptfilter
-    if (this.hasEmptyWorkStk()) {
+    if (this.hasEmptyTriggerStk()) {
       const [_emptyStr, queryStr] = inputStr.split(
         (item as Command).command!
       );
@@ -454,7 +455,7 @@ export class WorkManager {
       );
     }
 
-    if (this.getTopWork().type === 'keyword') {
+    if (this.getTopTrigger().type === 'keyword') {
       return applyExtensionVars(
         extractArgsFromQuery(inputStr.split(' ')),
         extensionVariables
@@ -462,7 +463,7 @@ export class WorkManager {
     }
 
     // Handle scriptfilter action
-    if (this.getTopWork().type === 'scriptFilter') {
+    if (this.getTopTrigger().type === 'scriptFilter') {
       item = item as ScriptFilterItem;
       const vars = { ...item.variables, ...this.globalVariables! };
       return applyExtensionVars(
@@ -508,15 +509,15 @@ export class WorkManager {
       const nextInput = args['{query}'] ?? '';
       const optionalWhitespace = nextAction['argType'] === 'required' ? ' ' : '';
 
-      this.pushWork({
+      this.pushTrigger({
         actions: (nextAction as ScriptFilterAction | KeywordAction).actions,
         actionTrigger: nextAction,
         args,
-        bundleId: this.getTopWork().bundleId,
+        bundleId: this.getTopTrigger().bundleId,
         input: nextInput,
         type: nextAction.type,
-        workCompleted: false,
-        workProcess: null,
+        scriptfilterCompleted: false,
+        scriptfilterProc: null,
       });
 
       if (nextAction.type === 'scriptFilter') {
@@ -598,9 +599,9 @@ export class WorkManager {
    * @description
    */
   private getParentAction = () => {
-    return !this.hasEmptyWorkStk()
-      ? this.getTopWork().actionTrigger
-        ? this.getTopWork().actionTrigger['type']
+    return !this.hasEmptyTriggerStk()
+      ? this.getTopTrigger().actionTrigger
+        ? this.getTopTrigger().actionTrigger['type']
         : undefined
       : undefined;
   }
@@ -621,7 +622,7 @@ export class WorkManager {
     modifier: ModifierInput;
   }): boolean => {
     this.throwErrOnRendererUpdaterNotSet();
-    const workManager = WorkManager.getInstance();
+    const actionFlowManager = ActionFlowManager.getInstance();
 
     let handleActionResult: {
       nextActions: Action[];
@@ -642,12 +643,12 @@ export class WorkManager {
       const parentActionType = this.getParentAction();
 
       const needToPreventQuit = triggerTypes.includes(actionsPointer[0].type) &&
-        (!workManager.isInitialTrigger ||
+        (!actionFlowManager.isInitialTrigger ||
           triggerTypes.includes(parentActionType));
 
       if (needToPreventQuit) {
         this.handleTriggerAction(actionsPointer[0], args);
-        workManager.isInitialTrigger = false;
+        actionFlowManager.isInitialTrigger = false;
         quit = false;
         actionsPointer.splice(0, 1);
         continue;
@@ -701,14 +702,14 @@ export class WorkManager {
     inputStr: string,
     modifier: ModifierInput
   ): boolean {
-    // If workStk is empty, the args becomes query, otherwise args becomes arg of items
-    // If workStk is empty, the actions becomes command, otherwise the top action of the stack is 'actions'.
+    // If triggerStk is empty, the args becomes query, otherwise args becomes arg of items
+    // If triggerStk is empty, the actions becomes command, otherwise the top action of the stack is 'actions'.
     const actions = this.prepareNextActions({ item });
     const args = this.prepareArgs({ item, inputStr });
 
-    if (this.hasEmptyWorkStk()) {
+    if (this.hasEmptyTriggerStk()) {
       // Trigger Type: one of 'keyword', 'scriptFilter'
-      this.pushWork({
+      this.pushTrigger({
         actions,
         actionTrigger: item as Command | PluginItem,
         args,
@@ -728,8 +729,8 @@ export class WorkManager {
       this.isInitialTrigger = false;
     }
 
-    if (this.getTopWork().type === 'scriptFilter') {
-      this.updateTopWork({
+    if (this.getTopTrigger().type === 'scriptFilter') {
+      this.updateTopTrigger({
         input: inputStr
       });
     }
@@ -757,12 +758,12 @@ export class WorkManager {
     this.throwErrOnRendererUpdaterNotSet();
 
     // Ignore this exeution if previous work is pending.
-    if (this.workIsPending()) {
+    if (this.prevScriptfilterIsExecuting()) {
       return;
     }
 
     if (this.commandExcute(item, inputStr, modifier)) {
-      this.clearWorkStack();
+      this.clearTriggerStk();
       this.onItemShouldBeUpdate!({ items: [], needIndexInfoClear: true });
       this.onItemPressHandler!();
       this.onWorkEndHandler!();

@@ -1,12 +1,12 @@
-import { WorkManager } from '../core/workManager';
+import { ActionFlowManager } from '../core/actionFlowManager';
 
 /**
  * @param  {string} newInput
  */
 export const handleResetInputAction = (newInput: string): void => {
-  const workManager = WorkManager.getInstance();
-  workManager.clearWorkStack();
-  workManager.onInputShouldBeUpdate!({
+  const actionFlowManager = ActionFlowManager.getInstance();
+  actionFlowManager.clearTriggerStk();
+  actionFlowManager.onInputShouldBeUpdate!({
     needItemsUpdate: true,
     str: newInput,
   });

@@ -7,8 +7,8 @@ import { compareTwoStrings } from 'string-similarity';
 import { getEnvs, getHistory, log, LogType } from '../config';
 import { trace } from '../config/logger';
 import { getPluginInstalledPath } from '../config/path';
+import { ActionFlowManager } from './actionFlowManager';
 import { getPluginList } from './pluginList';
-import { WorkManager } from './workManager';
 
 const arvisEnvs = process.env;
 
@@ -271,7 +271,7 @@ const pluginWorkspace: PluginWorkspace = {
       );
     }
 
-    if (WorkManager.getInstance().printPluginItems) {
+    if (ActionFlowManager.getInstance().printPluginItems) {
       log(LogType.info, 'Plugin Items: ', pluginExecutionResults);
     }
 

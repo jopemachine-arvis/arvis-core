@@ -1,4 +1,4 @@
-import { getPluginList, getWorkflowList, WorkManager } from '../core';
+import { ActionFlowManager, getPluginList, getWorkflowList } from '../core';
 
 /**
  * @param  {KeywordAction} item
@@ -6,22 +6,22 @@ import { getPluginList, getWorkflowList, WorkManager } from '../core';
  *              (Because keyword trigger is immediately executed)
  */
 const handleKeywordAction = (item: KeywordAction): void => {
-  const workManager = WorkManager.getInstance();
+  const actionFlowManager = ActionFlowManager.getInstance();
 
   const infolist =
-    workManager.extensionInfo!.type === 'workflow'
+    actionFlowManager.extensionInfo!.type === 'workflow'
       ? getWorkflowList()
       : getPluginList();
 
-  const defaultIcon = infolist[workManager.getTopWork().bundleId].defaultIcon;
+  const defaultIcon = infolist[actionFlowManager.getTopTrigger().bundleId].defaultIcon;
 
-  workManager.onItemShouldBeUpdate &&
-    workManager.onItemShouldBeUpdate({
+  actionFlowManager.onItemShouldBeUpdate &&
+    actionFlowManager.onItemShouldBeUpdate({
       items: [
         {
           title: item.title ?? '',
           subtitle: item.subtitle ?? '',
-          bundleId: workManager.getTopWork().bundleId,
+          bundleId: actionFlowManager.getTopTrigger().bundleId,
           icon: defaultIcon,
         },
       ],

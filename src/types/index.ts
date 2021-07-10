@@ -20,7 +20,7 @@ import './pluginExectionResult';
 import './pluginItem';
 import './scriptFilterItem';
 import './scriptFilterResult';
-import './work';
+import './trigger';
 import './workflowConfig';
 
 export default global;

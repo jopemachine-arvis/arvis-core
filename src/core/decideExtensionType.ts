@@ -1,13 +1,13 @@
-import { WorkManager } from './workManager';
+import { ActionFlowManager } from './actionFlowManager';
 
 export const decideExtensionType = (command: any) => {
-  const workManager = WorkManager.getInstance();
-  if (workManager.hasEmptyWorkStk()) {
+  const actionFlowManager = ActionFlowManager.getInstance();
+  if (actionFlowManager.hasEmptyTriggerStk()) {
     if (command.isPluginItem) {
       return 'plugin';
     }
     return 'workflow';
   } else {
-    return workManager.extensionInfo!.type;
+    return actionFlowManager.extensionInfo!.type;
   }
 };

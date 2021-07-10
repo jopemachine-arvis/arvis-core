@@ -9,9 +9,9 @@ import {
 } from '../actions';
 import { log, LogType, pushActionLog } from '../config';
 import { escapeBraket } from '../utils';
+import { ActionFlowManager } from './actionFlowManager';
 import { applyArgsInAction } from './argsHandler';
 import { handleModifiers } from './modifierHandler';
-import { WorkManager } from './workManager';
 
 /**
  * @summary
@@ -56,12 +56,12 @@ const printActionDebuggingLog = ({
   action: Action;
   extra?: any;
 }) => {
-  const workManager = WorkManager.getInstance();
-  if (!workManager.printActionType) return;
+  const actionFlowManager = ActionFlowManager.getInstance();
+  if (!actionFlowManager.printActionType) return;
 
-  if (workManager.loggerColorType === 'cui') {
+  if (actionFlowManager.loggerColorType === 'cui') {
     printActionDebuggingLogOnCUI(action, cuiColorApplier, extra);
-  } else if (workManager.loggerColorType === 'gui') {
+  } else if (actionFlowManager.loggerColorType === 'gui') {
     printActionDebuggingLogOnGUI(action, guiColor, extra);
   }
 };
@@ -107,7 +107,7 @@ function handleAction({
   nextActions: Action[];
   args: Record<string, any>;
 } {
-  const workManager = WorkManager.getInstance();
+  const actionFlowManager = ActionFlowManager.getInstance();
   actions = handleModifiers(actions, modifiersInput);
 
   let nextActions: Action[] = [];
@@ -124,7 +124,7 @@ function handleAction({
 
     action = applyArgsInAction(queryArgs, action);
 
-    pushActionLog(workManager.getTopWork().bundleId, action);
+    pushActionLog(actionFlowManager.getTopTrigger().bundleId, action);
 
     if (customActions[action.type]) {
       customActions[action.type](action);
@@ -144,7 +144,7 @@ function handleAction({
             extra: `script executed: '${action.script}'`,
           });
 
-          workManager.isInitialTrigger = false;
+          actionFlowManager.isInitialTrigger = false;
           asyncChain = handleScriptAction(action, queryArgs);
           asyncChainType = action.type;
           break;
@@ -157,7 +157,7 @@ function handleAction({
             throwReqAttrNotExtErr(type, ['scriptFilter']);
           }
 
-          workManager.isInitialTrigger = false;
+          actionFlowManager.isInitialTrigger = false;
           nextAction = [action];
           break;
 
@@ -180,11 +180,11 @@ function handleAction({
             : undefined;
 
           if (
-            workManager.isInitialTrigger &&
+            actionFlowManager.isInitialTrigger &&
             (!nextFirstAction ||
               ['keyword', 'scriptFilter'].includes(nextFirstAction.type))
           ) {
-            workManager.isInitialTrigger = false;
+            actionFlowManager.isInitialTrigger = false;
 
             if (nextAction) {
               nextAction = handleAction({
@@ -198,7 +198,7 @@ function handleAction({
             nextAction = undefined;
           }
 
-          workManager.isInitialTrigger = false;
+          actionFlowManager.isInitialTrigger = false;
           break;
 
         // Open specific program, url..
@@ -213,7 +213,7 @@ function handleAction({
             extra: `open target: '${action.target}'`,
           });
 
-          workManager.isInitialTrigger = false;
+          actionFlowManager.isInitialTrigger = false;
 
           openFileAction(action.target);
           break;
@@ -235,7 +235,7 @@ function handleAction({
             extra: `copied string: '${action.text}'`,
           });
 
-          workManager.isInitialTrigger = false;
+          actionFlowManager.isInitialTrigger = false;
 
           asyncChain = copyToClipboardAction(action.text);
           asyncChainType = action.type;
@@ -250,7 +250,7 @@ function handleAction({
           const argToExtract = escapeBraket(action.arg).trim();
           const nextQueryArgs = argsExtractAction(queryArgs, argToExtract);
 
-          workManager.isInitialTrigger = false;
+          actionFlowManager.isInitialTrigger = false;
 
           printActionDebuggingLog({
             action,
@@ -304,7 +304,7 @@ function handleAction({
             extra: `condition is evaluated by '${condIsTrue}'`,
           });
 
-          workManager.isInitialTrigger = false;
+          actionFlowManager.isInitialTrigger = false;
 
           if (conditionalAction) {
             nextAction = handleAction({
@@ -320,7 +320,7 @@ function handleAction({
 
           nextAction = [action];
 
-          workManager.isInitialTrigger = false;
+          actionFlowManager.isInitialTrigger = false;
           printActionDebuggingLog({
             action,
             cuiColorApplier: chalk.blackBright,

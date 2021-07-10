@@ -2,9 +2,9 @@ import execa, { ExecaError } from 'execa';
 import { log, LogType } from '../config';
 import { extractVarEnv } from '../config/envHandler';
 import { execute } from '../core';
+import { ActionFlowManager } from '../core/actionFlowManager';
 import { applyArgsToScript } from '../core/argsHandler';
 import { extractScriptOnThisPlatform } from '../core/scriptExtracter';
-import { WorkManager } from '../core/workManager';
 
 /**
  * @param  {ExecaError} err
@@ -24,13 +24,13 @@ const scriptErrorHandler = (err: ExecaError) => {
  * @param  {Record<string, any>} queryArgs
  */
 const handleScriptAction = async (action: ScriptAction, queryArgs: Record<string, any>) => {
-  const workManager = WorkManager.getInstance();
+  const actionFlowManager = ActionFlowManager.getInstance();
   const { script: scriptStr, shell } = extractScriptOnThisPlatform(
     action.script
   );
 
   const scriptWork = execute({
-    bundleId: workManager.getTopWork().bundleId,
+    bundleId: actionFlowManager.getTopTrigger().bundleId,
     scriptStr: applyArgsToScript({ script: scriptStr, queryArgs }),
     vars: extractVarEnv(queryArgs),
     options: { all: true, shell },
@@ -38,7 +38,7 @@ const handleScriptAction = async (action: ScriptAction, queryArgs: Record<string
 
   return scriptWork
     .then((result: execa.ExecaReturnValue<string>) => {
-      if (workManager.printScriptOutput) {
+      if (actionFlowManager.printScriptOutput) {
         if (result.all && result.all.trim() !== '') {
           log(LogType.info, `[Script output]\n\n${result.all}`);
         }

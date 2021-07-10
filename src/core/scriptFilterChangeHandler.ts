@@ -1,10 +1,10 @@
 import execa from 'execa';
 import { log, LogType } from '../config';
 import { extractVarEnv } from '../config/envHandler';
+import { ActionFlowManager } from './actionFlowManager';
 import { applyArgsToScript } from './argsHandler';
 import { execute } from './scriptExecutor';
 import { extractScriptOnThisPlatform } from './scriptExtracter';
-import { WorkManager } from './workManager';
 
 type ScriptFilterChangeHandlerOption = {
   timeout?: number;
@@ -37,9 +37,9 @@ const handleScriptFilterChange = (
     queryArgs,
   });
 
-  const workManager = WorkManager.getInstance();
+  const actionFlowManager = ActionFlowManager.getInstance();
 
-  if (workManager.printScriptfilter) {
+  if (actionFlowManager.printScriptfilter) {
     log(LogType.info, '[SF Script]', scriptStr);
   }
 

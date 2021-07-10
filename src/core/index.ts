@@ -1,3 +1,4 @@
+import { ActionFlowManager } from './actionFlowManager';
 import { handleAction } from './actionHandler';
 import {
   hasRequiredArg,
@@ -38,7 +39,6 @@ import {
 import { getWorkflowList } from './workflowList';
 import { renewWorkflows } from './workflowRenewer';
 import { updateWorkflowTrigger } from './workflowTriggerUpdater';
-import { WorkManager } from './workManager';
 
 import { Store } from '../config';
 import { setMacPathsEnv } from '../config/envHandler';
@@ -92,7 +92,7 @@ export {
   uninstallPlugin,
   uninstallWorkflow,
   updateWorkflowTrigger,
-  WorkManager,
+  ActionFlowManager,
   xmlExtractGlobalVars,
   xmlScriptFilterItemToJsonScriptFilterItem,
   xmlToJsonScriptFilterItemFormat,
