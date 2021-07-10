@@ -70,7 +70,7 @@ const applyArgsInAction = (args: Record<string, any>, action: Action) => {
       }
     } else if (typeof targetAction[actionKey] === 'object') {
       // Stop iterating under actions (except for cond)
-      if (actionKey !== 'actions' || targetAction['actions']['then']) {
+      if (actionKey !== 'actions' || (targetAction.actions && targetAction.actions['then'])) {
         targetAction[actionKey] = applyArgsInAction(args, targetAction[actionKey]);
       }
     }

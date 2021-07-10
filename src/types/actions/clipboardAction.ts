@@ -1,10 +1,8 @@
 export {};
 
 declare global {
-  export interface ClipboardAction {
+  export interface ClipboardAction extends AsyncAction {
     readonly type: 'clipboard';
     text: string;
-    modifiers?: string;
-    actions?: Action[];
   }
 }

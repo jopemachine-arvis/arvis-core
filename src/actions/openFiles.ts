@@ -5,7 +5,7 @@ import open from 'open';
 /**
  * @param  {string} filePath
  */
-const openFile = async (filePath: string): Promise<void> => {
+export const openFile = async (filePath: string): Promise<void> => {
   // Replace whitespace with encoded whitespace if there is.
   // If not want this encoding method, replace it in extension before passing it in this.
   filePath = filePath.split(' ').join('%20');
@@ -14,5 +14,3 @@ const openFile = async (filePath: string): Promise<void> => {
   }
   await open(filePath, { wait: false });
 };
-
-export { openFile };

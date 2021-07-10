@@ -1,5 +1,6 @@
 import './actions/action';
 import './actions/argsAction';
+import './actions/asyncAction';
 import './actions/clipboardAction';
 import './actions/condAction';
 import './actions/conditionalAction';

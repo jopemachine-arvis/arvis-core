@@ -1,11 +1,10 @@
 export {};
 
 declare global {
-  export interface HotkeyAction {
+  export interface HotkeyAction extends Action {
     bundleId: string;
     readonly type: 'hotkey';
     hotkey: string;
     actions: Action[];
-    modifiers?: string;
   }
 }

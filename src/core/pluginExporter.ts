@@ -5,9 +5,7 @@ import { Store } from '../config/store';
  * @param  {string} outputPath
  * @description Create zip file exporting plugin with bundleId to outputPath
  */
-const exportPlugin = (bundleId: string, outputPath: string): Promise<void> => {
+export const exportPlugin = (bundleId: string, outputPath: string): Promise<void> => {
   const store = Store.getInstance();
   return store.exportPlugin(bundleId, outputPath);
 };
-
-export { exportPlugin };

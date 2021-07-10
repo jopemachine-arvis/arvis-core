@@ -6,7 +6,7 @@ import fs from 'fs';
  * @param  {string} out
  * @returns {Promise<void>}
  */
-function zipDirectory(source: string, out: string): Promise<void> {
+export const zipDirectory = (source: string, out: string): Promise<void> => {
   const archive = archiver('zip', { zlib: { level: 9 } });
   const stream = fs.createWriteStream(out);
 
@@ -19,6 +19,4 @@ function zipDirectory(source: string, out: string): Promise<void> {
     stream.on('close', () => resolve());
     archive.finalize();
   });
-}
-
-export { zipDirectory };
+};

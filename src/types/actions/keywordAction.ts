@@ -1,11 +1,11 @@
 export {};
 
 declare global {
-  export interface KeywordAction {
+  export interface KeywordAction extends Action {
     readonly type: 'keyword';
+    readonly argType?: 'required' | 'optinal' | 'no';
     command: string;
     actions: Action[];
-    modifiers?: string;
     title?: string;
     subtitle?: string;
     withspace?: boolean;

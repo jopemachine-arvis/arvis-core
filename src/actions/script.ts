@@ -23,7 +23,7 @@ const scriptErrorHandler = (err: ExecaError) => {
  * @param  {ScriptAction} action
  * @param  {Record<string, any>} queryArgs
  */
-const handleScriptAction = async (action: ScriptAction, queryArgs: Record<string, any>) => {
+export const handleScriptAction = async (action: ScriptAction, queryArgs: Record<string, any>) => {
   const actionFlowManager = ActionFlowManager.getInstance();
   const { script: scriptStr, shell } = extractScriptOnThisPlatform(
     action.script
@@ -47,5 +47,3 @@ const handleScriptAction = async (action: ScriptAction, queryArgs: Record<string
     })
     .catch(scriptErrorHandler);
 };
-
-export { handleScriptAction };

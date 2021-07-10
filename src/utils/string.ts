@@ -3,9 +3,9 @@
  * @param  {string} search
  * @param  {string} replace
  */
-function replaceAll(str: string, search: string, replace: string) {
+const replaceAll = (str: string, search: string, replace: string): string => {
   return str.split(search).join(replace);
-}
+};
 
 /**
  * @param  {string} str

@@ -16,7 +16,7 @@ type ScriptExecuterOption = {
  * @param  {ScriptExecuterOption} options?
  * @return {execa.ExecaChildProcess<string>} Executed process
  */
-const execute = ({
+export const execute = ({
   bundleId,
   scriptStr,
   vars,
@@ -69,5 +69,3 @@ const execute = ({
     }),
   });
 };
-
-export { execute };

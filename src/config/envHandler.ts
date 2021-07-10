@@ -11,7 +11,7 @@ let externalEnv: Record<string, any> = {};
  * @param  {string} path
  * @description Because mac gui apps doesn't inherit PATH env, need to set it manually
  */
-const setMacPathsEnv = (path: string): void => {
+export const setMacPathsEnv = (path: string): void => {
   macPathsEnv = path;
 };
 
@@ -19,7 +19,7 @@ const setMacPathsEnv = (path: string): void => {
  * @returns  {string} $PATH value
  * @description Before call getMacPaths, should call setMacPathsEnv.
  */
-const getMacPathsEnv = (): string => {
+export const getMacPathsEnv = (): string => {
   return macPathsEnv;
 };
 
@@ -27,21 +27,21 @@ const getMacPathsEnv = (): string => {
  * @param  {string} path
  * @description Sets environment variables outside core lib
  */
-const setExternalEnvs = (envs: Record<string, any>): void => {
+export const setExternalEnvs = (envs: Record<string, any>): void => {
   externalEnv = envs;
 };
 
 /**
  * @description Gets environment variables outside core lib
  */
-const getExternalEnvs = (): Record<string, any> => {
+export const getExternalEnvs = (): Record<string, any> => {
   return externalEnv;
 };
 
 /**
  * @param  {Record<string, any>} queryArgs
  */
-const extractVarEnv = (queryArgs: Record<string, any>): Record<string, any> => {
+export const extractVarEnv = (queryArgs: Record<string, any>): Record<string, any> => {
   const vars = {};
 
   Object.keys(queryArgs)
@@ -58,7 +58,7 @@ const extractVarEnv = (queryArgs: Record<string, any>): Record<string, any> => {
  * @param  {string;vars:Record<string, any>;name?:string;version?:string;}
  * @returns
  */
-const getEnvs = ({
+export const getEnvs = ({
   extensionType,
   bundleId,
   vars,
@@ -118,13 +118,4 @@ const getEnvs = ({
     ...alfredWorkflowEnv,
     ...externalEnv,
   };
-};
-
-export {
-  extractVarEnv,
-  getEnvs,
-  getExternalEnvs,
-  getMacPathsEnv,
-  setExternalEnvs,
-  setMacPathsEnv,
 };

@@ -18,7 +18,7 @@ import { getBundleId } from './getBundleId';
  * @param  {string} installedPath
  * @return {Promise<void | Error>}
  */
-const installByPath = async (installedPath: string): Promise<void | Error> => {
+export const installByPath = async (installedPath: string): Promise<void | Error> => {
   const store = Store.getInstance();
   const workflowConfFilePath = path.resolve(
     installedPath,
@@ -85,7 +85,7 @@ const installByPath = async (installedPath: string): Promise<void | Error> => {
  * @param  {string} installFile arvisworkflow file
  * @return {Promise<void | Error>}
  */
-const install = async (installFile: string): Promise<void | Error> => {
+export const install = async (installFile: string): Promise<void | Error> => {
   let extractedPath: string;
   let unzipStream: unzipper.ParseStream | null;
   const zipFileName: string = installFile.split(path.sep).pop()!;
@@ -139,7 +139,7 @@ const install = async (installFile: string): Promise<void | Error> => {
  * @param  {{bundleId:string}} bundleId
  * @return {Promise<void>}
  */
-const unInstall = async ({ bundleId }: { bundleId: string }): Promise<void> => {
+export const unInstall = async ({ bundleId }: { bundleId: string }): Promise<void> => {
   const store = Store.getInstance();
   const installedDir = getWorkflowInstalledPath(bundleId);
   log(LogType.debug, `Uninstalling '${bundleId}'...`);
@@ -155,5 +155,3 @@ const unInstall = async ({ bundleId }: { bundleId: string }): Promise<void> => {
     throw new Error(`Extension delete failed!\n\n${error}`);
   }
 };
-
-export { install, installByPath, unInstall };

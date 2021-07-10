@@ -5,7 +5,7 @@ import { ActionFlowManager, getPluginList, getWorkflowList } from '../core';
  * @description Used in only keyword action, not keyword trigger.
  *              (Because keyword trigger is immediately executed)
  */
-const handleKeywordAction = (item: KeywordAction): void => {
+export const handleKeywordAction = (item: KeywordAction): void => {
   const actionFlowManager = ActionFlowManager.getInstance();
 
   const infolist =
@@ -28,5 +28,3 @@ const handleKeywordAction = (item: KeywordAction): void => {
       needIndexInfoClear: true,
     });
 };
-
-export { handleKeywordAction };

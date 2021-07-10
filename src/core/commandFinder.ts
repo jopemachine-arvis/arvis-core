@@ -7,7 +7,7 @@ import { getWorkflowList } from './workflowList';
 /**
  * @param  {string} inputStr
  */
-const findPluginCommands = async (inputStr: string) => {
+const findPluginCommands = async (inputStr: string): Promise<any> => {
   const pluginResults = await pluginWorkspace.search(inputStr);
   const [pluginNoSortItems, pluginItems] = _.partition(
     pluginResults,

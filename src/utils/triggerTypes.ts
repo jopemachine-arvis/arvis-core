@@ -1,5 +1,1 @@
-const triggerTypes = ['keyword', 'scriptFilter', 'hotkey', 'resetInput'];
-
-export {
-  triggerTypes
-};
+export const triggerTypes = ['keyword', 'scriptFilter', 'hotkey', 'resetInput'];

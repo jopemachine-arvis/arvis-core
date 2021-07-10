@@ -5,7 +5,7 @@ import { getWorkflowList } from './workflowList';
  * @param  {}
  * @summary Find available workflow hotkeys
  */
-const findHotkeys = () => {
+export const findHotkeys = () => {
   const store = Store.getInstance();
   const allHotkeys = store.getHotkeys();
 
@@ -21,5 +21,3 @@ const findHotkeys = () => {
 
   return retrieveResult;
 };
-
-export { findHotkeys };

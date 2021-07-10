@@ -1,10 +1,8 @@
 export {};
 
 declare global {
-  export interface OpenAction {
+  export interface OpenAction extends Action {
     readonly type: 'open';
     target: string; // local file path or url
-    modifiers?: string;
-    actions?: Action[];
   }
 }

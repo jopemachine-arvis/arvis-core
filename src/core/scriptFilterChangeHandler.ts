@@ -18,7 +18,7 @@ type ScriptFilterChangeHandlerOption = {
  * @param  {ScriptFilterChangeHandlerOption} options?
  * @return {execa.ExecaChildProcess<string>} Executed process
  */
-const handleScriptFilterChange = (
+export const handleScriptFilterChange = (
   bundleId: string,
   command: Command | PluginItem | Action,
   queryArgs: Record<string, any>,
@@ -47,5 +47,3 @@ const handleScriptFilterChange = (
 
   return execute({ bundleId, scriptStr, vars, options: { ...options, shell } });
 };
-
-export { handleScriptFilterChange };

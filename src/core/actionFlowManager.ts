@@ -501,13 +501,13 @@ export class ActionFlowManager {
     this.throwErrOnRendererUpdaterNotSet();
 
     if (nextAction.type === 'resetInput') {
-      handleResetInputAction(nextAction.newInput);
+      handleResetInputAction((nextAction as ResetInputAction).newInput);
       return;
     }
 
     if (nextAction.type === 'scriptFilter' || nextAction.type === 'keyword') {
       const nextInput = args['{query}'] ?? '';
-      const optionalWhitespace = nextAction['argType'] === 'required' ? ' ' : '';
+      const optionalWhitespace = (nextAction as ScriptFilterAction | KeywordAction).argType === 'required' ? ' ' : '';
 
       this.pushTrigger({
         actions: (nextAction as ScriptFilterAction | KeywordAction).actions,
@@ -545,7 +545,7 @@ export class ActionFlowManager {
    * @param  {Action} action
    */
   private hasAsyncActionChain = (action: Action) => {
-    return action['asyncChain'];
+    return !_.isUndefined(action['asyncChain']);
   }
 
   /**
@@ -564,14 +564,18 @@ export class ActionFlowManager {
     args: Record<string, any>,
     targetActions: Action[],
     modifier: ModifierInput,
-    nextAction: Action
+    nextAction: AsyncAction
   ): Action[] => {
+    if (!nextAction.asyncChain || !nextAction.asyncChainType) {
+      throw new Error('nextAction doesn\'t have asyncChain!');
+    }
+
     targetActions = targetActions.filter(
       (targetAction) => targetAction !== nextAction
     );
 
-    nextAction['asyncChain'].then((result: any) => {
-      switch (nextAction['asyncChainType']) {
+    nextAction.asyncChain.then((result: any) => {
+      switch (nextAction.asyncChainType) {
         case 'script': {
           args['{query}'] = result.all;
           args['$1'] = result.all;
@@ -582,6 +586,8 @@ export class ActionFlowManager {
           args['$1'] = result;
           break;
         }
+        default:
+          throw new Error(`Not supported type, ${nextAction.asyncChainType}`);
       }
 
       this.handleActionChain({

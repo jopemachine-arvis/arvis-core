@@ -73,9 +73,9 @@ const parseStdio = (stdout: string, stderr: string): ScriptFilterResult => {
  * @param  {execa.ExecaReturnValue<string>} result
  * @description Event Handler when scriptfilter's script is complete
  */
-function scriptFilterCompleteEventHandler(
+const scriptFilterCompleteEventHandler = (
   scriptFilterResult: execa.ExecaReturnValue<string>
-): void {
+): void => {
   const actionFlowManager = ActionFlowManager.getInstance();
 
   const stdio = parseStdio(
@@ -118,16 +118,16 @@ function scriptFilterCompleteEventHandler(
   }
 
   actionFlowManager.onItemShouldBeUpdate({ items, needIndexInfoClear: true });
-}
+};
 
 /**
  * @param  {Error} err
  * @description Handler when scriptfilter's script fails
  */
-function scriptErrorHandler(
+const scriptErrorHandler = (
   err: ExecaError,
   options?: { extractJson?: boolean } | undefined
-): void {
+): void => {
   const actionFlowManager = ActionFlowManager.getInstance();
 
   if (err.timedOut) {
@@ -142,7 +142,7 @@ function scriptErrorHandler(
       actionFlowManager.handleScriptFilterError(err, options);
     }
   }
-}
+};
 
 /**
  * @param  {string} inputStr
@@ -168,7 +168,7 @@ const getScriptFilterQuery = (
  * @param  {string} inputStr
  * @param  {Command} commandObj? command object should be given when stack is empty
  */
-async function scriptFilterExcute(
+export async function scriptFilterExcute(
   inputStr: string,
   commandObj?: Command
 ): Promise<void | ExecaReturnValue<string>> {
@@ -281,5 +281,3 @@ async function scriptFilterExcute(
       }
     });
 }
-
-export { scriptFilterExcute };

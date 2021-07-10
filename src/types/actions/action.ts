@@ -1,15 +1,9 @@
 export {};
 
 declare global {
-  type Action =
-    | ArgsAction
-    | CondAction
-    | HotkeyAction
-    | ClipboardAction
-    | ResetInputAction
-    | ScriptAction
-    | ScriptFilterAction
-    | OpenAction
-    | KeywordAction
-    | NotiAction;
+  export interface Action {
+    readonly type: string;
+    modifiers?: string;
+    actions?: Action[];
+  }
 }

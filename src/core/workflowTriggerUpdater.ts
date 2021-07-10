@@ -25,6 +25,7 @@ export const updateWorkflowTrigger = async (
   }
 
   dotProp.set(workflowConfig, actionPath, action);
+
   await fse.writeJson(workflowConfPath, workflowConfig, {
     spaces: 4,
     encoding: 'utf8',

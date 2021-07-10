@@ -5,12 +5,10 @@ import { Store } from '../config/store';
  * @param  {string} outputPath
  * @description Create zip file exporting workflow with bundleId to outputPath
  */
-const exportWorkflow = (
+export const exportWorkflow = (
   bundleId: string,
   outputPath: string
 ): Promise<void> => {
   const store = Store.getInstance();
   return store.exportWorkflow(bundleId, outputPath);
 };
-
-export { exportWorkflow };

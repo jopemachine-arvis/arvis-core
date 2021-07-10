@@ -83,13 +83,6 @@ const throwReqAttrNotExtErr = (
 };
 
 /**
- * @param  {Action} action
- */
-const resolveActionType = (action: Action) => {
-  return action.type;
-};
-
-/**
  * @param  {Action[]} actions
  * @param  {Record<string, any>} queryArgs
  * @param  {ModifierInput} modifiersInput
@@ -113,14 +106,13 @@ function handleAction({
   let nextActions: Action[] = [];
 
   _.map(actions, (action) => {
-    const type = resolveActionType(action);
+    const { type } = action;
 
     let nextAction: Action[] | undefined;
     let asyncChain: Promise<any> | undefined;
     let asyncChainType: string | undefined;
 
-    // tslint:disable-next-line: no-string-literal
-    nextAction = action['actions'];
+    nextAction = action.actions;
 
     action = applyArgsInAction(queryArgs, action);
 
@@ -134,26 +126,24 @@ function handleAction({
     try {
       switch (type) {
         case 'script':
-          action = action as ScriptAction;
-          if (!action.script) throwReqAttrNotExtErr(type, ['script']);
+          if (!(action as ScriptAction).script) throwReqAttrNotExtErr(type, ['script']);
 
           printActionDebuggingLog({
             action,
             cuiColorApplier: chalk.redBright,
             guiColor: 'red',
-            extra: `script executed: '${action.script}'`,
+            extra: `script executed: '${(action as ScriptAction).script}'`,
           });
 
           actionFlowManager.isInitialTrigger = false;
-          asyncChain = handleScriptAction(action, queryArgs);
+          asyncChain = handleScriptAction((action as ScriptAction), queryArgs);
           asyncChainType = action.type;
           break;
 
         // Scriptfilter cannot be processed here because it could be ran in a way other than 'Enter' event
         // Because the action is not processed here, so it passes action as nextAction, not action.action
         case 'scriptFilter':
-          action = action as ScriptFilterAction;
-          if (!action.scriptFilter) {
+          if (!(action as ScriptFilterAction).scriptFilter) {
             throwReqAttrNotExtErr(type, ['scriptFilter']);
           }
 
@@ -164,8 +154,7 @@ function handleAction({
         // Just execute next action if it is trigger.
         // In case of keyword action, wait for next user input
         case 'keyword':
-          action = action as KeywordAction;
-          if (!action.command && !action.title) {
+          if (!(action = action as KeywordAction).command && !(action = action as KeywordAction).title) {
             throwReqAttrNotExtErr(type, ['command | title']);
           }
 
@@ -203,51 +192,43 @@ function handleAction({
 
         // Open specific program, url..
         case 'open':
-          action = action as OpenAction;
-          if (!action.target) throwReqAttrNotExtErr(type, ['target']);
+          if (!(action as OpenAction).target) throwReqAttrNotExtErr(type, ['target']);
 
           printActionDebuggingLog({
             action,
             cuiColorApplier: chalk.blueBright,
             guiColor: 'blue',
-            extra: `open target: '${action.target}'`,
+            extra: `open target: '${(action as OpenAction).target}'`,
           });
 
           actionFlowManager.isInitialTrigger = false;
 
-          openFileAction(action.target);
-          break;
-
-        // Notification (Not implemented on here)
-        case 'notification':
-          action = action as NotiAction;
+          openFileAction((action as OpenAction).target);
           break;
 
         // Copy text to clipboard
         case 'clipboard':
-          action = action as ClipboardAction;
-          if (!action.text) throwReqAttrNotExtErr(type, ['text']);
+          if (!(action as ClipboardAction).text) throwReqAttrNotExtErr(type, ['text']);
 
           printActionDebuggingLog({
             action,
             cuiColorApplier: chalk.greenBright,
             guiColor: 'green',
-            extra: `copied string: '${action.text}'`,
+            extra: `copied string: '${(action as ClipboardAction).text}'`,
           });
 
           actionFlowManager.isInitialTrigger = false;
 
-          asyncChain = copyToClipboardAction(action.text);
+          asyncChain = copyToClipboardAction((action as ClipboardAction).text);
           asyncChainType = action.type;
 
           break;
 
         // Extract query from args, vars and execute the action.
         case 'args':
-          action = action as ArgsAction;
-          if (!action.arg) throwReqAttrNotExtErr(type, ['arg']);
+          if (!(action as ArgsAction).arg) throwReqAttrNotExtErr(type, ['arg']);
 
-          const argToExtract = escapeBraket(action.arg).trim();
+          const argToExtract = escapeBraket((action as ArgsAction).arg).trim();
           const nextQueryArgs = argsExtractAction(queryArgs, argToExtract);
 
           actionFlowManager.isInitialTrigger = false;
@@ -271,12 +252,11 @@ function handleAction({
         // Run 'cond' as eval to determine if true.
         // And run 'then' actions if cond is true, else run 'else' actions.
         case 'cond':
-          action = action as CondAction;
-          if (!action.if) throwReqAttrNotExtErr(type, ['if']);
-          if (!action.if.cond || !action.if.actions) {
+          if (!(action as CondAction).if) throwReqAttrNotExtErr(type, ['if']);
+          if (!(action as CondAction).if.cond || !(action as CondAction).if.actions) {
             throwReqAttrNotExtErr('if', ['cond', 'actions']);
           }
-          if (!action.if.actions.then) {
+          if (!(action as CondAction).if.actions.then) {
             throwReqAttrNotExtErr('action of cond type', ['then']);
           }
 
@@ -284,7 +264,7 @@ function handleAction({
 
           try {
             // tslint:disable-next-line: no-eval
-            condIsTrue = eval(action.if.cond) === true;
+            condIsTrue = eval((action as CondAction).if.cond) === true;
           } catch (err) {
             console.error(
               `Below error occured while evaling cond target. target is evaluated by false.\n${err}`
@@ -294,8 +274,8 @@ function handleAction({
 
           // To do:: Fix below logic safely
           const conditionalAction = condIsTrue
-            ? action.if.actions.then
-            : action.if.actions.else;
+            ? (action as CondAction).if.actions.then
+            : (action as CondAction).if.actions.else;
 
           printActionDebuggingLog({
             action,
@@ -316,8 +296,6 @@ function handleAction({
           break;
 
         case 'resetInput': {
-          action = action as ResetInputAction;
-
           nextAction = [action];
 
           actionFlowManager.isInitialTrigger = false;
@@ -325,13 +303,17 @@ function handleAction({
             action,
             cuiColorApplier: chalk.blackBright,
             guiColor: 'black',
-            extra: `reset input by '${action.newInput}'`,
+            extra: `reset input by '${(action as ResetInputAction).newInput}'`,
           });
           break;
         }
 
         case 'hotkey':
           log(LogType.error, 'Error: hotkey action should be most front');
+          break;
+
+        // Notification (Not implemented on here)
+        case 'notification':
           break;
 
         default:
@@ -344,9 +326,9 @@ function handleAction({
 
     if (nextAction) {
       if (asyncChain) {
-        nextAction.forEach((targetAction) => {
-          targetAction['asyncChain'] = asyncChain;
-          targetAction['asyncChainType'] = asyncChainType;
+        nextAction.forEach((targetAction: AsyncAction) => {
+          targetAction.asyncChain = asyncChain;
+          targetAction.asyncChainType = asyncChainType;
         });
       }
 

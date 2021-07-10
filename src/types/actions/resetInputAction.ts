@@ -1,10 +1,8 @@
 export {};
 
 declare global {
-  export interface ResetInputAction {
+  export interface ResetInputAction extends Action {
     readonly type: 'resetInput';
     newInput: string;
-    modifiers?: string;
-    actions?: Action[];
   }
 }
