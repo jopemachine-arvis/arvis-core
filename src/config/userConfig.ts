@@ -4,7 +4,7 @@ import { userConfigPath } from './path';
 /**
  * @description Migrate previous extenion's setting
  */
-export const applyUserConfigs = (userConfig: any, extensionInfo: any) => {
+export const applyUserConfigs = (userConfig: any, extensionInfo: any): any => {
   const result = { ...extensionInfo };
 
   // Migrate previous variables
@@ -17,11 +17,11 @@ export const applyUserConfigs = (userConfig: any, extensionInfo: any) => {
   return result;
 };
 
-export const getUserConfigs = async () => {
+export const getUserConfigs = async (): Promise<any> => {
   return fse.readJSON(userConfigPath);
 };
 
-export const addUserConfigs = async (bundleId: string, type: 'variables', target: any) => {
+export const addUserConfigs = async (bundleId: string, type: 'variables', target: any): Promise<void> => {
   const userConfigs = await getUserConfigs();
 
   if (!userConfigs[bundleId]) userConfigs[bundleId] = {};
@@ -30,7 +30,7 @@ export const addUserConfigs = async (bundleId: string, type: 'variables', target
   await fse.writeJSON(userConfigPath, userConfigs, { encoding: 'utf-8' });
 };
 
-export const initialzeUserConfigs = async () => {
+export const initialzeUserConfigs = async (): Promise<void> => {
   await fse.remove(userConfigPath);
   await fse.writeJSON(userConfigPath, {});
 };

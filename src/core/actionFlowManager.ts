@@ -497,7 +497,7 @@ export class ActionFlowManager {
    *              Which means keyword, scriptfilter.
    *              If one of those would be Action, force users to enter input and enter again.
    */
-  private handleTriggerAction = (nextAction: Action, args: Record<string, any>): void => {
+  private handleTriggerAction = (nextAction: TriggerAction, args: Record<string, any>): void => {
     this.throwErrOnRendererUpdaterNotSet();
 
     if (nextAction.type === 'resetInput') {
@@ -566,8 +566,8 @@ export class ActionFlowManager {
     modifier: ModifierInput,
     nextAction: AsyncAction
   ): Action[] => {
-    if (!nextAction.asyncChain || !nextAction.asyncChainType) {
-      throw new Error('nextAction doesn\'t have asyncChain!');
+    if (!nextAction.asyncChain) {
+      throw new Error('Action doesn\'t have asyncChain!');
     }
 
     targetActions = targetActions.filter(
@@ -575,7 +575,7 @@ export class ActionFlowManager {
     );
 
     nextAction.asyncChain.then((result: any) => {
-      switch (nextAction.asyncChainType) {
+      switch (nextAction.type) {
         case 'script': {
           args['{query}'] = result.all;
           args['$1'] = result.all;
@@ -587,7 +587,8 @@ export class ActionFlowManager {
           break;
         }
         default:
-          throw new Error(`Not supported type, ${nextAction.asyncChainType}`);
+          // Do not handle this!
+          break;
       }
 
       this.handleActionChain({
@@ -653,7 +654,7 @@ export class ActionFlowManager {
           triggerTypes.includes(parentActionType));
 
       if (needToPreventQuit) {
-        this.handleTriggerAction(actionsPointer[0], args);
+        this.handleTriggerAction(actionsPointer[0] as TriggerAction, args);
         actionFlowManager.isInitialTrigger = false;
         quit = false;
         actionsPointer.splice(0, 1);
@@ -685,7 +686,7 @@ export class ActionFlowManager {
           }
 
           if (triggerTypes.includes(nextAction.type)) {
-            this.handleTriggerAction(nextAction, handleActionResult.args);
+            this.handleTriggerAction(nextAction as TriggerAction, handleActionResult.args);
             quit = false;
           }
         }

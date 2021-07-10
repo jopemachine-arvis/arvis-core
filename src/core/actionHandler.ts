@@ -7,7 +7,7 @@ import {
   handleScriptAction as handleScriptAction,
   openFile as openFileAction,
 } from '../actions';
-import { log, LogType, pushActionLog } from '../config';
+import { log, LogType } from '../config';
 import { escapeBraket } from '../utils';
 import { ActionFlowManager } from './actionFlowManager';
 import { applyArgsInAction } from './argsHandler';
@@ -108,15 +108,13 @@ function handleAction({
   _.map(actions, (action) => {
     const { type } = action;
 
-    let nextAction: Action[] | undefined;
+    let nextAction: Action[] | undefined = action.actions;
     let asyncChain: Promise<any> | undefined;
-    let asyncChainType: string | undefined;
-
-    nextAction = action.actions;
 
     action = applyArgsInAction(queryArgs, action);
 
-    pushActionLog(actionFlowManager.getTopTrigger().bundleId, action);
+    // To do :: insert below logic again after resolving async chain issue
+    // pushActionLog(actionFlowManager.getTopTrigger().bundleId, action);
 
     if (customActions[action.type]) {
       customActions[action.type](action);
@@ -137,7 +135,6 @@ function handleAction({
 
           actionFlowManager.isInitialTrigger = false;
           asyncChain = handleScriptAction((action as ScriptAction), queryArgs);
-          asyncChainType = action.type;
           break;
 
         // Scriptfilter cannot be processed here because it could be ran in a way other than 'Enter' event
@@ -220,8 +217,6 @@ function handleAction({
           actionFlowManager.isInitialTrigger = false;
 
           asyncChain = copyToClipboardAction((action as ClipboardAction).text);
-          asyncChainType = action.type;
-
           break;
 
         // Extract query from args, vars and execute the action.
@@ -328,7 +323,6 @@ function handleAction({
       if (asyncChain) {
         nextAction.forEach((targetAction: AsyncAction) => {
           targetAction.asyncChain = asyncChain;
-          targetAction.asyncChainType = asyncChainType;
         });
       }
 

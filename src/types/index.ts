@@ -12,6 +12,7 @@ import './actions/openAction';
 import './actions/resetInputAction';
 import './actions/scriptAction';
 import './actions/scriptFilterAction';
+import './actions/triggerAction';
 
 import './command';
 import './log';
