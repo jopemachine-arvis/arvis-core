@@ -15,19 +15,22 @@ export const hasRequiredArg = ({
   const actionFlowManager = ActionFlowManager.getInstance();
 
   if (!actionFlowManager.isInitialTrigger) {
-    if (inputStr === '') return false;
-    return true;
-  }
+    if (item.argType === 'required') {
+      if (inputStr === '') {
+        return false;
+      }
+    }
+  } else {
+    // argType's default value is optional
+    // 'optional', 'no' always return true.
+    if (item.argType === 'required') {
+      // e.g. "npm query".split("npm") => ["", " query"].
 
-  // argType's default value is optional
-  // 'optional', 'no' always return true.
-  if (item.argType === 'required') {
-    // e.g. "npm query".split("npm") => ["", " query"].
-
-    const [_emptyStr, ...querys] = inputStr.split(item.command);
-    if (!querys) return false;
-    // There must be valid input (Assume only whitespaces are not valid)
-    return querys.length >= 1 && querys[0].trim() !== '';
+      const [_emptyStr, ...querys] = inputStr.split(item.command);
+      if (!querys) return false;
+      // There must be valid input (Assume only whitespaces are not valid)
+      return querys.length >= 1 && querys[0].trim() !== '';
+    }
   }
 
   return true;

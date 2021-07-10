@@ -13,5 +13,6 @@ declare global {
     readonly argType?: 'required' | 'optional' | 'no';
     readonly type: 'keyword' | 'scriptFilter' | 'hotkey';
     actions?: Action[];
+    isPluginItem?: boolean;
   }
 }

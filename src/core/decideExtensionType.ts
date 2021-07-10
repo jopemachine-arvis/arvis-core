@@ -1,6 +1,6 @@
 import { ActionFlowManager } from './actionFlowManager';
 
-export const decideExtensionType = (command: any): 'workflow' | 'plugin' => {
+export const decideExtensionType = (command: Command): 'workflow' | 'plugin' => {
   const actionFlowManager = ActionFlowManager.getInstance();
   if (actionFlowManager.hasEmptyTriggerStk()) {
     if (command.isPluginItem) {

@@ -49,7 +49,7 @@ export const determineIconPath = (
   return iconPath;
 };
 
-export const determineDefaultIconPath = (command: any): string | undefined => {
+export const determineDefaultIconPath = (command: Command): string | undefined => {
   if (!command.bundleId) {
     return undefined;
   }
