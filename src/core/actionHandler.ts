@@ -123,7 +123,8 @@ function handleAction({
     nextAction = action['actions'];
 
     action = applyArgsInAction(queryArgs, action);
-    pushActionLog(action);
+
+    pushActionLog(workManager.getTopWork().bundleId, action);
 
     if (customActions[action.type]) {
       customActions[action.type](action);

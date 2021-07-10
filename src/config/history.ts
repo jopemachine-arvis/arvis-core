@@ -22,7 +22,7 @@ const conf = new Conf({
   schema,
   clearInvalidConfig: true,
   configName: 'arvis-history',
-  projectName: 'arvis-core'
+  projectName: 'arvis-core',
 });
 
 /**
@@ -68,12 +68,13 @@ export const getBestMatch = (str: string) => {
 /**
  * @param  {string} inputStr
  */
-export const pushInputStrLog = (inputStr: string | undefined): void => {
+export const pushInputStrLog = (bundleId: string, inputStr: string | undefined): void => {
   if (!inputStr || inputStr === '') return;
 
   const logs: Log[] = discardOldAndGetLogs();
 
   logs.push({
+    bundleId,
     inputStr,
     type: 'query',
     timestamp: new Date().getTime(),
@@ -85,12 +86,13 @@ export const pushInputStrLog = (inputStr: string | undefined): void => {
 /**
  * @param  {Action} action
  */
-export const pushActionLog = (action: Action): void => {
+export const pushActionLog = (bundleId: string, action: Action): void => {
   const availableTypes: string[] = getActionTypesToLog();
   if (!availableTypes.includes(action.type)) return;
   const logs: Log[] = discardOldAndGetLogs();
 
   logs.push({
+    bundleId,
     action,
     type: 'action',
     timestamp: new Date().getTime(),

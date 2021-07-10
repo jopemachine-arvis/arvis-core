@@ -720,9 +720,9 @@ export class WorkManager {
       this.setExtensionInfo(item as Command | PluginItem);
 
       if (item['isPluginItem']) {
-        pushInputStrLog((item as PluginItem).title);
+        pushInputStrLog(item.bundleId!, (item as PluginItem).title);
       } else {
-        pushInputStrLog((item as Command).command!);
+        pushInputStrLog(item.bundleId!, (item as Command).command!);
       }
     } else {
       this.isInitialTrigger = false;

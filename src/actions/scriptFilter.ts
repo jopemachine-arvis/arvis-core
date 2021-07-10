@@ -192,7 +192,7 @@ async function scriptFilterExcute(
       workCompleted: false,
     });
 
-    pushInputStrLog(commandObj.command!);
+    pushInputStrLog(commandObj.bundleId!, commandObj.command!);
     workManager.setExtensionInfo(commandObj);
   } else {
     const newScriptFilterNeedsToExecuted =
