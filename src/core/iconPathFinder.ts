@@ -10,7 +10,7 @@ import { getWorkflowList } from './workflowList';
 export const determineIconPath = (
   command: any,
   options?: { supportedImgFormats?: string[] }
-) => {
+): string | undefined => {
   if (!command.bundleId) {
     return undefined;
   }
@@ -49,7 +49,7 @@ export const determineIconPath = (
   return iconPath;
 };
 
-export const determineDefaultIconPath = (command: any) => {
+export const determineDefaultIconPath = (command: any): string | undefined => {
   if (!command.bundleId) {
     return undefined;
   }

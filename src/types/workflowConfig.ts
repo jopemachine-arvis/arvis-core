@@ -3,7 +3,7 @@ export {};
 declare global {
   export interface WorkflowConfigFile {
     category?: string;
-    readonly commands: Command[];
+    readonly commands: Readonly<Command>[];
     readonly creator: string;
     description?: string;
     enabled?: boolean;

@@ -43,7 +43,7 @@ const tempPath = envPaths.temp;
 /**
  * @summary Create the necessary paths for the Arvis if they don't exists
  */
-const initializePath = async () => {
+const initializePath = async (): Promise<void> => {
   const ensureFileExist = async (filePath: string, type: 'directory' | 'json') => {
     if (!(await pathExists(filePath))) {
       if (type === 'directory') {
@@ -67,49 +67,49 @@ const initializePath = async () => {
 /**
  * @summary
  */
-const getExtensionHistoryPath = () => {
+const getExtensionHistoryPath = (): string => {
   return getHistoryFilePath();
 };
 
 /**
  * @param  {string} bundleId
  */
-const getExtensionDataPath = (bundleId: string) => {
+const getExtensionDataPath = (bundleId: string): string => {
   return path.resolve(extensionDataPath, bundleId);
 };
 
 /**
  * @param  {string} bundleId
  */
-const getExtensionCachePath = (bundleId: string) => {
+const getExtensionCachePath = (bundleId: string): string => {
   return path.resolve(extensionCachePath, bundleId);
 };
 
 /**
  * @param  {string} bundleId
  */
-const getWorkflowInstalledPath = (bundleId: string) => {
+const getWorkflowInstalledPath = (bundleId: string): string => {
   return path.resolve(workflowInstallPath, bundleId);
 };
 
 /**
  * @param  {string} bundleId
  */
-const getPluginInstalledPath = (bundleId: string) => {
+const getPluginInstalledPath = (bundleId: string): string => {
   return path.resolve(pluginInstallPath, bundleId);
 };
 
 /**
  * @param  {string} bundleId
  */
-const getWorkflowConfigJsonPath = (bundleId: string) => {
+const getWorkflowConfigJsonPath = (bundleId: string): string => {
   return path.resolve(getWorkflowInstalledPath(bundleId), 'arvis-workflow.json');
 };
 
 /**
  * @param  {string} bundleId
  */
-const getPluginConfigJsonPath = (bundleId: string) => {
+const getPluginConfigJsonPath = (bundleId: string): string => {
   return path.resolve(getPluginInstalledPath(bundleId), 'arvis-plugin.json');
 };
 

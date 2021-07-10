@@ -86,7 +86,7 @@ export class ActionFlowManager {
   /**
    * @summary
    */
-  public getTopTrigger = () => {
+  public getTopTrigger = (): Trigger => {
     return this.triggerStk[this.triggerStk.length - 1];
   }
 
@@ -94,7 +94,7 @@ export class ActionFlowManager {
    * @summary
    * @description cleanup work stack and other infomations
    */
-  public clearTriggerStk = () => {
+  public clearTriggerStk = (): void => {
     if (this.printTriggerStack) {
       log(LogType.info, 'Trigger stack cleared!');
     }
@@ -109,7 +109,7 @@ export class ActionFlowManager {
   /**
    * @summary
    */
-  public updateTopTrigger = (keyValueDict: Record<string, any>) => {
+  public updateTopTrigger = (keyValueDict: Record<string, any>): void => {
     for (const key of Object.keys(keyValueDict)) {
       this.triggerStk[this.triggerStk.length - 1][key] = keyValueDict[key];
     }
@@ -118,14 +118,14 @@ export class ActionFlowManager {
   /**
    * @summary
    */
-  public hasEmptyTriggerStk = () => {
+  public hasEmptyTriggerStk = (): boolean => {
     return this.triggerStk.length === 0;
   }
 
   /**
    * @summary
    */
-  public prevScriptfilterIsExecuting = () => {
+  public prevScriptfilterIsExecuting = (): boolean => {
     if (this.hasEmptyTriggerStk() || this.getTopTrigger().type !== 'scriptFilter')
       return false;
 
@@ -133,17 +133,17 @@ export class ActionFlowManager {
   }
 
   /**
-   * @param {Trigger} work
+   * @param {Trigger} trigger
    */
-  public pushTrigger = (work: Trigger) => {
-    this.triggerStk.push(work);
+  public pushTrigger = (trigger: Trigger): void => {
+    this.triggerStk.push(trigger);
     this.debugTriggerStk();
   }
 
   /**
    * @summary If the script filters are nested, return to the previous script filter.
    */
-  public popTrigger = () => {
+  public popTrigger = (): void => {
     this.throwErrOnRendererUpdaterNotSet();
 
     if (this.triggerStk.length >= 2) {
@@ -199,7 +199,7 @@ export class ActionFlowManager {
     error?: any;
     errorItems?: ScriptFilterItem[];
     options?: { extractJson?: boolean } | undefined;
-  }) => {
+  }): void => {
     if (!this.onItemShouldBeUpdate) {
       throw new Error('Renderer update funtions are not set!');
     }
@@ -247,7 +247,7 @@ export class ActionFlowManager {
   public setModifierOnScriptFilterItem = (
     selectedItemIdx: number,
     modifiers: ModifierInput
-  ) => {
+  ): void => {
     this.throwErrOnRendererUpdaterNotSet();
 
     if (
@@ -294,7 +294,7 @@ export class ActionFlowManager {
   /**
    * @summary
    */
-  public clearModifierOnScriptFilterItem = () => {
+  public clearModifierOnScriptFilterItem = (): void => {
     this.throwErrOnRendererUpdaterNotSet();
 
     if (
@@ -317,7 +317,7 @@ export class ActionFlowManager {
   public handleScriptFilterError = (
     err: any,
     options?: { extractJson?: boolean } | undefined
-  ) => {
+  ): void => {
     const possibleJsons = extractJson(err.toString());
     const errors = possibleJsons.filter((item) => item.items);
 
@@ -338,7 +338,7 @@ export class ActionFlowManager {
    * @param  {number} index
    * @param  {string} runningSubText
    */
-  public setRunningText({ selectedItem }: { selectedItem: Command }) {
+  public setRunningText = ({ selectedItem }: { selectedItem: Command }): void => {
     this.throwErrOnRendererUpdaterNotSet();
     selectedItem.subtitle = selectedItem.runningSubtext ?? '';
 
@@ -351,7 +351,7 @@ export class ActionFlowManager {
   /**
    * @param  {PluginItem|Command} item
    */
-  public setExtensionInfo = (item: PluginItem | Command) => {
+  public setExtensionInfo = (item: PluginItem | Command): void => {
     if (item['isPluginItem']) {
       this.extensionInfo = {
         execPath: getPluginInstalledPath(item.bundleId!),
@@ -479,7 +479,7 @@ export class ActionFlowManager {
   /**
    * @param  {}
    */
-  private throwErrOnRendererUpdaterNotSet = () => {
+  private throwErrOnRendererUpdaterNotSet = (): void => {
     if (
       !this.onItemPressHandler ||
       !this.onInputShouldBeUpdate ||
@@ -605,7 +605,7 @@ export class ActionFlowManager {
   /**
    * @description
    */
-  private getParentAction = () => {
+  private getParentActionType = (): string | undefined => {
     return !this.hasEmptyTriggerStk()
       ? this.getTopTrigger().actionTrigger
         ? this.getTopTrigger().actionTrigger['type']
@@ -647,11 +647,11 @@ export class ActionFlowManager {
     });
 
     while (actionsPointer.length > 0) {
-      const parentActionType = this.getParentAction();
+      const parentActionType: string | undefined = this.getParentActionType();
 
       const needToPreventQuit = triggerTypes.includes(actionsPointer[0].type) &&
         (!actionFlowManager.isInitialTrigger ||
-          triggerTypes.includes(parentActionType));
+          (parentActionType && triggerTypes.includes(parentActionType)));
 
       if (needToPreventQuit) {
         this.handleTriggerAction(actionsPointer[0] as TriggerAction, args);

@@ -170,7 +170,7 @@ const getScriptFilterQuery = (
  */
 export async function scriptFilterExcute(
   inputStr: string,
-  commandObj?: Command
+  commandObj?: Readonly<Command>
 ): Promise<void | ExecaReturnValue<string>> {
   // If triggerStk is empty, users can enter the script filter without a return event.
   // To handle this, push this command to triggerStk

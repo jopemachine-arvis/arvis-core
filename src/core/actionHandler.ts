@@ -85,7 +85,7 @@ const throwReqAttrNotExtErr = (
 /**
  * @param  {Action[]} actions
  * @param  {Record<string, any>} queryArgs
- * @param  {ModifierInput} modifiersInput
+ * @param  {Readonly<ModifierInput>} modifiersInput
  * @summary The actions arrangement is taken as a factor to branch according to cond or modifiers.
  */
 function handleAction({
@@ -95,7 +95,7 @@ function handleAction({
 }: {
   actions: Action[];
   queryArgs: Record<string, any>;
-  modifiersInput: ModifierInput;
+  modifiersInput: Readonly<ModifierInput>;
 }): {
   nextActions: Action[];
   args: Record<string, any>;

@@ -2,7 +2,7 @@ export {};
 
 declare global {
   export interface PluginConfigFile {
-    readonly actions: Action[];
+    readonly actions: Readonly<Action>[];
     category?: string;
     readonly creator: string;
     description?: string;

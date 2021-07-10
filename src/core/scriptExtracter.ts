@@ -1,13 +1,13 @@
 import { log, LogType } from '../config';
 
 /**
- * @param  {string | Record<string, any>} scriptStrOrDict
- * @return {string} scriptStr
+ * @param  {Readonly<string> | Readonly<Record<string, any>>} scriptStrOrDict
+ * @return {Readonly<string>} scriptStr
  * @description If 'scriptStrOrDict' is string, return the script.
  *              If 'scriptStrOrDict' is object, Extract and return the script, shell option of this platform.
  */
 export const extractScriptOnThisPlatform = (
-  scriptStrOrDict: string | Record<string, any>
+  scriptStrOrDict: string | Readonly<Record<string, any>>
 ): {
   script: string;
   shell: boolean | string;

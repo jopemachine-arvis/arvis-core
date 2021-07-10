@@ -1,4 +1,4 @@
-import execa, { ExecaError } from 'execa';
+import execa, { ExecaError, ExecaReturnValue } from 'execa';
 import { log, LogType } from '../config';
 import { extractVarEnv } from '../config/envHandler';
 import { execute } from '../core';
@@ -9,7 +9,7 @@ import { extractScriptOnThisPlatform } from '../core/scriptExtracter';
 /**
  * @param  {ExecaError} err
  */
-const scriptErrorHandler = (err: ExecaError) => {
+const scriptErrorHandler = (err: ExecaError): void => {
   if (err.timedOut) {
     log(LogType.error, `Script timeout!`);
   } else if (err.isCanceled) {
@@ -23,7 +23,7 @@ const scriptErrorHandler = (err: ExecaError) => {
  * @param  {ScriptAction} action
  * @param  {Record<string, any>} queryArgs
  */
-export const handleScriptAction = async (action: ScriptAction, queryArgs: Record<string, any>) => {
+export const handleScriptAction = async (action: ScriptAction, queryArgs: Record<string, any>): Promise<ExecaReturnValue<string> | void> => {
   const actionFlowManager = ActionFlowManager.getInstance();
   const { script: scriptStr, shell } = extractScriptOnThisPlatform(
     action.script

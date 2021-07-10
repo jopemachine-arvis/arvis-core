@@ -15,14 +15,14 @@ type ScriptFilterChangeHandlerOption = {
  * @param  {string} bundleId
  * @param  {Command} command
  * @param  {Record<string, any>} queryArgs
- * @param  {ScriptFilterChangeHandlerOption} options?
+ * @param  {Readonly<ScriptFilterChangeHandlerOption>} options?
  * @return {execa.ExecaChildProcess<string>} Executed process
  */
 export const handleScriptFilterChange = (
   bundleId: string,
   command: Command | PluginItem | Action,
   queryArgs: Record<string, any>,
-  options?: ScriptFilterChangeHandlerOption
+  options?: Readonly<ScriptFilterChangeHandlerOption>
 ): execa.ExecaChildProcess<string> => {
   if (command.type !== 'scriptFilter') {
     throw new Error(`Command is not scriptfilter! ${command}`);

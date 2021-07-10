@@ -11,7 +11,7 @@ export const hasRequiredArg = ({
 }: {
   item: any;
   inputStr: string;
-}) => {
+}): boolean => {
   const actionFlowManager = ActionFlowManager.getInstance();
 
   if (!actionFlowManager.isInitialTrigger) {
@@ -61,7 +61,7 @@ export const isInputMeetWithspaceCond = ({
 }: {
   item: any;
   inputStr: string;
-}) => {
+}): boolean => {
   if (item.type === 'scriptFilter') {
     const actionFlowManager = ActionFlowManager.getInstance();
     const targetStr = actionFlowManager.isInitialTrigger ? item.command : actionFlowManager.getTopTrigger().input;

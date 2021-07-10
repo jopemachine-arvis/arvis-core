@@ -6,10 +6,11 @@ export const updateWorkflowTrigger = async (
   bundleId: string,
   actionPath: string,
   value: string
-) => {
+): Promise<void> => {
   const workflowConfPath = getWorkflowConfigJsonPath(bundleId);
   const workflowConfig = await fse.readJSON(workflowConfPath);
   const action: any = dotProp.get(workflowConfig, actionPath);
+
   switch (action.type) {
     case 'hotkey':
       action.hotkey = value;

@@ -54,7 +54,7 @@ const applyArgsToScript = ({
  * @param  {Record<string, any>} args
  * @param  {Action} action
  */
-const applyArgsInAction = (args: Record<string, any>, action: Action) => {
+const applyArgsInAction = (args: Record<string, any>, action: Action): Action => {
   const targetAction = { ...action };
 
   const actionKeys = Object.keys(targetAction);
