@@ -16,11 +16,26 @@ const setMacPathsEnv = (path: string): void => {
 };
 
 /**
+ * @returns  {string} $PATH value
+ * @description Before call getMacPaths, should call setMacPathsEnv.
+ */
+const getMacPathsEnv = (): string => {
+  return macPathsEnv;
+};
+
+/**
  * @param  {string} path
  * @description Sets environment variables outside core lib
  */
 const setExternalEnvs = (envs: Record<string, any>): void => {
   externalEnv = envs;
+};
+
+/**
+ * @description Gets environment variables outside core lib
+ */
+const getExternalEnvs = (): Record<string, any> => {
+  return externalEnv;
 };
 
 /**
@@ -105,4 +120,11 @@ const getEnvs = ({
   };
 };
 
-export { getEnvs, extractVarEnv, setMacPathsEnv, setExternalEnvs };
+export {
+  extractVarEnv,
+  getEnvs,
+  getExternalEnvs,
+  getMacPathsEnv,
+  setExternalEnvs,
+  setMacPathsEnv,
+};

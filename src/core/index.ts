@@ -41,7 +41,7 @@ import { renewWorkflows } from './workflowRenewer';
 import { updateWorkflowTrigger } from './workflowTriggerUpdater';
 
 import { Store } from '../config';
-import { setMacPathsEnv } from '../config/envHandler';
+import { getEnvs, getExternalEnvs, getMacPathsEnv, setMacPathsEnv } from '../config/envHandler';
 import * as history from '../config/history';
 import * as logger from '../config/logger';
 import * as path from '../config/path';
@@ -50,6 +50,7 @@ import { addUserConfigs, applyUserConfigs, getUserConfigs, initialzeUserConfigs 
 import { registerCustomAction, scriptFilterExcute } from '../actions';
 
 export {
+  ActionFlowManager,
   addUserConfigs,
   applyUserConfigs,
   checkUpdatableExtensions,
@@ -64,6 +65,9 @@ export {
   findTriggers,
   getBundleId,
   getCommandList,
+  getEnvs,
+  getExternalEnvs,
+  getMacPathsEnv,
   getNameFromBundleId,
   getPluginList,
   getSystemPaths,
@@ -92,7 +96,6 @@ export {
   uninstallPlugin,
   uninstallWorkflow,
   updateWorkflowTrigger,
-  ActionFlowManager,
   xmlExtractGlobalVars,
   xmlScriptFilterItemToJsonScriptFilterItem,
   xmlToJsonScriptFilterItemFormat,
