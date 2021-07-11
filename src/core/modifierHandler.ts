@@ -3,14 +3,14 @@ import _ from 'lodash';
 
 /**
  * @param  {Action[]} actions
- * @param  {ModifierInput} modifiersInput
+ * @param  {Readonly<ModifierInput>} modifiersInput
  * @return {Action[]} modifiers applied actions
  * @description Only one modifier can be accepted for now
  *              To do:: Expand this function to handle modifiers array (multiple modifiers) if needed
  */
 export const handleModifiers = (
   actions: Action[],
-  modifiersInput: ModifierInput
+  modifiersInput: Readonly<ModifierInput>
 ): Action[] => {
   // let pressedModifiers: string[] = _.filter(
   //   Object.keys(modifiersInput),

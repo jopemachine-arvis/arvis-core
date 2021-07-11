@@ -6,7 +6,7 @@ const requestTimerElapse = 100;
 /**
  * @param  {string} bundleId?
  */
-export const renewWorkflows = async (bundleId?: string): Promise<any> => {
+export const renewWorkflows = async (bundleId?: string): Promise<void> => {
   const store = Store.getInstance();
   if (requestTimer) clearTimeout(requestTimer);
 

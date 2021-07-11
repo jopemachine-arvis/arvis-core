@@ -1,7 +1,7 @@
 import fse from 'fs-extra';
 import semver from 'semver';
 import { log, LogType } from '../config';
-import { fetchAllExtensionJsonPaths } from '../utils';
+import { fetchAllExtensionJsonPaths } from '../lib/fetchAllExtensionJsonPaths';
 
 /**
  * @summary

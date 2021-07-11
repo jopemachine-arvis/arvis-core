@@ -79,7 +79,6 @@ const applyArgsInAction = (args: Record<string, any>, action: Action): Action =>
   return targetAction;
 };
 
-
 /**
  * @param  {Record<string, any>} args
  * @param  {Record<string, any>} vars

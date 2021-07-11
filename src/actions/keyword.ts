@@ -1,4 +1,4 @@
-import { ActionFlowManager, getPluginList, getWorkflowList } from '../core';
+import { ActionFlowManager, getPluginList, getWorkflowList, resolveExtensionType } from '../core';
 
 /**
  * @param  {KeywordAction} item
@@ -8,10 +8,9 @@ import { ActionFlowManager, getPluginList, getWorkflowList } from '../core';
 export const handleKeywordAction = (item: KeywordAction): void => {
   const actionFlowManager = ActionFlowManager.getInstance();
 
-  const infolist =
-    actionFlowManager.extensionInfo!.type === 'workflow'
-      ? getWorkflowList()
-      : getPluginList();
+  const infolist: Record<string, any> = resolveExtensionType() === 'workflow'
+    ? getWorkflowList()
+    : getPluginList();
 
   const defaultIcon = infolist[actionFlowManager.getTopTrigger().bundleId].defaultIcon;
 

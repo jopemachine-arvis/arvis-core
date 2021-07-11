@@ -265,7 +265,7 @@ function handleAction({
             condIsTrue = eval((action as CondAction).if.cond) === true;
           } catch (err) {
             console.error(
-              `Below error occured while evaling cond target. target is evaluated by false.\n${err}`
+              `Below error occured while evaling 'cond'.\nSome variable may not have been replaced.\nThis 'cond' is evaluated by false.\n${err}`
             );
             condIsTrue = false;
           }

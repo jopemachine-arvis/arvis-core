@@ -1,17 +1,24 @@
-import { ActionFlowManager } from './actionFlowManager';
-import { handleAction } from './actionHandler';
 import {
   hasRequiredArg,
   isArgTypeNoButHaveArg,
   isInputMeetWithspaceCond,
-} from './argUtility';
-import { checkUpdatableExtensions } from './checkUpdatableExtensions';
+} from '../lib/argUtility';
+import { checkUpdatableExtensions } from '../lib/checkUpdatableExtensions';
+import { getBundleId, getNameFromBundleId } from '../lib/getBundleId';
+import { getSystemPaths } from '../lib/getSystemPaths';
+import { resolveExtensionType } from '../lib/resolveExtensionType';
+import {
+  xmlExtractGlobalVars,
+  xmlScriptFilterItemToJsonScriptFilterItem,
+  xmlToJsonScriptFilterItemFormat,
+} from '../lib/scriptFilterItemFormatConverter';
+import { setAsyncPluginTimer } from '../lib/setAsyncPluginTimer';
+import { setExternalEnvs } from '../lib/setExternalEnvs';
+import { setStoreAvailabiltyChecker } from '../lib/setStoreAvailabiltyChecker';
+import { ActionFlowManager } from './actionFlowManager';
+import { handleAction } from './actionHandler';
 import { findCommands } from './commandFinder';
 import { getCommandList } from './commandList';
-import { decideExtensionType } from './decideExtensionType';
-import { findTriggers } from './findTriggers';
-import { getBundleId, getNameFromBundleId } from './getBundleId';
-import { getSystemPaths } from './getSystemPaths';
 import { findHotkeys } from './hotkeyFinder';
 import { determineDefaultIconPath, determineIconPath } from './iconPathFinder';
 import { exportPlugin } from './pluginExporter';
@@ -22,14 +29,7 @@ import {
 import { getPluginList } from './pluginList';
 import { renewPlugins } from './pluginRenewer';
 import { execute } from './scriptExecutor';
-import {
-  xmlExtractGlobalVars,
-  xmlScriptFilterItemToJsonScriptFilterItem,
-  xmlToJsonScriptFilterItemFormat,
-} from './scriptFilterItemFormatConverter';
-import { setAsyncPluginTimer } from './setAsyncPluginTimer';
-import { setExternalEnvs } from './setExternalEnvs';
-import { setStoreAvailabiltyChecker } from './setStoreAvailabiltyChecker';
+import { findTriggers } from './triggerFinder';
 import { getTriggers } from './triggerList';
 import { exportWorkflow } from './workflowExporter';
 import {
@@ -54,7 +54,6 @@ export {
   addUserConfigs,
   applyUserConfigs,
   checkUpdatableExtensions,
-  decideExtensionType,
   determineDefaultIconPath,
   determineIconPath,
   execute,
@@ -87,6 +86,7 @@ export {
   registerCustomAction,
   renewPlugins,
   renewWorkflows,
+  resolveExtensionType,
   scriptFilterExcute,
   setAsyncPluginTimer,
   setExternalEnvs,

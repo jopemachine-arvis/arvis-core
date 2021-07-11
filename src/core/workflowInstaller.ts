@@ -11,8 +11,8 @@ import { applyUserConfigs, getUserConfigs } from '.';
 import { log, LogType } from '../config';
 import { getWorkflowInstalledPath, tempPath } from '../config/path';
 import { Store } from '../config/store';
+import { getBundleId } from '../lib/getBundleId';
 import { sleep } from '../utils';
-import { getBundleId } from './getBundleId';
 
 /**
  * @param  {string} installedPath

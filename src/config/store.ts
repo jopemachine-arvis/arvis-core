@@ -3,7 +3,8 @@ import fse from 'fs-extra';
 import _ from 'lodash';
 import { findTriggers, getBundleId } from '../core';
 import pluginWorkspace from '../core/pluginWorkspace';
-import { fetchAllExtensionJsonPaths, zipDirectory } from '../utils';
+import { fetchAllExtensionJsonPaths } from '../lib/fetchAllExtensionJsonPaths';
+import { zipDirectory } from '../utils';
 import { log, LogType } from './index';
 import {
   getPluginConfigJsonPath,

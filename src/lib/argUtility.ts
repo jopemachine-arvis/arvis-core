@@ -1,5 +1,5 @@
 import { log, LogType } from '../config';
-import { ActionFlowManager } from './actionFlowManager';
+import { ActionFlowManager } from '../core/actionFlowManager';
 
 /**
  * @param  {{item:any;inputStr:string;}}

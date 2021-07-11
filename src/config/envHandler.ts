@@ -40,6 +40,7 @@ export const getExternalEnvs = (): Record<string, any> => {
 
 /**
  * @param  {Record<string, any>} queryArgs
+ * @return  {Record<string, any>}
  */
 export const extractVarEnv = (queryArgs: Record<string, any>): Record<string, any> => {
   const vars = {};
@@ -70,7 +71,7 @@ export const getEnvs = ({
   vars: Record<string, any>;
   name?: string;
   version?: string;
-}): any => {
+}): Record<string, any> => {
   const env = {
     arvis_extension_bundleid: bundleId,
     arvis_extension_cache: getExtensionCachePath(bundleId),

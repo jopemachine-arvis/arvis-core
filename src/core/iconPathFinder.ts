@@ -3,7 +3,7 @@ import {
   getPluginInstalledPath,
   getWorkflowInstalledPath,
 } from '../config/path';
-import { decideExtensionType } from './decideExtensionType';
+import { resolveExtensionType } from '../lib/resolveExtensionType';
 import { getPluginList } from './pluginList';
 import { getWorkflowList } from './workflowList';
 
@@ -55,7 +55,7 @@ export const determineDefaultIconPath = (command: Command): string | undefined =
   }
 
   try {
-    if (decideExtensionType(command) === 'plugin') {
+    if (resolveExtensionType(command) === 'plugin') {
       return getPluginList()[command.bundleId].defaultIcon
         ? path.resolve(
             getPluginInstalledPath(command.bundleId),

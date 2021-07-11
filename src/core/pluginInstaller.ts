@@ -10,8 +10,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { applyUserConfigs, getUserConfigs, log, LogType } from '../config';
 import { getPluginInstalledPath, tempPath } from '../config/path';
 import { Store } from '../config/store';
+import { getBundleId } from '../lib/getBundleId';
 import { sleep } from '../utils';
-import { getBundleId } from './getBundleId';
 
 /**
  * @param  {string} installedPath

@@ -14,7 +14,7 @@ const renewPlugins = async ({
 }: {
   initializePluginWorkspace: boolean;
   bundleId?: string;
-}): Promise<any> => {
+}): Promise<void> => {
   const store = Store.getInstance();
   if (requestTimer) clearTimeout(requestTimer);
 
