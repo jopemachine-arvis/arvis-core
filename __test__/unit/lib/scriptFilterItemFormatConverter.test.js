@@ -1,6 +1,6 @@
 const {
   xmlToJsonScriptFilterItemFormat,
-} = require('../../../dist/core/scriptFilterItemFormatConverter');
+} = require('../../../dist/lib/scriptFilterItemFormatConverter');
 
 const mockXmls = {
   t1: `

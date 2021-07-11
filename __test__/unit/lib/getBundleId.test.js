@@ -1,7 +1,7 @@
 const {
   getBundleId,
   getNameFromBundleId
-} = require('../../../dist/core/getBundleId');
+} = require('../../../dist/lib/getBundleId');
 
 describe('getBundleId test', () => {
   test('getBundleId test', () => {

@@ -2,7 +2,7 @@ const {
   hasRequiredArg,
   isArgTypeNoButHaveArg,
   isInputMeetWithspaceCond,
-} = require('../../../dist/core/argUtility');
+} = require('../../../dist/lib/argUtility');
 
 describe('argUtility test', () => {
   test('hasRequiredArg return valid value', () => {
