@@ -566,7 +566,7 @@ export class ActionFlowManager {
     modifier: ModifierInput,
     nextAction: AsyncAction
   ): Action[] => {
-    if (!nextAction.asyncChain) {
+    if (!nextAction.asyncChain || !nextAction.asyncChainType) {
       throw new Error('Action doesn\'t have asyncChain!');
     }
 
@@ -575,7 +575,7 @@ export class ActionFlowManager {
     );
 
     nextAction.asyncChain.then((result: any) => {
-      switch (nextAction.type) {
+      switch (nextAction.asyncChainType) {
         case 'script': {
           args['{query}'] = result.all;
           args['$1'] = result.all;

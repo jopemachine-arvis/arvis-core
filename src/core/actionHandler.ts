@@ -110,6 +110,7 @@ function handleAction({
 
     let nextAction: Action[] | undefined = action.actions;
     let asyncChain: Promise<any> | undefined;
+    let asyncChainType: string | undefined;
 
     action = applyArgsInAction(queryArgs, action);
 
@@ -135,6 +136,7 @@ function handleAction({
 
           actionFlowManager.isInitialTrigger = false;
           asyncChain = handleScriptAction((action as ScriptAction), queryArgs);
+          asyncChainType = action.type;
           break;
 
         // Scriptfilter cannot be processed here because it could be ran in a way other than 'Enter' event
@@ -217,6 +219,7 @@ function handleAction({
           actionFlowManager.isInitialTrigger = false;
 
           asyncChain = copyToClipboardAction((action as ClipboardAction).text);
+          asyncChainType = action.type;
           break;
 
         // Extract query from args, vars and execute the action.
@@ -323,6 +326,7 @@ function handleAction({
       if (asyncChain) {
         nextAction.forEach((targetAction: AsyncAction) => {
           targetAction.asyncChain = asyncChain;
+          targetAction.asyncChainType = asyncChainType;
         });
       }
 
