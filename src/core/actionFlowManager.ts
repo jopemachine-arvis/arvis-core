@@ -603,7 +603,7 @@ export class ActionFlowManager {
    * @description return top trigger's parent action type.
    */
   private getParentActionType = (): string | undefined => {
-    if (!this.hasEmptyTriggerStk()) return undefined;
+    if (!this.getTopTrigger() || !this.hasEmptyTriggerStk()) return undefined;
     const { actionTrigger } = this.getTopTrigger();
 
     return actionTrigger

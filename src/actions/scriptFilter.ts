@@ -9,6 +9,7 @@ import {
   ActionFlowManager,
   getPluginList,
   getWorkflowList,
+  resolveExtensionType,
   xmlToJsonScriptFilterItemFormat,
 } from '../core';
 import { applyExtensionVars, extractArgsFromQuery } from '../core/argsHandler';
@@ -100,8 +101,7 @@ const scriptFilterCompleteEventHandler = (
 
   const { bundleId } = actionFlowManager.getTopTrigger();
 
-  const infolist =
-    actionFlowManager.extensionInfo!.type === 'workflow'
+  const infolist = resolveExtensionType() === 'workflow'
       ? getWorkflowList()
       : getPluginList();
 
@@ -226,7 +226,7 @@ export async function scriptFilterExcute(
   // Otherwise, the first string element is command.
 
   const extensionVariables: Record<string, any> | undefined =
-    actionFlowManager.extensionInfo!.type === 'plugin'
+    resolveExtensionType() === 'plugin'
       ? getPluginList()[bundleId].variables
       : getWorkflowList()[bundleId].variables ?? {};
 

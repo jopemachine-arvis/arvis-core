@@ -109,7 +109,8 @@ export const getEnvs = ({
 
   const transformedVars = { ...vars };
   for (const variable of Object.keys(vars)) {
-    transformedVars[variable] = JSON.stringify(vars[variable]);
+    transformedVars[variable] = typeof vars[variable] === 'string' || typeof vars[variable] === 'number' || typeof vars[variable] === 'boolean' ?
+      String(vars[variable]) : JSON.stringify(vars[variable]);
   }
 
   return {
