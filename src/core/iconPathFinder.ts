@@ -59,14 +59,14 @@ export const determineDefaultIconPath = (command: Command): string | undefined =
       return getPluginList()[command.bundleId].defaultIcon
         ? path.resolve(
             getPluginInstalledPath(command.bundleId),
-            getPluginList()[command.bundleId].defaultIcon
+            getPluginList()[command.bundleId].defaultIcon!
           )
         : undefined;
     }
     return getWorkflowList()[command.bundleId].defaultIcon
       ? path.resolve(
           getWorkflowInstalledPath(command.bundleId),
-          getWorkflowList()[command.bundleId].defaultIcon
+          getWorkflowList()[command.bundleId].defaultIcon!
         )
       : undefined;
   } catch (err) {

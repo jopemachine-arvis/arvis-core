@@ -56,7 +56,6 @@ export const extractVarEnv = (queryArgs: Record<string, any>): Record<string, an
 };
 
 /**
- * @param  {string;vars:Record<string, any>;name?:string;version?:string;}
  * @returns
  */
 export const getEnvs = ({

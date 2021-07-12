@@ -349,7 +349,7 @@ export class ActionFlowManager {
    * @param  {PluginItem|Command} item
    */
   public setExtensionInfo = (item: PluginItem | Command): void => {
-    if (item['isPluginItem']) {
+    if ((item as PluginItem).isPluginItem) {
       this.extensionInfo = {
         execPath: getPluginInstalledPath(item.bundleId!),
         name: getPluginList()[item.bundleId!].name,
@@ -381,6 +381,7 @@ export class ActionFlowManager {
 
   /**
    * @param  {Command | ScriptFilterItem | PluginItem} item
+   * @param  {Record<string, any>} args
    * @description If triggerStk is empty, return item's action
    *              otherwise, return nextAction (topWork's action)
    */
@@ -413,7 +414,7 @@ export class ActionFlowManager {
       ? item.bundleId!
       : this.getTopTrigger().bundleId;
 
-    const extensionVariables = item['isPluginItem']
+    const extensionVariables = (item as PluginItem).isPluginItem
       ? getPluginList()[bundleId].variables
       : getWorkflowList()[bundleId].variables ?? {};
 
@@ -423,7 +424,7 @@ export class ActionFlowManager {
     };
 
     // Plugin Trigger
-    if (this.hasEmptyTriggerStk() && item['isPluginItem']) {
+    if (this.hasEmptyTriggerStk() && (item as PluginItem).isPluginItem) {
       return applyExtensionVars(
         extractArgsFromPluginItem(item as PluginItem),
         extensionVariables
@@ -431,7 +432,7 @@ export class ActionFlowManager {
     }
 
     // Workflow Trigger: Hotkey
-    if (this.hasEmptyTriggerStk() && item['type'] === 'hotkey') {
+    if (this.hasEmptyTriggerStk() && (item as Command).type === 'hotkey') {
       return applyExtensionVars(
         emptyQuery,
         extensionVariables
@@ -461,8 +462,7 @@ export class ActionFlowManager {
 
     // Handle scriptfilter action
     if (this.getTopTrigger().type === 'scriptFilter') {
-      item = item as ScriptFilterItem;
-      const vars = { ...item.variables, ...this.globalVariables! };
+      const vars = { ...(item as ScriptFilterItem).variables, ...this.globalVariables! };
       return applyExtensionVars(
         extractArgsFromScriptFilterItem(item, vars),
         extensionVariables
@@ -542,7 +542,7 @@ export class ActionFlowManager {
    * @param  {Action} action
    */
   private hasAsyncActionChain = (action: Action): boolean => {
-    return !_.isUndefined(action['asyncChain']);
+    return !_.isUndefined((action as AsyncAction).asyncChain);
   }
 
   /**
@@ -600,13 +600,14 @@ export class ActionFlowManager {
   }
 
   /**
-   * @description
+   * @description return top trigger's parent action type.
    */
   private getParentActionType = (): string | undefined => {
-    return !this.hasEmptyTriggerStk()
-      ? this.getTopTrigger().actionTrigger
-        ? this.getTopTrigger().actionTrigger['type']
-        : undefined
+    if (!this.hasEmptyTriggerStk()) return undefined;
+    const { actionTrigger } = this.getTopTrigger();
+
+    return actionTrigger
+      ? (actionTrigger as (Action | Command | PluginItem)).type
       : undefined;
   }
 
@@ -634,7 +635,7 @@ export class ActionFlowManager {
     } = { args, nextActions: [] };
 
     let quit = true;
-    let actionsPointer = targetActions ? [...targetActions] : [];
+    let actionsPointer: Action[] | undefined = targetActions ? [...targetActions] : [];
 
     actionsPointer.sort((actionA, actionB) => {
       const aIsTrig = triggerTypes.includes(actionA.type);
@@ -706,10 +707,10 @@ export class ActionFlowManager {
     inputStr: string,
     modifier: Readonly<ModifierInput>
   ): boolean {
-    // If triggerStk is empty, the args becomes query, otherwise args becomes arg of items
     // If triggerStk is empty, the actions becomes command, otherwise the top action of the stack is 'actions'.
-    const actions = this.prepareNextActions({ item });
-    const args = this.prepareArgs({ item, inputStr });
+    // If triggerStk is empty, the args becomes query, otherwise args becomes arg of items
+    const actions: Action[] | undefined = this.prepareNextActions({ item });
+    const args: Record<string, any> = this.prepareArgs({ item, inputStr });
 
     if (this.hasEmptyTriggerStk()) {
       // Trigger Type: one of 'keyword', 'scriptFilter'
@@ -723,12 +724,8 @@ export class ActionFlowManager {
       });
 
       this.setExtensionInfo(item as Command | PluginItem);
+      pushInputStrLog(item.bundleId!, (item as PluginItem).isPluginItem ? (item as PluginItem).title : (item as Command).command!);
 
-      if (item['isPluginItem']) {
-        pushInputStrLog(item.bundleId!, (item as PluginItem).title);
-      } else {
-        pushInputStrLog(item.bundleId!, (item as Command).command!);
-      }
     } else {
       this.isInitialTrigger = false;
     }

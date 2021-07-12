@@ -3,16 +3,16 @@ import '../types';
 
 /**
  * @param  {string[]} targetAttrs
- * @param  {Action[]} actions
+ * @param  {Readonly<Command[]> | Readonly<Action[]>} actions
  * @param  {string} triggerBasePath?
  * @description If triggerBasePath exists, include triggerPath in the return value.
  */
 export function findTriggers(
   targetAttrs: string[],
-  actions: Action[],
+  actions: Readonly<Command[]> | Readonly<Action[]>,
   triggerBasePath?: string,
-): Action[] {
-  let triggers: Action[] = [];
+): Action[] | Command[] {
+  let triggers: Action[] | Command[] = [];
 
   let actionIdx: number = 0;
   for (const action of actions) {
@@ -29,9 +29,9 @@ export function findTriggers(
       }
     }
 
-    if (action['actions']) {
+    if (action.actions) {
       const newBasePath = triggerBasePath ? `${triggerBasePath}.${actionIdx}.actions` : undefined;
-      triggers = [...triggers, ...findTriggers(targetAttrs, action['actions'], newBasePath)];
+      triggers = [...triggers, ...findTriggers(targetAttrs, action.actions, newBasePath)];
     }
 
     ++actionIdx;

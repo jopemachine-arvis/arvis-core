@@ -43,5 +43,6 @@ declare global {
     };
     bundleId?: string;
     stringSimilarity?: number;
+    isPluginItem: boolean;
   }
 }

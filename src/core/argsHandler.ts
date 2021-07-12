@@ -81,12 +81,41 @@ const applyArgsInAction = (args: Record<string, any>, action: Action): Action =>
 
 /**
  * @param  {Record<string, any>} args
- * @param  {Record<string, any>} vars
- * @returns variable
+ * @param  {Command} command
  */
-const applyExtensionVars = (args: Record<string, any>, vars: Record<string, any>): Record<string, any> => {
-  for (const variable in vars) {
-    args[`{var:${variable}}`] = `${vars[variable]}`;
+const applyArgsInCommand = (args: Record<string, any>, command: Command | PluginItem): Action => {
+  const targetCommand = { ...command };
+
+  const actionKeys = Object.keys(targetCommand);
+  for (const actionKey of actionKeys) {
+    if (typeof targetCommand[actionKey] === 'string') {
+      // tslint:disable: prefer-conditional-expression
+      if (actionKey === 'script' || actionKey === 'scriptFilter') {
+        targetCommand[actionKey] = applyArgsToScript({ script: targetCommand[actionKey], queryArgs: args });
+      } else {
+        targetCommand[actionKey] = applyArgs({ str: targetCommand[actionKey], queryArgs: args });
+      }
+    } else if (typeof targetCommand[actionKey] === 'object') {
+      // Stop iterating under actions
+      if (actionKey !== 'actions') {
+        targetCommand[actionKey] = applyArgsInAction(args, targetCommand[actionKey]);
+      }
+    }
+  }
+
+  return targetCommand;
+};
+
+/**
+ * @param  {Record<string, any>} args
+ * @param  {Record<string, any> | undefined} vars
+ * @returns  {Record<string, any>}
+ */
+const applyExtensionVars = (args: Record<string, any>, vars: Record<string, any> | undefined): Record<string, any> => {
+  if (vars) {
+    for (const variable in vars) {
+      args[`{var:${variable}}`] = `${vars[variable]}`;
+    }
   }
   return args;
 };
@@ -170,6 +199,7 @@ export {
   applyArgs,
   applyArgsToScript,
   applyArgsInAction,
+  applyArgsInCommand,
   applyExtensionVars,
   extractArgsFromPluginItem,
   extractArgsFromQuery,

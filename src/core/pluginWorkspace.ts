@@ -42,27 +42,7 @@ const requireDynamically = (modulePath: string, envs: Record<string, any> = {}):
   return eval(`require('${modulePath}');`);
 };
 
-interface PluginModule {
-  module: Function;
-  bindedEnvs: Record<string, any>;
-}
-
-interface PluginWorkspace {
-  pluginModules: Map<string, PluginModule>;
-  asyncWorks: PCancelable<PluginExectionResult[]>[];
-  asyncPluginTimer: number;
-  setAsyncPluginTimer: (timer: number) => void;
-  getAsyncWork: (
-    pluginBundleId: string,
-    asyncPluginPromise: Promise<any>
-  ) => PCancelable<PluginExectionResult[]>;
-  renew: (pluginInfos: any[], bundleId?: string) => void;
-  search: (inputStr: string) => Promise<PluginExectionResult[]>;
-  cancelPrevious: () => void;
-  restoreArvisEnvs: () => void;
-}
-
-const pluginWorkspace: PluginWorkspace = {
+export const pluginWorkspace: PluginWorkspace = {
   pluginModules: new Map(),
 
   asyncWorks: [],
@@ -80,7 +60,7 @@ const pluginWorkspace: PluginWorkspace = {
   /**
    * @param  {any[]} pluginInfos
    */
-  renew: (pluginInfos: any[], bundleId?: string): void => {
+  reload: (pluginInfos: any[], bundleId?: string): void => {
     const newPluginModules: Map<string, PluginModule> = bundleId
       ? pluginWorkspace.pluginModules
       : new Map();
@@ -278,7 +258,3 @@ const pluginWorkspace: PluginWorkspace = {
     return pluginExecutionResults;
   },
 };
-
-export default pluginWorkspace;
-
-export { pluginWorkspace };

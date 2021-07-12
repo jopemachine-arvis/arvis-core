@@ -7,18 +7,21 @@ import { getWorkflowList } from './workflowList';
 /**
  * @param  {string} inputStr
  */
-const findPluginCommands = async (inputStr: string): Promise<any> => {
+const findPluginCommands = async (inputStr: string): Promise<{
+  pluginSortOutputs: PluginItem[],
+  pluginNoSortOutputs: PluginItem[]
+}> => {
   const pluginResults = await pluginWorkspace.search(inputStr);
   const [pluginNoSortItems, pluginItems] = _.partition(
     pluginResults,
     (result) => result.noSort
   );
 
-  const pluginSortOutputs = pluginItems
+  const pluginSortOutputs: PluginItem[] = pluginItems
     .map((result) => result.items)
     .reduce((prev, curr) => [...prev, ...curr], []);
 
-  const pluginNoSortOutputs = pluginNoSortItems
+  const pluginNoSortOutputs: PluginItem[] = pluginNoSortItems
     .map((result) => result.items)
     .reduce((prev, curr) => [...prev, ...curr], []);
 
@@ -56,7 +59,7 @@ const findWorkflowCommands = async (inputStr: string): Promise<Command[]> => {
     if (isForwardCandidates || isBackwardCandidates) {
       for (const command of commands[commandStr]) {
         const { bundleId, argType } = command;
-        const { defaultIcon, enabled } = getWorkflowList()[bundleId];
+        const { defaultIcon, enabled } = getWorkflowList()[bundleId!];
 
         // Except if argType is 'no' and query exists
         if (

@@ -1,8 +1,7 @@
 import { validate as validateJson } from 'arvis-extension-validator';
 import fse from 'fs-extra';
 import _ from 'lodash';
-import { findTriggers, getBundleId } from '../core';
-import pluginWorkspace from '../core/pluginWorkspace';
+import { findTriggers, getBundleId, pluginWorkspace } from '../core';
 import { fetchAllExtensionJsonPaths } from '../lib/fetchAllExtensionJsonPaths';
 import { zipDirectory } from '../utils';
 import { log, LogType } from './index';
@@ -14,17 +13,17 @@ import {
 } from './path';
 
 /**
- * @param  {Record<string, any>} commands
+ * @param  {Record<string, Command[]>} commands
  * @param  {string} bundleId
- * @return {Record<string, any>} Commands except for the command equivalent of bundleId.
+ * @return {Record<string, Command[]>} Commands except for the command equivalent of bundleId.
  */
-const removeOldCommand = (commands: Record<string, any>, bundleId: string): Record<string, any> => {
+const removeOldCommand = (commands: Record<string, Command[]>, bundleId: string): Record<string, Command[]> => {
   const ret = commands;
   for (const commandKey of Object.keys(commands)) {
-    const commandObj = commands[commandKey];
+    const commandArr: Command[] = commands[commandKey];
 
     // To remove old commands, filter commands with same bundleId
-    const otherWorkflowsSameCommands = commandObj.filter(
+    const otherWorkflowsSameCommands = commandArr.filter(
       (command: any) => command.bundleId !== bundleId
     );
 
@@ -34,16 +33,16 @@ const removeOldCommand = (commands: Record<string, any>, bundleId: string): Reco
 };
 
 /**
- * @param  {Record<string, any>} commands
- * @param  {any[]} newCommands
+ * @param  {Record<string, Command[]>} commands
+ * @param  {Command[]} newCommands
  * @param  {string} bundleId
- * @returns {Record<string, any>} Command object with new commands
+ * @returns {Record<string, Command[]>} Command object with new commands
  */
 const addCommands = (
-  commands: Record<string, any>,
-  newCommands: any[],
+  commands: Record<string, Command[]>,
+  newCommands: Command[],
   bundleId: string
-): Record<string, any> => {
+): Record<string, Command[]> => {
   const ret = commands;
   for (const commandObj of newCommands) {
     if (!commandObj.command) continue;
@@ -103,7 +102,7 @@ export class Store {
     this.store.set('commands', {});
     this.store.set('workflows', {});
     this.store.set('hotkeys', {});
-    this.store.set('triggers', {});
+    this.store.set('triggers', []);
   }
 
   private clearPluginsInfo() {
@@ -135,11 +134,11 @@ export class Store {
 
   /**
    * @param  {string} bundleId?
-   * @summary Renew workflows info based on workflowInstallPath's arvis-workflow.json
+   * @summary Reload workflows info based on workflowInstallPath's arvis-workflow.json
    *          This funtion is called by file watcher if arvis-workflow.json's changes are detected.
-   * @description If bundleId is given, renew only that workflow info.
+   * @description If bundleId is given, reload only that workflow info.
    */
-  public async renewWorkflows(bundleId?: string): Promise<void> {
+  public async reloadWorkflows(bundleId?: string): Promise<void> {
     return new Promise(async (resolve, reject) => {
       this.setStoreAvailability(false);
       try {
@@ -163,10 +162,10 @@ export class Store {
         const readJsonsResult: PromiseSettledResult<any>[] = await Promise.allSettled(readJsonPromises);
 
         let invalidCnt: number = 0;
-        const workflowInfoArr = readJsonsResult
+        const workflowInfoArr: WorkflowConfigFile[] = readJsonsResult
           .filter((jsonResult) => jsonResult.status === 'fulfilled')
-          .map((jsonResult) => (jsonResult as any).value)
-          .filter((workflowInfo) => {
+          .map((jsonResult) => (jsonResult as PromiseFulfilledResult<any>).value)
+          .filter((workflowInfo: WorkflowConfigFile) => {
             const { valid, errorMsg } = validateJson(workflowInfo, 'workflow');
             if (errorMsg) {
               const err = `'${workflowInfo.name}' has invalid json format. skip loading '${workflowInfo.name}'..\n\n${errorMsg}`;
@@ -212,11 +211,11 @@ export class Store {
   /**
    * @param  {boolean} initializePluginWorkspace
    * @param  {string} bundleId?
-   * @summary Renew plugins info based on pluginInstallPath's arvis-plugin.json
+   * @summary Reload plugins info based on pluginInstallPath's arvis-plugin.json
    *          This funtion is called by file watcher if arvis-plugin.json's changes are detected.
-   * @description If bundleId is given, renew only that plugin info.
+   * @description If bundleId is given, reload only that plugin info.
    */
-  public renewPlugins = async ({
+  public reloadPlugins = async ({
     initializePluginWorkspace,
     bundleId,
   }: {
@@ -249,8 +248,8 @@ export class Store {
         let invalidCnt: number = 0;
         const pluginInfoArr: PluginConfigFile[] = readJsonsResult
           .filter((jsonResult) => jsonResult.status === 'fulfilled')
-          .map((jsonResult) => (jsonResult as any).value)
-          .filter((pluginInfo) => {
+          .map((jsonResult) => (jsonResult as PromiseFulfilledResult<any>).value)
+          .filter((pluginInfo: PluginConfigFile) => {
             const { valid, errorMsg } = validateJson(pluginInfo, 'plugin');
             if (errorMsg) {
               const err = `'${pluginInfo.name}' has invalid json format. skip loading '${pluginInfo.name}'..\n\n${errorMsg}`;
@@ -267,7 +266,7 @@ export class Store {
           );
         });
 
-        const newPluginDict: any = bundleId ? this.getPlugins() : {};
+        const newPluginDict: Record<string, any> = bundleId ? this.getPlugins() : {};
 
         for (const pluginInfo of pluginInfoArr) {
           newPluginDict[getBundleId(pluginInfo.creator, pluginInfo.name)] =
@@ -277,7 +276,7 @@ export class Store {
         this.store.set('plugins', newPluginDict);
 
         if (initializePluginWorkspace) {
-          pluginWorkspace.renew(pluginInfoArr, bundleId);
+          pluginWorkspace.reload(pluginInfoArr, bundleId);
         }
 
         this.setStoreAvailability(true);
@@ -298,38 +297,23 @@ export class Store {
     });
   }
 
-  /**
-   * @param  {} {}
-   */
-  public getInstalledWorkflows() {
+  public getInstalledWorkflows(): Record<string, WorkflowConfigFile> {
     return this.getter('workflows', {});
   }
 
-  /**
-   * @param  {} {}
-   */
-  public getTriggers() {
-    return this.getter('triggers', {});
+  public getTriggers(): Record<string, any> {
+    return this.getter('triggers', []);
   }
 
-  /**
-   * @param  {} {}
-   */
-  public getCommands() {
+  public getCommands(): Record<string, Command[]> {
     return this.getter('commands', {});
   }
 
-  /**
-   * @param  {} {}
-   */
-  public getHotkeys() {
+  public getHotkeys(): Record<string, any> {
     return this.getter('hotkeys', {});
   }
 
-  /**
-   * @param  {} {}
-   */
-  public getPlugins() {
+  public getPlugins(): Record<string, PluginConfigFile> {
     return this.getter('plugins', {});
   }
 
@@ -341,9 +325,9 @@ export class Store {
   }
 
   /**
-   * @param  {any} workflow
+   * @param  {PluginConfigFile} plugin
    */
-  public setPlugin(plugin: any): void {
+  public setPlugin(plugin: PluginConfigFile): void {
     const bundleId = getBundleId(plugin.creator, plugin.name);
     this.store.set('plugins', {
       ...this.getPlugins(),
@@ -353,9 +337,9 @@ export class Store {
 
   /**
    *
-   * @param  {any} workflow
+   * @param  {WorkflowConfigFile} workflow
    */
-  public setWorkflow(workflow: any): void {
+  public setWorkflow(workflow: WorkflowConfigFile): void {
     const bundleId = getBundleId(workflow.creator, workflow.name);
 
     // Update workflow installation info
@@ -368,13 +352,15 @@ export class Store {
     this.store.set('workflows', installedWorkflows);
 
     // Update available commands
-    let commands = this.getCommands();
+    let commands: Record<string, Command[]> = this.getCommands();
     commands = removeOldCommand(commands, bundleId);
     commands = addCommands(
       commands,
-      findTriggers(['command'], workflow.commands),
+      findTriggers(['command'], workflow.commands) as Command[],
       bundleId
     );
+
+    // To do:: Add logic here
 
     this.store.set('commands', commands);
 
@@ -391,7 +377,7 @@ export class Store {
       };
     });
 
-    hotkeys = _.keyBy(hotkeys, (item) => item.hotkey);
+    hotkeys = _.keyBy(hotkeys, (item) => item.hotkey!);
     this.store.set('hotkeys', { ...hotkeys, ...this.getHotkeys() });
 
     // Update available triggers

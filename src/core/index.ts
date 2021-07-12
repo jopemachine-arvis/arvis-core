@@ -27,7 +27,8 @@ import {
   unInstall as uninstallPlugin,
 } from './pluginInstaller';
 import { getPluginList } from './pluginList';
-import { renewPlugins } from './pluginRenewer';
+import { reloadPlugins } from './pluginReloader';
+import { pluginWorkspace } from './pluginWorkspace';
 import { execute } from './scriptExecutor';
 import { findTriggers } from './triggerFinder';
 import { getTriggers } from './triggerList';
@@ -37,7 +38,7 @@ import {
   unInstall as uninstallWorkflow,
 } from './workflowInstaller';
 import { getWorkflowList } from './workflowList';
-import { renewWorkflows } from './workflowRenewer';
+import { reloadWorkflows } from './workflowReloader';
 import { updateWorkflowTrigger } from './workflowTriggerUpdater';
 
 import { Store } from '../config';
@@ -83,9 +84,10 @@ export {
   isInputMeetWithspaceCond,
   logger,
   path,
+  pluginWorkspace,
   registerCustomAction,
-  renewPlugins,
-  renewWorkflows,
+  reloadPlugins,
+  reloadWorkflows,
   resolveExtensionType,
   scriptFilterExcute,
   setAsyncPluginTimer,

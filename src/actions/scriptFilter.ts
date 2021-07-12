@@ -40,6 +40,7 @@ const printActionLog = (): void => {
 
 /**
  * @param  {string} stdout
+ * @param  {string} stderr
  */
 const parseStdio = (stdout: string, stderr: string): ScriptFilterResult => {
   if (stdout.startsWith('<?xml')) {
@@ -224,7 +225,7 @@ export async function scriptFilterExcute(
   // If the ScriptFilters are nested, the first string element is query.
   // Otherwise, the first string element is command.
 
-  const extensionVariables: Record<string, any> =
+  const extensionVariables: Record<string, any> | undefined =
     actionFlowManager.extensionInfo!.type === 'plugin'
       ? getPluginList()[bundleId].variables
       : getWorkflowList()[bundleId].variables ?? {};

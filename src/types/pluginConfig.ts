@@ -2,14 +2,16 @@ export {};
 
 declare global {
   export interface PluginConfigFile {
-    readonly actions: Readonly<Action>[];
     category?: string;
-    readonly creator: string;
+    defaultIcon?: string;
     description?: string;
     enabled?: boolean;
-    readonly name: string;
     platform?: string[];
     readme?: string;
+    readonly actions: Readonly<Action>[];
+    readonly creator: string;
+    readonly name: string;
+    variables?: Record<string, any>;
     version?: string;
     webAddress?: string;
     bundleId?: string;

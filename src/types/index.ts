@@ -20,6 +20,8 @@ import './modifierInput';
 import './pluginConfig';
 import './pluginExectionResult';
 import './pluginItem';
+import './pluginModule';
+import './pluginWorkspace';
 import './scriptFilterItem';
 import './scriptFilterResult';
 import './trigger';

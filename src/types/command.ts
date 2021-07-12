@@ -5,6 +5,7 @@ declare global {
     title: string;
     subtitle?: string;
     command?: string;
+    hotkey?: string;
     bundleId?: string;
     modifiers?: string;
     scriptFilter?: string | Record<string, any>;
@@ -13,6 +14,5 @@ declare global {
     readonly argType?: 'required' | 'optional' | 'no';
     readonly type: 'keyword' | 'scriptFilter' | 'hotkey';
     actions?: Action[];
-    isPluginItem?: boolean;
   }
 }

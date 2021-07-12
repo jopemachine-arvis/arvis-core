@@ -4,13 +4,15 @@ import { userConfigPath } from './path';
 /**
  * @description Migrate previous extenion's setting
  */
-export const applyUserConfigs = (userConfig: any, extensionInfo: any): any => {
-  const result = { ...extensionInfo };
+export const applyUserConfigs = (userConfig: any, extensionInfo: WorkflowConfigFile | PluginConfigFile): any => {
+  const result: WorkflowConfigFile | PluginConfigFile = { ...extensionInfo };
 
-  // Migrate previous variables
-  if (userConfig && userConfig.variables) {
-    for (const variable of Object.keys(userConfig.variables)) {
-      result.variables[variable] = userConfig.variables[variable];
+  if (extensionInfo.variables) {
+    // Migrate previous variables
+    if (userConfig && userConfig.variables) {
+      for (const variable of Object.keys(userConfig.variables)) {
+        result.variables![variable] = userConfig.variables[variable];
+      }
     }
   }
 
