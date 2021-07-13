@@ -3,6 +3,7 @@ import { getWorkflowList } from './workflowList';
 
 /**
  * @param  {}
+ * @returns {Record<string, any>} hotkeys
  * @summary Find available workflow hotkeys
  */
 export const findHotkeys = (): Record<string, any> => {

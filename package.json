@@ -1,6 +1,6 @@
 {
   "name": "arvis-core",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "description": "Core module of Arvis",
   "main": "dist/index.js",
   "files": [
@@ -78,7 +78,7 @@
     "is-promise": "^4.0.0",
     "is-url": "^1.2.4",
     "lodash": "^4.17.21",
-    "open": "^8.0.4",
+    "open": "^8.2.1",
     "p-cancelable": "^2.1.1",
     "parse-json": "^5.2.0",
     "path-exists": "^4.0.0",

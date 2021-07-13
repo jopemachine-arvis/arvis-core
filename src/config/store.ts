@@ -141,6 +141,7 @@ export class Store {
   public async reloadWorkflows(bundleId?: string): Promise<void> {
     return new Promise(async (resolve, reject) => {
       this.setStoreAvailability(false);
+
       try {
         const extensionInfoFiles: string[] = bundleId ?
           [getWorkflowConfigJsonPath(bundleId)] :
@@ -168,7 +169,7 @@ export class Store {
           .filter((workflowInfo: WorkflowConfigFile) => {
             const { valid, errorMsg } = validateJson(workflowInfo, 'workflow');
             if (errorMsg) {
-              const err = `'${workflowInfo.name}' has invalid json format. skip loading '${workflowInfo.name}'..\n\n${errorMsg}`;
+              const err = `'${workflowInfo.name}' has invalid json format.\nSkip loading '${workflowInfo.name}'..\n\n${errorMsg}`;
               log(LogType.error, err);
               invalidCnt += 1;
             }
@@ -252,7 +253,7 @@ export class Store {
           .filter((pluginInfo: PluginConfigFile) => {
             const { valid, errorMsg } = validateJson(pluginInfo, 'plugin');
             if (errorMsg) {
-              const err = `'${pluginInfo.name}' has invalid json format. skip loading '${pluginInfo.name}'..\n\n${errorMsg}`;
+              const err = `'${pluginInfo.name}' has invalid json format.\nSkip loading '${pluginInfo.name}'..\n\n${errorMsg}`;
               log(LogType.error, err);
               invalidCnt += 1;
             }
@@ -301,10 +302,6 @@ export class Store {
     return this.getter('workflows', {});
   }
 
-  public getTriggers(): Record<string, any> {
-    return this.getter('triggers', []);
-  }
-
   public getCommands(): Record<string, Command[]> {
     return this.getter('commands', {});
   }
@@ -315,6 +312,10 @@ export class Store {
 
   public getPlugins(): Record<string, PluginConfigFile> {
     return this.getter('plugins', {});
+  }
+
+  public getTriggers(): (Action | Command) [] {
+    return this.getter('triggers', []);
   }
 
   /**

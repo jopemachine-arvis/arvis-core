@@ -78,7 +78,7 @@ const throwReqAttrNotExtErr = (
   throw new Error(
     `'${typeName}' type should have '${requiredAttributes.join(
       ', '
-    )}' attributes`
+    ).replace(/, ([^,]*)$/, ' and $1')}' attributes.`
   );
 };
 

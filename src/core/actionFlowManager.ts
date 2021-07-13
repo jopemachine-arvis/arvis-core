@@ -488,44 +488,44 @@ export class ActionFlowManager {
   }
 
   /**
-   * @param  {Action} nextAction
+   * @param  {TriggerAction} triggerAction
    * @param  {Record<string, any>} args
    * @description This function handle Trigger as Actions.
    *              Which means keyword, scriptfilter.
    *              If one of those would be Action, force users to enter input and enter again.
    */
-  private handleTriggerAction = (nextAction: TriggerAction, args: Record<string, any>): void => {
+  private handleTriggerAction = (triggerAction: TriggerAction, args: Record<string, any>): void => {
     this.throwErrOnRendererUpdaterNotSet();
 
-    if (nextAction.type === 'resetInput') {
-      handleResetInputAction((nextAction as ResetInputAction).newInput);
+    if (triggerAction.type === 'resetInput') {
+      handleResetInputAction((triggerAction as ResetInputAction).newInput);
       return;
     }
 
-    if (nextAction.type === 'scriptFilter' || nextAction.type === 'keyword') {
+    if (triggerAction.type === 'scriptFilter' || triggerAction.type === 'keyword') {
       const nextInput = args['{query}'] ?? '';
-      const optionalWhitespace = (nextAction as ScriptFilterAction | KeywordAction).argType === 'required' ? ' ' : '';
+      const optionalWhitespace = (triggerAction as ScriptFilterAction | KeywordAction).argType === 'required' ? ' ' : '';
 
       this.pushTrigger({
-        actions: (nextAction as ScriptFilterAction | KeywordAction).actions,
-        actionTrigger: nextAction,
+        actions: (triggerAction as ScriptFilterAction | KeywordAction).actions,
+        actionTrigger: triggerAction,
         args,
         bundleId: this.getTopTrigger().bundleId,
         input: nextInput,
-        type: nextAction.type,
+        type: triggerAction.type,
         scriptfilterCompleted: false,
         scriptfilterProc: null,
       });
 
-      if (nextAction.type === 'scriptFilter') {
+      if (triggerAction.type === 'scriptFilter') {
         scriptFilterExcute(nextInput);
 
         this.onInputShouldBeUpdate!({
           str: nextInput + optionalWhitespace,
           needItemsUpdate: false,
         });
-      } else if (nextAction.type === 'keyword') {
-        handleKeywordAction(nextAction as KeywordAction);
+      } else if (triggerAction.type === 'keyword') {
+        handleKeywordAction(triggerAction as KeywordAction);
 
         this.onInputShouldBeUpdate!({
           str: nextInput + optionalWhitespace,
@@ -763,7 +763,7 @@ export class ActionFlowManager {
       return;
     }
 
-    const quit = this.commandExcute(item, inputStr, modifier);
+    const quit: boolean = this.commandExcute(item, inputStr, modifier);
 
     if (quit) {
       this.clearTriggerStk();

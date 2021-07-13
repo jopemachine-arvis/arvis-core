@@ -205,7 +205,7 @@ export const pluginWorkspace: PluginWorkspace = {
       .filter((result) => result.status === 'fulfilled')
       .map((item) => (item as any).value);
 
-    const errors = asyncPluginResults
+    const errors: Error[] = asyncPluginResults
       .filter((result) => result.status === 'rejected')
       .map((item) => (item as any).reason)
       .filter((error) => error.name !== 'CancelError');
