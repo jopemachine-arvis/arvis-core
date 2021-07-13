@@ -335,9 +335,12 @@ export class ActionFlowManager {
   /**
    * @description
    */
-  public setRunningText = ({ selectedItem }: { selectedItem: Command }): void => {
+  public setRunningScriptfilterItem = ({ selectedItem, setRunningText }: { selectedItem: Command, setRunningText: boolean }): void => {
     this.throwErrOnRendererUpdaterNotSet();
-    selectedItem.subtitle = selectedItem.runningSubtext ?? '';
+
+    if (setRunningText) {
+      selectedItem.subtitle = selectedItem.runningSubtext ?? '';
+    }
 
     this.onItemShouldBeUpdate!({
       items: [selectedItem],
