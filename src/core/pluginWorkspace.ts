@@ -57,11 +57,8 @@ export const pluginWorkspace: PluginWorkspace = {
     process.env = arvisEnvs as any;
   },
 
-  /**
-   * @param  {any[]} pluginInfos
-   */
-  reload: (pluginInfos: any[], bundleId?: string): void => {
-    const newPluginModules: Map<string, PluginModule> = bundleId
+  reload: (pluginInfos: any[], bundleIds?: string[]): void => {
+    const newPluginModules: Map<string, PluginModule> = bundleIds
       ? pluginWorkspace.pluginModules
       : new Map();
 

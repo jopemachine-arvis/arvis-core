@@ -133,18 +133,18 @@ export class Store {
   }
 
   /**
-   * @param  {string} bundleId?
+   * @param  {string[]} bundleIds?
    * @summary Reload workflows info based on workflowInstallPath's arvis-workflow.json
    *          This funtion is called by file watcher if arvis-workflow.json's changes are detected.
-   * @description If bundleId is given, reload only that workflow info.
+   * @description If bundleIds is given, reload only that workflows info.
    */
-  public async reloadWorkflows(bundleId?: string): Promise<void> {
+  public async reloadWorkflows(bundleIds?: string[]): Promise<void> {
     return new Promise(async (resolve, reject) => {
       this.setStoreAvailability(false);
 
       try {
-        const extensionInfoFiles: string[] = bundleId ?
-          [getWorkflowConfigJsonPath(bundleId)] :
+        const extensionInfoFiles: string[] = bundleIds ?
+          bundleIds.map(getWorkflowConfigJsonPath) :
           (await fetchAllExtensionJsonPaths('workflow')).filter((filePath) => {
             return filePath.endsWith('arvis-workflow.json');
           });
@@ -176,7 +176,7 @@ export class Store {
             return valid;
           });
 
-        if (!bundleId) {
+        if (!bundleIds) {
           this.clearWorkflowsInfo();
         }
 
@@ -211,24 +211,24 @@ export class Store {
 
   /**
    * @param  {boolean} initializePluginWorkspace
-   * @param  {string} bundleId?
+   * @param  {string[]} bundleIds?
    * @summary Reload plugins info based on pluginInstallPath's arvis-plugin.json
    *          This funtion is called by file watcher if arvis-plugin.json's changes are detected.
-   * @description If bundleId is given, reload only that plugin info.
+   * @description If bundleIds is given, reload only that plugins info.
    */
   public reloadPlugins = async ({
     initializePluginWorkspace,
-    bundleId,
+    bundleIds,
   }: {
     initializePluginWorkspace: boolean;
-    bundleId?: string | undefined;
+    bundleIds?: string[] | undefined;
   }): Promise<void> => {
     return new Promise(async (resolve, reject) => {
       this.setStoreAvailability(false);
 
       try {
-        const extensionInfoFiles: string[] = bundleId ?
-          [getPluginConfigJsonPath(bundleId)] :
+        const extensionInfoFiles: string[] = bundleIds ?
+          bundleIds.map(getPluginConfigJsonPath) :
           (await fetchAllExtensionJsonPaths('plugin')).filter((filePath) => {
             return filePath.endsWith('arvis-plugin.json');
           });
@@ -267,7 +267,7 @@ export class Store {
           );
         });
 
-        const newPluginDict: Record<string, any> = bundleId ? this.getPlugins() : {};
+        const newPluginDict: Record<string, any> = bundleIds ? this.getPlugins() : {};
 
         for (const pluginInfo of pluginInfoArr) {
           newPluginDict[getBundleId(pluginInfo.creator, pluginInfo.name)] =
@@ -277,7 +277,7 @@ export class Store {
         this.store.set('plugins', newPluginDict);
 
         if (initializePluginWorkspace) {
-          pluginWorkspace.reload(pluginInfoArr, bundleId);
+          pluginWorkspace.reload(pluginInfoArr, typeof bundleIds === 'string' ? [bundleIds] : bundleIds);
         }
 
         this.setStoreAvailability(true);

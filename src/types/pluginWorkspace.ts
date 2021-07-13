@@ -12,7 +12,7 @@ declare global {
       pluginBundleId: string,
       asyncPluginPromise: Promise<any>
     ) => PCancelable<PluginExectionResult[]>;
-    reload: (pluginInfos: any[], bundleId?: string) => void;
+    reload: (pluginInfos: any[], bundleIds?: string[]) => void;
     search: (inputStr: string) => Promise<PluginExectionResult[]>;
     cancelPrevious: () => void;
     restoreArvisEnvs: () => void;
