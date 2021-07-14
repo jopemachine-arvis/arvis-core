@@ -8,9 +8,10 @@ import open from 'open';
 export const openFile = async (filePath: string): Promise<void> => {
   // Replace whitespace with encoded whitespace if there is.
   // If not want this encoding method, replace it in extension before passing it in this.
-  filePath = filePath.split(' ').join('%20');
   if (isUrl(filePath)) {
+    filePath = filePath.split(' ').join('%20');
     filePath = encodeUrl(filePath);
   }
+
   await open(filePath, { wait: false });
 };
