@@ -1,10 +1,9 @@
-import { validate as validateJson } from 'arvis-extension-validator';
 import fse from 'fs-extra';
 import _ from 'lodash';
 import { findTriggers, getBundleId, pluginWorkspace } from '../core';
 import { fetchAllExtensionJsonPaths } from '../lib/fetchAllExtensionJsonPaths';
 import { zipDirectory } from '../utils';
-import { log, LogType } from './index';
+import { log, LogType } from './logger';
 import {
   getPluginConfigJsonPath,
   getPluginInstalledPath,
@@ -160,14 +159,14 @@ export class Store {
         const workflowInfoArr: WorkflowConfigFile[] = readJsonsResult
           .filter((jsonResult) => jsonResult.status === 'fulfilled')
           .map((jsonResult) => (jsonResult as PromiseFulfilledResult<any>).value)
-          .filter((workflowInfo: WorkflowConfigFile) => {
-            const { valid, errorMsg } = validateJson(workflowInfo, 'workflow');
-            if (errorMsg) {
-              const err = `'${workflowInfo.name}' has invalid json format.\nSkip loading '${workflowInfo.name}'..\n\n${errorMsg}`;
+          .filter((extensionInfo: WorkflowConfigFile) => {
+            if (!extensionInfo.creator || !extensionInfo.name) {
+              const err = `'${extensionInfo.name}' has invalid json format.\nSkip loading '${extensionInfo.name}'..`;
               log(LogType.error, err);
               invalidCnt += 1;
+              return false;
             }
-            return valid;
+            return true;
           });
 
         if (!bundleIds) {
@@ -234,14 +233,14 @@ export class Store {
         const pluginInfoArr: PluginConfigFile[] = readJsonsResult
           .filter((jsonResult) => jsonResult.status === 'fulfilled')
           .map((jsonResult) => (jsonResult as PromiseFulfilledResult<any>).value)
-          .filter((pluginInfo: PluginConfigFile) => {
-            const { valid, errorMsg } = validateJson(pluginInfo, 'plugin');
-            if (errorMsg) {
-              const err = `'${pluginInfo.name}' has invalid json format.\nSkip loading '${pluginInfo.name}'..\n\n${errorMsg}`;
+          .filter((extensionInfo: WorkflowConfigFile) => {
+            if (!extensionInfo.creator || !extensionInfo.name) {
+              const err = `'${extensionInfo.name}' has invalid json format.\nSkip loading '${extensionInfo.name}'..`;
               log(LogType.error, err);
               invalidCnt += 1;
+              return false;
             }
-            return valid;
+            return true;
           })
           .map((pluginInfo) => appendBundleId(pluginInfo) as PluginConfigFile);
 
