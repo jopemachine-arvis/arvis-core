@@ -57,6 +57,11 @@ const addCommands = (
   return ret;
 };
 
+const appendBundleId = (info: WorkflowConfigFile | PluginConfigFile): WorkflowConfigFile | PluginConfigFile => {
+  info.bundleId = getBundleId(info.creator, info.name);
+  return info;
+};
+
 /**
  * @summary
  */
@@ -138,7 +143,7 @@ export class Store {
    *          This funtion is called by file watcher if arvis-workflow.json's changes are detected.
    * @description If bundleIds is given, reload only that workflows info.
    */
-  public async reloadWorkflows(bundleIds?: string[]): Promise<void> {
+  public reloadWorkflows = async (bundleIds?: string[]): Promise<void> => {
     return new Promise(async (resolve, reject) => {
       this.setStoreAvailability(false);
 
@@ -149,18 +154,7 @@ export class Store {
             return filePath.endsWith('arvis-workflow.json');
           });
 
-        const readJsonPromises: Promise<any>[] = [];
-
-        for (const workflow of extensionInfoFiles) {
-          try {
-            readJsonPromises.push(fse.readJson(workflow));
-          } catch (err) {
-            this.setStoreAvailability(true);
-            throw new Error('Arvis workflow file format error' + err);
-          }
-        }
-
-        const readJsonsResult: PromiseSettledResult<any>[] = await Promise.allSettled(readJsonPromises);
+        const readJsonsResult: PromiseSettledResult<any>[] = await Promise.allSettled(extensionInfoFiles.map((file) => fse.readJson(file)));
 
         let invalidCnt: number = 0;
         const workflowInfoArr: WorkflowConfigFile[] = readJsonsResult
@@ -182,12 +176,13 @@ export class Store {
 
         this.store.set('hotkeys', {});
         for (const workflowInfo of workflowInfoArr) {
-          const extensionBundleId = getBundleId(
-            workflowInfo.creator,
-            workflowInfo.name
-          );
-
-          this.setWorkflow({ bundleId: extensionBundleId, ...workflowInfo });
+          this.setWorkflow({
+            ...workflowInfo,
+            bundleId: getBundleId(
+              workflowInfo.creator,
+              workflowInfo.name
+            ),
+          });
         }
 
         this.setStoreAvailability(true);
@@ -233,18 +228,7 @@ export class Store {
             return filePath.endsWith('arvis-plugin.json');
           });
 
-        const readJsonPromises: Promise<any>[] = [];
-
-        for (const pluginJson of extensionInfoFiles) {
-          try {
-            readJsonPromises.push(fse.readJson(pluginJson));
-          } catch (err) {
-            this.setStoreAvailability(true);
-            throw new Error('Arvis plugin file format error' + err);
-          }
-        }
-
-        const readJsonsResult: PromiseSettledResult<any>[] = await Promise.allSettled(readJsonPromises);
+        const readJsonsResult: PromiseSettledResult<any>[] = await Promise.allSettled(extensionInfoFiles.map((file) => fse.readJson(file)));
 
         let invalidCnt: number = 0;
         const pluginInfoArr: PluginConfigFile[] = readJsonsResult
@@ -258,14 +242,8 @@ export class Store {
               invalidCnt += 1;
             }
             return valid;
-          });
-
-        pluginInfoArr.forEach((pluginInfo) => {
-          pluginInfo.bundleId = getBundleId(
-            pluginInfo.creator,
-            pluginInfo.name
-          );
-        });
+          })
+          .map((pluginInfo) => appendBundleId(pluginInfo) as PluginConfigFile);
 
         const newPluginDict: Record<string, any> = bundleIds ? this.getPlugins() : {};
 
@@ -314,21 +292,21 @@ export class Store {
     return this.getter('plugins', {});
   }
 
-  public getTriggers(): (Action | Command) [] {
+  public getTriggers(): (Action | Command)[] {
     return this.getter('triggers', []);
   }
 
   /**
    * @param  {string} bundleId
    */
-  public getWorkflow(bundleId: string) {
+  public getWorkflow = (bundleId: string) => {
     return this.getInstalledWorkflows()[bundleId];
   }
 
   /**
    * @param  {PluginConfigFile} plugin
    */
-  public setPlugin(plugin: PluginConfigFile): void {
+  public setPlugin = (plugin: PluginConfigFile): void => {
     const bundleId = getBundleId(plugin.creator, plugin.name);
     this.store.set('plugins', {
       ...this.getPlugins(),
@@ -340,7 +318,7 @@ export class Store {
    *
    * @param  {WorkflowConfigFile} workflow
    */
-  public setWorkflow(workflow: WorkflowConfigFile): void {
+  public setWorkflow = (workflow: WorkflowConfigFile): void => {
     const bundleId = getBundleId(workflow.creator, workflow.name);
 
     // Update workflow installation info
@@ -353,32 +331,28 @@ export class Store {
     this.store.set('workflows', installedWorkflows);
 
     // Update available commands
-    let commands: Record<string, Command[]> = this.getCommands();
-    commands = removeOldCommand(commands, bundleId);
-    commands = addCommands(
-      commands,
-      findTriggers(['command'], workflow.commands) as Command[],
-      bundleId
-    );
+    const commands: Record<string, Command[]> =
+      addCommands(
+        removeOldCommand(this.getCommands(), bundleId),
+        findTriggers(['command'], workflow.commands) as Command[],
+        bundleId
+      );
 
-    // To do:: Add logic here
+    // To do:: Add variable replacing logic here
 
     this.store.set('commands', commands);
 
     // Update available hotkeys
-    let hotkeys = _.pickBy(
+    const hotkeys = _.keyBy(_.map(_.pickBy(
       workflow.commands,
       (command) => command.type === 'hotkey'
-    );
-
-    hotkeys = _.map(hotkeys, (command) => {
+    ), (command) => {
       return {
         bundleId,
         ...command,
       };
-    });
+    }), (item) => item.hotkey!);
 
-    hotkeys = _.keyBy(hotkeys, (item) => item.hotkey!);
     this.store.set('hotkeys', { ...hotkeys, ...this.getHotkeys() });
 
     // Update available triggers
