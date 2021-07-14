@@ -80,25 +80,23 @@ const applyArgsInAction = (args: Record<string, any>, action: Action): Action =>
 };
 
 /**
- * @param  {Record<string, any>} args
+ * @param  {Record<string, any> | undefined} args
  * @param  {Command} command
  */
-const applyArgsInCommand = (args: Record<string, any>, command: Command | PluginItem): Action => {
+const applyArgsInCommand = (args: Record<string, any> | undefined, command: Command): Command => {
+  if (!args) return command;
+
   const targetCommand = { ...command };
 
   const actionKeys = Object.keys(targetCommand);
+
   for (const actionKey of actionKeys) {
     if (typeof targetCommand[actionKey] === 'string') {
-      // tslint:disable: prefer-conditional-expression
-      if (actionKey === 'script' || actionKey === 'scriptFilter') {
-        targetCommand[actionKey] = applyArgsToScript({ script: targetCommand[actionKey], queryArgs: args });
-      } else {
-        targetCommand[actionKey] = applyArgs({ str: targetCommand[actionKey], queryArgs: args });
-      }
+      targetCommand[actionKey] = applyArgs({ str: targetCommand[actionKey], queryArgs: args });
     } else if (typeof targetCommand[actionKey] === 'object') {
       // Stop iterating under actions
       if (actionKey !== 'actions') {
-        targetCommand[actionKey] = applyArgsInAction(args, targetCommand[actionKey]);
+        targetCommand[actionKey] = applyArgsInCommand(args, targetCommand[actionKey]);
       }
     }
   }

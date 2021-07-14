@@ -1,6 +1,7 @@
 import fse from 'fs-extra';
 import _ from 'lodash';
 import { findTriggers, getBundleId, pluginWorkspace } from '../core';
+import { applyArgsInCommand } from '../core/argsHandler';
 import { fetchAllExtensionJsonPaths } from '../lib/fetchAllExtensionJsonPaths';
 import { zipDirectory } from '../utils';
 import { log, LogType } from './logger';
@@ -40,7 +41,8 @@ const removeOldCommand = (commands: Record<string, Command[]>, bundleId: string)
 const addCommands = (
   commands: Record<string, Command[]>,
   newCommands: Command[],
-  bundleId: string
+  bundleId: string,
+  vars: Record<string, any> | undefined,
 ): Record<string, Command[]> => {
   const ret = commands;
   for (const commandObj of newCommands) {
@@ -49,14 +51,35 @@ const addCommands = (
     commandObj.bundleId = bundleId;
     const existing = commands[commandObj.command];
 
-    ret[commandObj.command] = existing
-      ? [...existing, commandObj]
-      : [commandObj];
+    const argsResolvedCommandObj = applyArgsInCommand(vars, commandObj);
+
+    ret[argsResolvedCommandObj.command!] = existing
+      ? [...existing, argsResolvedCommandObj]
+      : [argsResolvedCommandObj];
   }
   return ret;
 };
 
-const appendBundleId = (info: WorkflowConfigFile | PluginConfigFile): WorkflowConfigFile | PluginConfigFile => {
+/**
+ * @param  {Record<string, any>} vars
+ * @param  {Record<string, Command[]>} commands
+ */
+const applyExtensionVarToTrigger = (vars: Record<string, any> | undefined, commands: Record<string, Command[]>): Record<string, Command[]> => {
+  if (!vars) return commands;
+
+  const newCommands = { ...commands };
+
+  for (const commandStr of Object.keys(newCommands)) {
+    newCommands[commandStr] = commands[commandStr].map((commandObj) => applyArgsInCommand(vars, commandObj));
+  }
+
+  return newCommands;
+};
+
+/**
+ * @param  {WorkflowConfigFile|PluginConfigFile} info
+ */
+const injectBundleId = (info: WorkflowConfigFile | PluginConfigFile): WorkflowConfigFile | PluginConfigFile => {
   info.bundleId = getBundleId(info.creator, info.name);
   return info;
 };
@@ -175,13 +198,7 @@ export class Store {
 
         this.store.set('hotkeys', {});
         for (const workflowInfo of workflowInfoArr) {
-          this.setWorkflow({
-            ...workflowInfo,
-            bundleId: getBundleId(
-              workflowInfo.creator,
-              workflowInfo.name
-            ),
-          });
+          this.setWorkflow(injectBundleId(workflowInfo) as WorkflowConfigFile);
         }
 
         this.setStoreAvailability(true);
@@ -242,7 +259,7 @@ export class Store {
             }
             return true;
           })
-          .map((pluginInfo) => appendBundleId(pluginInfo) as PluginConfigFile);
+          .map((pluginInfo) => injectBundleId(pluginInfo) as PluginConfigFile);
 
         const newPluginDict: Record<string, any> = bundleIds ? this.getPlugins() : {};
 
@@ -254,7 +271,7 @@ export class Store {
         this.store.set('plugins', newPluginDict);
 
         if (initializePluginWorkspace) {
-          pluginWorkspace.reload(pluginInfoArr, typeof bundleIds === 'string' ? [bundleIds] : bundleIds);
+          pluginWorkspace.reload(pluginInfoArr, bundleIds);
         }
 
         this.setStoreAvailability(true);
@@ -283,7 +300,7 @@ export class Store {
     return this.getter('commands', {});
   }
 
-  public getHotkeys(): Record<string, any> {
+  public getHotkeys(): Record<string, Command> {
     return this.getter('hotkeys', {});
   }
 
@@ -306,10 +323,9 @@ export class Store {
    * @param  {PluginConfigFile} plugin
    */
   public setPlugin = (plugin: PluginConfigFile): void => {
-    const bundleId = getBundleId(plugin.creator, plugin.name);
     this.store.set('plugins', {
       ...this.getPlugins(),
-      [bundleId]: { bundleId, ...plugin },
+      [getBundleId(plugin.creator, plugin.name)]: injectBundleId(plugin),
     });
   }
 
@@ -322,27 +338,26 @@ export class Store {
 
     // Update workflow installation info
     const installedWorkflows = this.getInstalledWorkflows();
-    installedWorkflows[bundleId] = {
-      bundleId,
-      ...workflow,
-    };
+    installedWorkflows[bundleId] = injectBundleId(workflow) as WorkflowConfigFile;
 
     this.store.set('workflows', installedWorkflows);
 
     // Update available commands
     const commands: Record<string, Command[]> =
-      addCommands(
-        removeOldCommand(this.getCommands(), bundleId),
-        findTriggers(['command'], workflow.commands) as Command[],
-        bundleId
+      applyExtensionVarToTrigger(
+        workflow.variables,
+        addCommands(
+          removeOldCommand(this.getCommands(), bundleId),
+          findTriggers(['command'], workflow.commands) as Command[],
+          bundleId,
+          workflow.variables
+        )
       );
-
-    // To do:: Add variable replacing logic here
 
     this.store.set('commands', commands);
 
     // Update available hotkeys
-    const hotkeys = _.keyBy(_.map(_.pickBy(
+    const hotkeys: Record<string, Command> = _.keyBy(_.map(_.pickBy(
       workflow.commands,
       (command) => command.type === 'hotkey'
     ), (command) => {
@@ -351,6 +366,14 @@ export class Store {
         ...command,
       };
     }), (item) => item.hotkey!);
+
+    Object.keys(hotkeys).forEach((hotkey: string) => {
+      const hotkeyCommand = applyArgsInCommand(workflow.variables, hotkeys[hotkey]);
+      if (hotkey !== hotkeyCommand.hotkey) {
+        delete hotkeys[hotkey];
+        hotkeys[hotkeyCommand.hotkey!] = hotkeyCommand;
+      }
+    });
 
     this.store.set('hotkeys', { ...hotkeys, ...this.getHotkeys() });
 
