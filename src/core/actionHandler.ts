@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import _ from 'lodash';
+import safeEval from 'safe-eval';
 import {
   argsExtract as argsExtractAction,
   copyToClipboard as copyToClipboardAction,
@@ -262,7 +263,7 @@ function handleAction({
 
           try {
             // tslint:disable-next-line: no-eval
-            condIsTrue = eval((action as CondAction).if.cond) === true;
+            condIsTrue = safeEval((action as CondAction).if.cond) === true;
           } catch (err) {
             console.error(
               `Below error occured while evaling 'cond'.\nSome variable may not have been replaced.\nThis 'cond' is evaluated by false.\n${err}`
