@@ -1,13 +1,10 @@
 {
   "name": "arvis-core",
-  "version": "0.8.6",
+  "version": "0.8.7",
   "description": "Core module of Arvis",
   "main": "dist/index.js",
   "files": [
-    "dist/**",
-    "execa/**/*.js",
-    "LICENSE",
-    "README.md"
+    "dist/**"
   ],
   "scripts": {
     "test": "jest --verbose ./__test__/unit",

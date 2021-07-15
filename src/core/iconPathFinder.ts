@@ -1,3 +1,4 @@
+import isUrl from 'is-url';
 import path from 'path';
 import {
   getPluginInstalledPath,
@@ -27,6 +28,10 @@ export const determineIconPath = (
         command.icon = {
           path: command.icon,
         };
+      }
+
+      if (isUrl(command.icon.path)) {
+        return command.icon.path;
       }
 
       if (command.icon.path.includes('.')) {
