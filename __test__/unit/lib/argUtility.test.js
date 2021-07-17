@@ -8,6 +8,7 @@ describe('argUtility test', () => {
   test('hasRequiredArg return valid value', () => {
     const t1 = hasRequiredArg({
       item: {
+        type: 'keyword',
         command: 'node',
         argType: 'required',
       },
@@ -18,6 +19,7 @@ describe('argUtility test', () => {
 
     const t2 = hasRequiredArg({
       item: {
+        type: 'keyword',
         command: 'node',
         argType: 'required',
       },
@@ -28,6 +30,7 @@ describe('argUtility test', () => {
 
     const t3 = hasRequiredArg({
       item: {
+        type: 'keyword',
         command: 'node',
         argType: 'required',
       },
@@ -38,6 +41,7 @@ describe('argUtility test', () => {
 
     const t4 = hasRequiredArg({
       item: {
+        type: 'keyword',
         command: 'node',
         argType: 'required',
       },
@@ -48,6 +52,7 @@ describe('argUtility test', () => {
 
     const t5 = hasRequiredArg({
       item: {
+        type: 'keyword',
         command: 'node',
         argType: 'required',
       },
@@ -60,6 +65,7 @@ describe('argUtility test', () => {
   test('isArgTypeNoButHaveArg', () => {
     const t1 = isArgTypeNoButHaveArg({
       item: {
+        type: 'keyword',
         argType: 'no',
         command: 'node',
       },
@@ -70,6 +76,7 @@ describe('argUtility test', () => {
 
     const t2 = isArgTypeNoButHaveArg({
       item: {
+        type: 'keyword',
         argType: 'no',
         command: 'node',
       },
@@ -80,6 +87,7 @@ describe('argUtility test', () => {
 
     const t3 = isArgTypeNoButHaveArg({
       item: {
+        type: 'keyword',
         argType: 'no',
         command: 'node',
       },

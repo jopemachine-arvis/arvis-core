@@ -8,7 +8,7 @@ import {
   handleScriptAction as handleScriptAction,
   openFile as openFileAction,
 } from '../actions';
-import { log, LogType } from '../config';
+import { group, groupEnd, log, LogType } from '../config';
 import { escapeBraket } from '../utils';
 import { ActionFlowManager } from './actionFlowManager';
 import { applyArgsInAction } from './argsHandler';
@@ -22,7 +22,9 @@ const printActionDebuggingLogOnCUI = (
   color: Function,
   extra: any
 ) => {
+  group(LogType.info, `[Action: ${action.type}]`);
   log(LogType.info, color(`[Action: ${action.type}] `), action, extra);
+  groupEnd();
 };
 
 /**
@@ -33,6 +35,8 @@ const printActionDebuggingLogOnGUI = (
   color: string,
   extra: any
 ) => {
+  group(LogType.info, `[Action: ${action.type}]`);
+
   log(
     LogType.info,
     `%c[Action: ${action.type}]%c `,
@@ -41,6 +45,8 @@ const printActionDebuggingLogOnGUI = (
     action,
     extra
   );
+
+  groupEnd();
 };
 
 /**
@@ -262,7 +268,6 @@ function handleAction({
           let condIsTrue: boolean;
 
           try {
-            // tslint:disable-next-line: no-eval
             condIsTrue = safeEval((action as CondAction).if.cond) === true;
           } catch (err) {
             console.error(
@@ -271,17 +276,18 @@ function handleAction({
             condIsTrue = false;
           }
 
-          // To do:: Fix below logic safely
           const conditionalAction = condIsTrue
             ? (action as CondAction).if.actions.then
             : (action as CondAction).if.actions.else;
 
-          printActionDebuggingLog({
-            action,
-            cuiColorApplier: chalk.magentaBright,
-            guiColor: 'magenta',
-            extra: `condition is evaluated by '${condIsTrue}'`,
-          });
+          if (condIsTrue) {
+            printActionDebuggingLog({
+              action,
+              cuiColorApplier: chalk.magentaBright,
+              guiColor: 'magenta',
+              extra: `condition is evaluated by '${condIsTrue}'`,
+            });
+          }
 
           actionFlowManager.isInitialTrigger = false;
 

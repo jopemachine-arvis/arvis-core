@@ -27,9 +27,28 @@ export const setLogLevels = (types: LogType[]): void => {
 export const log = (type: LogType, message?: any, ...optionalParams: any[]): void => {
   if (type === LogType.error) {
     console.error(message, ...optionalParams);
+  } else if (type === LogType.warn) {
+    console.warn(message, ...optionalParams);
   } else if (logLevels.includes(type)) {
     console.log(message, ...optionalParams);
   }
+};
+
+/**
+ * @param  {LogType} type
+ * @param  {string} groupName
+ */
+export const group = (type: LogType, groupName: string) => {
+  if (logLevels.includes(type)) {
+    console.group(groupName);
+  }
+};
+
+/**
+ * @param  {}
+ */
+export const groupEnd = () => {
+  console.groupEnd();
 };
 
 /**

@@ -2,16 +2,18 @@ import { log, LogType } from '../config';
 import { ActionFlowManager } from '../core/actionFlowManager';
 
 /**
- * @param  {{item:any;inputStr:string;}}
+ * @param  {{item:Command;inputStr:string;}}
  * @description Return true if item should be executed depending on argType
  */
 export const hasRequiredArg = ({
   item,
   inputStr,
 }: {
-  item: any;
+  item: Command;
   inputStr: string;
 }): boolean => {
+  if (item.type !== 'keyword' && item.type !== 'scriptFilter') return true;
+
   const actionFlowManager = ActionFlowManager.getInstance();
 
   if (!actionFlowManager.isInitialTrigger) {
@@ -26,7 +28,7 @@ export const hasRequiredArg = ({
     if (item.argType === 'required') {
       // e.g. "npm query".split("npm") => ["", " query"].
 
-      const [_emptyStr, ...querys] = inputStr.split(item.command);
+      const [_emptyStr, ...querys] = inputStr.split(item.command!);
       if (!querys) return false;
       // There must be valid input (Assume only whitespaces are not valid)
       return querys.length >= 1 && querys[0].trim() !== '';
@@ -37,17 +39,19 @@ export const hasRequiredArg = ({
 };
 
 /**
- * @param  {{item:any;inputStr:string;}}
+ * @param  {{item:Command;inputStr:string;}}
  */
 export const isArgTypeNoButHaveArg = ({
   item,
   inputStr,
 }: {
-  item: any;
+  item: Command;
   inputStr: string;
 }): boolean | undefined => {
+  if (item.type !== 'keyword' && item.type !== 'scriptFilter') return false;
+
   // argType's default value is optional
-  const [_emptyStr, ...querys] = inputStr.split(item.command);
+  const [_emptyStr, ...querys] = inputStr.split(item.command!);
   if (item.argType === 'no') {
     if (querys.length >= 1 && querys[0] !== '') return true;
   }
@@ -56,13 +60,13 @@ export const isArgTypeNoButHaveArg = ({
 };
 
 /**
- * @param  {{item:any;inputStr:string;}}
+ * @param  {{item:Command;inputStr:string;}}
  */
 export const isInputMeetWithspaceCond = ({
   item,
   inputStr,
 }: {
-  item: any;
+  item: Command;
   inputStr: string;
 }): boolean => {
   if (item.type === 'scriptFilter') {
