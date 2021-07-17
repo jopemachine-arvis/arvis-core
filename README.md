@@ -1,13 +1,17 @@
 # arvis-core
 [![CodeFactor](https://www.codefactor.io/repository/github/jopemachine/arvis-core/badge)](https://www.codefactor.io/repository/github/jopemachine/arvis-core)
-[![Known Vulnerabilities](https://snyk.io/test/github/jopemachine/arvis-core/badge.svg)]()
-![CI](https://github.com/jopemachine/arvis-core/actions/workflows/main.yml/badge.svg)
+[![Known Vulnerabilities](https://snyk.io/test/github/jopemachine/arvis-core/badge.svg)](https://github.com/jopemachine/arvis-core)
+[![CI](https://github.com/jopemachine/arvis-core/actions/workflows/main.yml/badge.svg)](https://github.com/jopemachine/arvis-core/actions)
 [![NPM version](https://badge.fury.io/js/arvis-core.svg)](http://badge.fury.io/js/arvis-core)
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
 [![PR's Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](http://makeapullrequest.com)
 [![GitHub issues](https://img.shields.io/github/issues/jopemachine/arvis-core.svg)](https://GitHub.com/jopemachine/arvis-core/issues/)
 
 [Arvis](https://github.com/jopemachine/arvis) module.
+
+This library aims to handle logics separated from rendering specific logic.
+
+You can find more detailed documentation on above [page](https://github.com/jopemachine/arvis).
 
 
 ## Build and development
@@ -18,7 +22,7 @@ $ npm i && npm run build
 
 ## Config file pathes used by arvis-core
 
-Note that `arvis-core-nodejs` are replaced with `arvis-nodejs` in `arvis`.
+Note that `arvis-core-nodejs` string are replaced with `arvis-nodejs` in `arvis`.
 
 ### arvis-history
 
