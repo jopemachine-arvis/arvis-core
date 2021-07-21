@@ -57,7 +57,11 @@ export const installByPath = async (installedPath: string): Promise<void | Error
       bundleId
     );
 
-    workflowConfig = applyUserConfigs((await getUserConfigs())[bundleId], workflowConfig);
+    try {
+      workflowConfig = applyUserConfigs((await getUserConfigs())[bundleId], workflowConfig);
+    } catch (err) {
+      // Not found user config file
+    }
 
     await fse.writeJSON(workflowConfFilePath, workflowConfig, { encoding: 'utf-8', spaces: 4 });
 

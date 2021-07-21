@@ -53,7 +53,11 @@ export const installByPath = async (installedPath: string): Promise<void | Error
       bundleId
     );
 
-    pluginConfig = applyUserConfigs((await getUserConfigs())[bundleId], pluginConfig);
+    try {
+      pluginConfig = applyUserConfigs((await getUserConfigs())[bundleId], pluginConfig);
+    } catch (err) {
+      // Not found user config file
+    }
 
     await fse.writeJSON(pluginConfFilePath, pluginConfig, { encoding: 'utf-8', spaces: 4 });
 
