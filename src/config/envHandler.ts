@@ -57,8 +57,9 @@ export const extractVarEnv = (queryArgs: Record<string, any>): Record<string, an
 
 /**
  * @param  {Record<string, any>} vars
+ * @return  {Record<string, string>}
  */
-export const transformVariable = (vars: Record<string, any>) => {
+export const transformVariable = (vars: Record<string, any>): Record<string, string> => {
   const transformedVars = { ...vars };
   for (const variable of Object.keys(vars)) {
     transformedVars[variable] = typeof vars[variable] === 'string' || typeof vars[variable] === 'number' || typeof vars[variable] === 'boolean' ?

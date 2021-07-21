@@ -36,6 +36,7 @@ const removeOldCommand = (commands: Record<string, Command[]>, bundleId: string)
  * @param  {Record<string, Command[]>} commands
  * @param  {Command[]} newCommands
  * @param  {string} bundleId
+ * @param  {Record<string, any> | undefined} vars
  * @returns {Record<string, Command[]>} Command object with new commands
  */
 const addCommands = (
@@ -61,7 +62,7 @@ const addCommands = (
 };
 
 /**
- * @param  {Record<string, any>} vars
+ * @param  {Record<string, any> | undefined} vars
  * @param  {Record<string, Command[]>} commands
  */
 const applyExtensionVarToTrigger = (vars: Record<string, any> | undefined, commands: Record<string, Command[]>): Record<string, Command[]> => {

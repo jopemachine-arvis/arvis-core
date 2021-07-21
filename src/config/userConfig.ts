@@ -19,10 +19,17 @@ export const applyUserConfigs = (userConfig: any, extensionInfo: WorkflowConfigF
   return result;
 };
 
+/**
+ */
 export const getUserConfigs = async (): Promise<any> => {
   return fse.readJSON(userConfigPath);
 };
 
+/**
+ * @param  {string} bundleId
+ * @param  {'variables'} type
+ * @param  {any} target
+ */
 export const addUserConfigs = async (bundleId: string, type: 'variables', target: any): Promise<void> => {
   const userConfigs = await getUserConfigs();
 
@@ -32,6 +39,8 @@ export const addUserConfigs = async (bundleId: string, type: 'variables', target
   await fse.writeJSON(userConfigPath, userConfigs, { encoding: 'utf-8' });
 };
 
+/**
+ */
 export const initialzeUserConfigs = async (): Promise<void> => {
   await fse.remove(userConfigPath);
   await fse.writeJSON(userConfigPath, {});

@@ -66,6 +66,7 @@ export const getBestMatch = (str: string) => {
 };
 
 /**
+ * @param  {string} bundleId
  * @param  {string} inputStr
  */
 export const pushInputStrLog = (bundleId: string, inputStr: string | undefined): void => {
@@ -84,6 +85,7 @@ export const pushInputStrLog = (bundleId: string, inputStr: string | undefined):
 };
 
 /**
+ * @param  {string} bundleId
  * @param  {Action} action
  */
 export const pushActionLog = (bundleId: string, action: Action): void => {

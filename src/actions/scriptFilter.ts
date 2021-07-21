@@ -123,6 +123,7 @@ const scriptFilterCompleteEventHandler = (
 
 /**
  * @param  {Error} err
+ * @param  {any} options
  * @description Handler when scriptfilter's script fails
  */
 const scriptErrorHandler = (
