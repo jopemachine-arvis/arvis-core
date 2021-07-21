@@ -40,7 +40,7 @@ export const getExternalEnvs = (): Record<string, any> => {
 
 /**
  * @param  {Record<string, any>} queryArgs
- * @return  {Record<string, any>}
+ * @returns  {Record<string, any>}
  */
 export const extractVarEnv = (queryArgs: Record<string, any>): Record<string, any> => {
   const vars = {};
@@ -57,7 +57,7 @@ export const extractVarEnv = (queryArgs: Record<string, any>): Record<string, an
 
 /**
  * @param  {Record<string, any>} vars
- * @return  {Record<string, string>}
+ * @returns  {Record<string, string>}
  */
 export const transformVariable = (vars: Record<string, any>): Record<string, string> => {
   const transformedVars = { ...vars };

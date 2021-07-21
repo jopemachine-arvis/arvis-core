@@ -4,7 +4,7 @@ import _ from 'lodash';
 /**
  * @param  {Action[]} actions
  * @param  {Readonly<ModifierInput>} modifiersInput
- * @return {Action[]} filtered actions by pressed modifier
+ * @returns {Action[]} filtered actions by pressed modifier
  * @description Only one modifier can be accepted for now
  *              To do:: Expand this function to handle modifiers array (multiple modifiers) if needed
  */

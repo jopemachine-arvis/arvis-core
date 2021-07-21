@@ -15,7 +15,7 @@ type ScriptExecuterOption = {
  * @param  {string} scriptStr
  * @param  {Record<string, any>} vars
  * @param  {ScriptExecuterOption} options?
- * @return {execa.ExecaChildProcess<string>} Executed process
+ * @returns {execa.ExecaChildProcess<string>} Executed process
  */
 export const execute = ({
   bundleId,

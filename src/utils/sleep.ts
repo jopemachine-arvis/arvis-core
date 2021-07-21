@@ -1,6 +1,6 @@
 /**
  * @param  {number} ms
- * @return {Promise<void>}
+ * @returns {Promise<void>}
  * @summary Sleep for a specified amount of time.
  */
 export const sleep = (ms: number): Promise<void> => {

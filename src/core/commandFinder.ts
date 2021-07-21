@@ -89,7 +89,7 @@ const findWorkflowCommands = async (inputStr: string): Promise<Command[]> => {
 
 /**
  * @param  {string} inputStr
- * @return {Promise<(Command | PluginItem)[]>}
+ * @returns {Promise<(Command | PluginItem)[]>}
  * @description Return commands containing inputStr and plugin execution results
  *              workflowItem has higher display priority than pluginItem
  */

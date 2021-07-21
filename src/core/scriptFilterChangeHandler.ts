@@ -16,7 +16,7 @@ type ScriptFilterChangeHandlerOption = {
  * @param  {Command} command
  * @param  {Record<string, any>} queryArgs
  * @param  {Readonly<ScriptFilterChangeHandlerOption>} options?
- * @return {execa.ExecaChildProcess<string>} Executed process
+ * @returns {execa.ExecaChildProcess<string>} Executed process
  */
 export const handleScriptFilterChange = (
   bundleId: string,

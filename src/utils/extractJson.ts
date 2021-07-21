@@ -3,7 +3,7 @@ import parseJson from 'parse-json';
 /**
  * @summary Return all json candidates from string
  * @param  {string} str
- * @return {any[]} All json candidates
+ * @returns {any[]} All json candidates
  * @description Ref: https://stackoverflow.com/questions/10574520/extract-json-from-text
  */
 export default function extractJSON(str: string): any[] {

@@ -402,7 +402,7 @@ export class ActionFlowManager {
   /**
    * @param  {Command | ScriptFilterItem | PluginItem} item
    * @param  {string} inputStr
-   * @return {Record<string, any>}
+   * @returns {Record<string, any>}
    * @description Returns args using according args extraction method
    */
   private prepareArgs = ({

@@ -6,7 +6,7 @@ import { escapeBraket, replaceAll } from '../utils';
  * @param  {string} str
  * @param  {Record<string, any>} queryArgs
  * @param  {boolean} appendQuotes
- * @return {string} args applied string
+ * @returns {string} args applied string
  */
 const applyArgs = ({
   str,
@@ -33,7 +33,7 @@ const applyArgs = ({
  * @param  {string} script
  * @param  {Record<string, any>} queryArgs
  * @param  {boolean} appendQuotes
- * @return {string} args applied string
+ * @returns {string} args applied string
  * @description In script, all white space characters in 'args' should be escaped.
  */
 const applyArgsToScript = ({

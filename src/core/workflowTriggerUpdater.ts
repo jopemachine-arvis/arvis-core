@@ -2,6 +2,12 @@ import dotProp from 'dot-prop';
 import fse from 'fs-extra';
 import { getWorkflowConfigJsonPath } from '../config/path';
 
+/**
+ * @param  {string} bundleId
+ * @param  {string} actionPath
+ * @param  {string} value
+ * @returns {Promise<void>}
+ */
 export const updateWorkflowTrigger = async (
   bundleId: string,
   actionPath: string,

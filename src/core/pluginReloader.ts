@@ -7,6 +7,7 @@ const requestTimerElapse = 100;
  * @param  {boolean} initializePluginWorkspace
  * @param  {string} bundleId?
  * @param  {string[]} bundleIds?
+ * @returns {Promise<void>}
  * @description Set initializePluginWorkspace to true only in process to retrieve plugins
  */
 export const reloadPlugins = async ({

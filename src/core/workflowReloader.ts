@@ -5,6 +5,7 @@ const requestTimerElapse = 100;
 
 /**
  * @param  {string | string[]} bundleIds?
+ * @returns {Promise<void>}
  */
 export const reloadWorkflows = async (bundleIds?: string | string[]): Promise<void> => {
   const store = Store.getInstance();

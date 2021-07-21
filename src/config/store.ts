@@ -15,7 +15,7 @@ import {
 /**
  * @param  {Record<string, Command[]>} commands
  * @param  {string} bundleId
- * @return {Record<string, Command[]>} Commands except for the command equivalent of bundleId.
+ * @returns {Record<string, Command[]>} Commands except for the command equivalent of bundleId.
  */
 const removeOldCommand = (commands: Record<string, Command[]>, bundleId: string): Record<string, Command[]> => {
   const ret = commands;

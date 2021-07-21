@@ -15,7 +15,7 @@ import { sleep } from '../utils';
 
 /**
  * @param  {string} installedPath
- * @return {Promise<void | Error>}
+ * @returns {Promise<void | Error>}
  */
 export const installByPath = async (installedPath: string): Promise<void | Error> => {
   const store = Store.getInstance();
@@ -83,7 +83,7 @@ export const installByPath = async (installedPath: string): Promise<void | Error
 
 /**
  * @param  {string} installFile arvisplugin files
- * @return {Promise<void | Error>}
+ * @returns {Promise<void | Error>}
  */
 export const install = async (installFile: string): Promise<void | Error> => {
   let extractedPath: string;
@@ -137,7 +137,7 @@ export const install = async (installFile: string): Promise<void | Error> => {
 
 /**
  * @param  {{bundleId:string}} bundleId
- * @return {Promise<void>}
+ * @returns {Promise<void>}
  */
 export const unInstall = async ({ bundleId }: { bundleId: string }): Promise<void> => {
   const store = Store.getInstance();
