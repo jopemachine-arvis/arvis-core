@@ -384,7 +384,6 @@ export class ActionFlowManager {
 
   /**
    * @param  {Command | ScriptFilterItem | PluginItem} item
-   * @param  {Record<string, any>} args
    * @description If triggerStk is empty, return item's action
    *              otherwise, return nextAction (topWork's action)
    */
@@ -554,6 +553,7 @@ export class ActionFlowManager {
    * @param  {Action[]} targetActions
    * @param  {Readonly<ModifierInput>} modifier
    * @param  {AsyncAction} nextAction
+   * @returns  {Action[]} actions
    * @description Actions after async action (like script) must be executed after the async action is completed.
    *              This function handle these async action chain.
    *              Actions after async action are removed from targetActions.

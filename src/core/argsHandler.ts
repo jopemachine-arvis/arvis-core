@@ -57,6 +57,7 @@ const applyArgsToScript = ({
 /**
  * @param  {Record<string, any>} args
  * @param  {Action} action
+ * @returns {Action}
  */
 const applyArgsInAction = (args: Record<string, any>, action: Action): Action => {
   const targetAction = { ...action };
@@ -86,6 +87,7 @@ const applyArgsInAction = (args: Record<string, any>, action: Action): Action =>
 /**
  * @param  {Record<string, any> | undefined} args
  * @param  {Command} command
+ * @returns  {Command}
  */
 const applyArgsInCommand = (args: Record<string, any> | undefined, command: Command): Command => {
   if (!args) return command;
@@ -124,7 +126,7 @@ const applyExtensionVars = (args: Record<string, any>, vars: Record<string, any>
 
 /**
  * @param  {string[]} querys
- * @return {Record<string, any>}
+ * @returns {Record<string, any>}
  */
 const extractArgsFromQuery = (querys: string[]): Record<string, any> => {
   const args = { '{query}': querys.join(' '), $1: '' };
@@ -141,7 +143,7 @@ const extractArgsFromQuery = (querys: string[]): Record<string, any> => {
 
 /**
  * @param  {PluginItem} item
- * @return {Record<string, any>}
+ * @returns {Record<string, any>}
  */
 const extractArgsFromPluginItem = (item: PluginItem): Record<string, any> => {
   let args = {};
@@ -167,7 +169,7 @@ const extractArgsFromPluginItem = (item: PluginItem): Record<string, any> => {
 /**
  * @param  {ScriptFilterItem} item
  * @param  {any} vars
- * @return {Record<string, any>}
+ * @returns {Record<string, any>}
  */
 const extractArgsFromScriptFilterItem = (
   item: ScriptFilterItem,

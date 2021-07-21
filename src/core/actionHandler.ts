@@ -15,7 +15,9 @@ import { applyArgsInAction } from './argsHandler';
 import { handleModifiers } from './modifierHandler';
 
 /**
- * @summary
+ * @param  {Action} action
+ * @param  {Function} color
+ * @param  {any} extra
  */
 const printActionDebuggingLogOnCUI = (
   action: Action,
@@ -28,7 +30,9 @@ const printActionDebuggingLogOnCUI = (
 };
 
 /**
- * @summary
+ * @param  {Action} action
+ * @param  {string} color
+ * @param  {any} extra
  */
 const printActionDebuggingLogOnGUI = (
   action: Action,
@@ -81,7 +85,7 @@ const printActionDebuggingLog = ({
 const throwReqAttrNotExtErr = (
   typeName: string,
   requiredAttributes: string[]
-) => {
+): void => {
   throw new Error(
     `'${typeName}' type should have '${requiredAttributes.join(
       ', '

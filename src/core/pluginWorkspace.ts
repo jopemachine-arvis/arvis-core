@@ -14,6 +14,7 @@ const arvisEnvs = process.env;
 
 /**
  * @param  {string} modulePath
+ * @param  {Record<string, any>} envs
  * @summary Remove cache from existing module for module updates,
  *          Add environment variables,
  *          And dynamically require new modules using eval.
@@ -148,6 +149,7 @@ export const pluginWorkspace: PluginWorkspace = {
 
   /**
    * @param  {string} inputStr
+   * @returns {Promise<PluginExectionResult[]>}
    */
   search: async (inputStr: string): Promise<PluginExectionResult[]> => {
     pluginWorkspace.cancelPrevious();

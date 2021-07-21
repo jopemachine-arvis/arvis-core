@@ -6,6 +6,7 @@ import { getWorkflowList } from './workflowList';
 
 /**
  * @param  {string} inputStr
+ * @returns {Promise<any>}
  */
 const findPluginCommands = async (inputStr: string): Promise<{
   pluginSortOutputs: PluginItem[],
@@ -33,6 +34,7 @@ const findPluginCommands = async (inputStr: string): Promise<{
 
 /**
  * @param  {string} inputStr
+ * @returns {Promise<Command[]>}
  */
 const findWorkflowCommands = async (inputStr: string): Promise<Command[]> => {
   const commands = getCommandList();

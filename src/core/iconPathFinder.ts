@@ -8,6 +8,10 @@ import { resolveExtensionType } from '../lib/resolveExtensionType';
 import { getPluginList } from './pluginList';
 import { getWorkflowList } from './workflowList';
 
+/**
+ * @param  {any} command
+ * @param  {{supportedImgFormats?:string[]}} options?
+ */
 export const determineIconPath = (
   command: any,
   options?: { supportedImgFormats?: string[] }
@@ -54,6 +58,10 @@ export const determineIconPath = (
   return iconPath;
 };
 
+/**
+ * @param  {Command} command
+ * @returns {string | undefined}
+ */
 export const determineDefaultIconPath = (command: Command): string | undefined => {
   if (!command.bundleId) {
     return undefined;

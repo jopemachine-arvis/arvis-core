@@ -13,6 +13,7 @@ type ScriptExecuterOption = {
 /**
  * @param  {string} bundleId
  * @param  {string} scriptStr
+ * @param  {Record<string, any>} vars
  * @param  {ScriptExecuterOption} options?
  * @return {execa.ExecaChildProcess<string>} Executed process
  */
