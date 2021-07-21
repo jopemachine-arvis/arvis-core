@@ -18,6 +18,8 @@ const applyArgs = ({
   appendQuotes?: boolean;
 }): string => {
   for (const key of Object.keys(queryArgs)) {
+    if (typeof queryArgs[key] !== 'string') continue;
+
     const newStr =
       appendQuotes === true ? `"${queryArgs[key].trim()}"` : queryArgs[key];
     str = replaceAll(str, `"${key}"`, newStr);
@@ -42,6 +44,8 @@ const applyArgsToScript = ({
   queryArgs: Record<string, any>;
 }): string => {
   for (const key of Object.keys(queryArgs)) {
+    if (typeof queryArgs[key] !== 'string') continue;
+
     const newStr = queryArgs[key].split(' ').filter((str: string) => str).join('\\ ');
     script = replaceAll(script, `"${key}"`, newStr);
     script = replaceAll(script, `'${key}'`, newStr);
@@ -112,7 +116,7 @@ const applyArgsInCommand = (args: Record<string, any> | undefined, command: Comm
 const applyExtensionVars = (args: Record<string, any>, vars: Record<string, any> | undefined): Record<string, any> => {
   if (vars) {
     for (const variable in vars) {
-      args[`{var:${variable}}`] = `${vars[variable]}`;
+      args[`{var:${variable}}`] = vars[variable];
     }
   }
   return args;

@@ -575,20 +575,21 @@ export class ActionFlowManager {
     );
 
     nextAction.asyncChain.then((result: any) => {
-      switch (nextAction.asyncChainType) {
-        case 'script': {
-          args['{query}'] = result.all;
-          args['$1'] = result.all;
-          break;
+      if (!_.isUndefined(result)) {
+        switch (nextAction.asyncChainType) {
+          case 'script': {
+            args['{query}'] = result.all;
+            args['$1'] = result.all;
+            break;
+          }
+          case 'clipboard': {
+            args['{query}'] = result;
+            args['$1'] = result;
+            break;
+          }
+          default:
+            break;
         }
-        case 'clipboard': {
-          args['{query}'] = result;
-          args['$1'] = result;
-          break;
-        }
-        default:
-          // Do not handle this!
-          break;
       }
 
       this.handleActionChain({

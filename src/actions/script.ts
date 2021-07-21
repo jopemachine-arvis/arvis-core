@@ -41,6 +41,8 @@ export const handleScriptAction = async (action: ScriptAction, queryArgs: Record
       if (actionFlowManager.printScriptOutput) {
         if (result.all && result.all.trim() !== '') {
           log(LogType.info, `[Script output]\n\n${result.all}`);
+        } else {
+          log(LogType.info, `[Script output] script ends and no print output`);
         }
       }
       return result;
