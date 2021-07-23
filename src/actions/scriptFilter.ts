@@ -9,6 +9,7 @@ import {
   ActionFlowManager,
   getPluginList,
   getWorkflowList,
+  Renderer,
   resolveExtensionType,
   xmlToJsonScriptFilterItemFormat,
 } from '../core';
@@ -40,8 +41,8 @@ const printActionLog = (): void => {
 };
 
 /**
- * @param  {string} stdout
- * @param  {string} stderr
+ * @param stdout
+ * @param stderr
  */
 const parseStdio = (stdout: string, stderr: string): ScriptFilterResult => {
   if (stdout.startsWith('<?xml')) {
@@ -72,8 +73,8 @@ const parseStdio = (stdout: string, stderr: string): ScriptFilterResult => {
 };
 
 /**
- * @param  {execa.ExecaReturnValue<string>} result
- * @description Event Handler when scriptfilter's script is complete
+ * Event Handler when scriptfilter's script is complete
+ * @param result
  */
 const scriptFilterCompleteEventHandler = (
   scriptFilterResult: execa.ExecaReturnValue<string>
@@ -114,17 +115,13 @@ const scriptFilterCompleteEventHandler = (
     item.icon = item.icon ?? defaultIcon;
   });
 
-  if (!actionFlowManager.onItemShouldBeUpdate) {
-    throw new Error('Renderer update funtions are not set!');
-  }
-
-  actionFlowManager.onItemShouldBeUpdate({ items, needIndexInfoClear: true });
+  Renderer.onItemShouldBeUpdate({ items, needIndexInfoClear: true });
 };
 
 /**
- * @param  {Error} err
- * @param  {any} options
- * @description Handler when scriptfilter's script fails
+ * Handler when scriptfilter's script fails
+ * @param err
+ * @param options
  */
 const scriptErrorHandler = (
   err: ExecaError,
@@ -147,9 +144,9 @@ const scriptErrorHandler = (
 };
 
 /**
- * @param  {string} inputStr
- * @param  {string|undefined} command
- * @param  {boolean} withspace
+ * @param inputStr
+ * @param command
+ * @param withspace
  */
 const getScriptFilterQuery = (
   inputStr: string,
@@ -167,8 +164,8 @@ const getScriptFilterQuery = (
 };
 
 /**
- * @param  {string} inputStr
- * @param  {Command} commandObj? command object should be given when stack is empty
+ * @param inputStr
+ * @param commandObj? command object should be given when stack is empty
  */
 export async function scriptFilterExcute(
   inputStr: string,

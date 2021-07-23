@@ -9,8 +9,8 @@ import { getPluginList } from './pluginList';
 import { getWorkflowList } from './workflowList';
 
 /**
- * @param  {any} command
- * @param  {{supportedImgFormats?:string[]}} options?
+ * @param command
+ * @param options?
  */
 export const determineIconPath = (
   command: any,
@@ -59,8 +59,8 @@ export const determineIconPath = (
 };
 
 /**
- * @param  {Command} command
- * @returns {string | undefined}
+ * @param command
+ * @returns
  */
 export const determineDefaultIconPath = (command: Command): string | undefined => {
   if (!command.bundleId) {

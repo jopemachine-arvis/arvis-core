@@ -8,39 +8,38 @@ let macPathsEnv: string = '';
 let externalEnv: Record<string, any> = {};
 
 /**
- * @param  {string} path
- * @description Because mac gui apps doesn't inherit PATH env, need to set it manually
+ * Because mac gui apps doesn't inherit PATH env, need to set it manually
+ * @param path
  */
 export const setMacPathsEnv = (path: string): void => {
   macPathsEnv = path;
 };
 
 /**
- * @returns  {string} $PATH value
- * @description Before call getMacPaths, should call setMacPathsEnv.
+ * Before call getMacPaths, should call setMacPathsEnv.
+ * @returns $PATH value
  */
 export const getMacPathsEnv = (): string => {
   return macPathsEnv;
 };
 
 /**
- * @param  {string} path
- * @description Sets environment variables outside core lib
+ * Sets environment variables outside core lib
+ * @param path
  */
 export const setExternalEnvs = (envs: Record<string, any>): void => {
   externalEnv = envs;
 };
 
 /**
- * @description Gets environment variables outside core lib
+ * Gets environment variables outside core lib
  */
 export const getExternalEnvs = (): Record<string, any> => {
   return externalEnv;
 };
 
 /**
- * @param  {Record<string, any>} queryArgs
- * @returns  {Record<string, any>}
+ * @param queryArgs
  */
 export const extractVarEnv = (queryArgs: Record<string, any>): Record<string, any> => {
   const vars = {};
@@ -56,8 +55,7 @@ export const extractVarEnv = (queryArgs: Record<string, any>): Record<string, an
 };
 
 /**
- * @param  {Record<string, any>} vars
- * @returns  {Record<string, string>}
+ * @param vars
  */
 export const transformVariable = (vars: Record<string, any>): Record<string, string> => {
   const transformedVars = { ...vars };

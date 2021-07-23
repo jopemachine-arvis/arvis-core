@@ -12,11 +12,11 @@ type ScriptFilterChangeHandlerOption = {
 };
 
 /**
- * @param  {string} bundleId
- * @param  {Command} command
- * @param  {Record<string, any>} queryArgs
- * @param  {Readonly<ScriptFilterChangeHandlerOption>} options?
- * @returns {execa.ExecaChildProcess<string>} Executed process
+ * @param bundleId
+ * @param command
+ * @param queryArgs
+ * @param options?
+ * @returns Executed process
  */
 export const handleScriptFilterChange = (
   bundleId: string,

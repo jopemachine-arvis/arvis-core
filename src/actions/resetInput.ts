@@ -1,12 +1,12 @@
-import { ActionFlowManager } from '../core/actionFlowManager';
+import { ActionFlowManager, Renderer } from '../core';
 
 /**
- * @param  {string} newInput
+ * @param newInput
  */
 export const handleResetInputAction = (newInput: string): void => {
   const actionFlowManager = ActionFlowManager.getInstance();
   actionFlowManager.clearTriggerStk();
-  actionFlowManager.onInputShouldBeUpdate!({
+  Renderer.onInputShouldBeUpdate!({
     needItemsUpdate: true,
     str: newInput,
   });

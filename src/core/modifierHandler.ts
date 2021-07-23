@@ -2,11 +2,11 @@ import _ from 'lodash';
 
 
 /**
- * @param  {Action[]} actions
- * @param  {Readonly<ModifierInput>} modifiersInput
- * @returns {Action[]} filtered actions by pressed modifier
- * @description Only one modifier can be accepted for now
- *              To do:: Expand this function to handle modifiers array (multiple modifiers) if needed
+ * Only one modifier can be accepted for now
+ * To do:: Expand this function to handle modifiers array (multiple modifiers) if needed
+ * @param actions
+ * @param modifiersInput
+ * @returns Return filtered actions by pressed modifier
  */
 export const handleModifiers = (
   actions: Action[],

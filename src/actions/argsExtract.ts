@@ -1,9 +1,9 @@
 import { replaceAll } from '../utils';
 
 /**
- * @param  {Record<string, any>} queryArgs
- * @param  {string} argToExtract
- * @summary Extract the desired string from queryArgs, and assign it to 'query'.
+ * Extract the desired string from queryArgs, and assign it to 'query'.
+ * @param queryArgs
+ * @param argToExtract
  */
 export const argsExtract = (queryArgs: Record<string, any>, argToExtract: string): Record<string, any> => {
   const result: Record<string, any> = { ...queryArgs };

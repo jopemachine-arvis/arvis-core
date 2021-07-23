@@ -2,8 +2,9 @@ import { log, LogType } from '../config';
 import { ActionFlowManager } from '../core/actionFlowManager';
 
 /**
- * @param  {{item:Command;inputStr:string;}}
- * @description Return true if item should be executed depending on argType
+ * Return true if item should be executed depending on argType
+ * @param item
+ * @param inputStr
  */
 export const hasRequiredArg = ({
   item,
@@ -39,7 +40,8 @@ export const hasRequiredArg = ({
 };
 
 /**
- * @param  {{item:Command;inputStr:string;}}
+ * @param item
+ * @param inputStr
  */
 export const isArgTypeNoButHaveArg = ({
   item,
@@ -60,7 +62,8 @@ export const isArgTypeNoButHaveArg = ({
 };
 
 /**
- * @param  {{item:Command;inputStr:string;}}
+ * @param item
+ * @param inputStr
  */
 export const isInputMeetWithspaceCond = ({
   item,

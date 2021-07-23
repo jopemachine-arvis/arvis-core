@@ -4,8 +4,7 @@ let requestTimer: NodeJS.Timeout;
 const requestTimerElapse = 100;
 
 /**
- * @param  {string | string[]} bundleIds?
- * @returns {Promise<void>}
+ * @param bundleIds?
  */
 export const reloadWorkflows = async (bundleIds?: string | string[]): Promise<void> => {
   const store = Store.getInstance();

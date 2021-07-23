@@ -2,9 +2,8 @@ import { Store } from '../config/store';
 import { getWorkflowList } from './workflowList';
 
 /**
- * @param  {}
- * @returns {Record<string, Command>} hotkeys
- * @summary Find available workflow hotkeys
+ * Find available workflow hotkeys
+ * @returns hotkeys
  */
 export const findHotkeys = (): Record<string, Command> => {
   const store = Store.getInstance();

@@ -8,13 +8,19 @@ declare global {
     asyncWorks: PCancelable<PluginExectionResult[]>[];
     asyncPluginTimer: number;
     setAsyncPluginTimer: (timer: number) => void;
+    generateAsyncWork: (
+      pluginBundleId: string,
+      asyncPluginPromise: Promise<any>,
+      setTimer: boolean,
+    ) => PCancelable<PluginExectionResult[]>;
     getAsyncWork: (
       pluginBundleId: string,
       asyncPluginPromise: Promise<any>
     ) => PCancelable<PluginExectionResult[]>;
     reload: (pluginInfos: any[], bundleIds?: string[]) => void;
-    search: (inputStr: string) => Promise<PluginExectionResult[]>;
+    search: (inputStr: string) => Promise<{ pluginExecutionResults: PluginExectionResult[], unresolvedPlugins: PCancelable<PluginExectionResult>[] }>;
     cancelPrevious: () => void;
     restoreArvisEnvs: () => void;
+    appendPluginItemAttr: (inputStr: string, pluginItems: PluginExectionResult[]) => void;
   }
 }

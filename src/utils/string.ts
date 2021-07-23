@@ -1,15 +1,15 @@
 /**
- * @param  {string} str
- * @param  {string} search
- * @param  {string} replace
+ * @param str
+ * @param search
+ * @param replace
  */
 const replaceAll = (str: string, search: string, replace: string): string => {
   return str.split(search).join(replace);
 };
 
 /**
- * @param  {string} str
- * @returns {string} braket escaped string
+ * @param str
+ * @returns braket escaped string
  */
 const escapeBraket = (str: string): string => {
   if (

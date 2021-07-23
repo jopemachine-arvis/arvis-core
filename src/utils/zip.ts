@@ -2,8 +2,8 @@ import archiver from 'archiver';
 import fs from 'fs';
 
 /**
- * @param  {string} source
- * @param  {string} out
+ * @param source
+ * @param out
  * @returns {Promise<void>}
  */
 export const zipDirectory = (source: string, out: string): Promise<void> => {

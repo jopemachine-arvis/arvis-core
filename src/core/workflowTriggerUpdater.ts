@@ -3,10 +3,9 @@ import fse from 'fs-extra';
 import { getWorkflowConfigJsonPath } from '../config/path';
 
 /**
- * @param  {string} bundleId
- * @param  {string} actionPath
- * @param  {string} value
- * @returns {Promise<void>}
+ * @param bundleId
+ * @param actionPath
+ * @param value
  */
 export const updateWorkflowTrigger = async (
   bundleId: string,

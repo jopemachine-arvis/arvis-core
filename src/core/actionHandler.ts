@@ -15,9 +15,9 @@ import { applyArgsInAction } from './argsHandler';
 import { handleModifiers } from './modifierHandler';
 
 /**
- * @param  {Action} action
- * @param  {Function} color
- * @param  {any} extra
+ * @param action
+ * @param color
+ * @param extra
  */
 const printActionDebuggingLogOnCUI = (
   action: Action,
@@ -30,9 +30,9 @@ const printActionDebuggingLogOnCUI = (
 };
 
 /**
- * @param  {Action} action
- * @param  {string} color
- * @param  {any} extra
+ * @param action
+ * @param color
+ * @param extra
  */
 const printActionDebuggingLogOnGUI = (
   action: Action,
@@ -78,9 +78,9 @@ const printActionDebuggingLog = ({
 };
 
 /**
- * @param  {string} typeName
- * @param  {string[]} requiredAttributes
- * @description If there is no required attribute in the execution of the action, it throws an error.
+ * If there is no required attribute in the execution of the action, it throws an error.
+ * @param typeName
+ * @param requiredAttributes
  */
 const throwReqAttrNotExtErr = (
   typeName: string,
@@ -94,10 +94,10 @@ const throwReqAttrNotExtErr = (
 };
 
 /**
- * @param  {Action[]} actions
- * @param  {Record<string, any>} queryArgs
- * @param  {Readonly<ModifierInput>} modifiersInput
- * @summary The actions arrangement is taken as a factor to branch according to cond or modifiers.
+ * The actions arrangement is taken as a factor to branch according to cond or modifiers.
+ * @param actions
+ * @param queryArgs
+ * @param modifiersInput
  */
 function handleAction({
   actions,

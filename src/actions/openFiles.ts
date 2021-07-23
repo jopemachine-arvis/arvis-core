@@ -3,7 +3,7 @@ import isUrl from 'is-url';
 import open from 'open';
 
 /**
- * @param  {string} filePath
+ * @param filePath
  */
 export const openFile = async (filePath: string): Promise<void> => {
   // Replace whitespace with encoded whitespace if there is.

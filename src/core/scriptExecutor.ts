@@ -11,11 +11,11 @@ type ScriptExecuterOption = {
 };
 
 /**
- * @param  {string} bundleId
- * @param  {string} scriptStr
- * @param  {Record<string, any>} vars
- * @param  {ScriptExecuterOption} options?
- * @returns {execa.ExecaChildProcess<string>} Executed process
+ * @param bundleId
+ * @param scriptStr
+ * @param vars
+ * @param options?
+ * @returns Executed process
  */
 export const execute = ({
   bundleId,

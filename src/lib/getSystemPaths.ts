@@ -1,10 +1,9 @@
 import execa from 'execa';
 
 /**
- * @description
+ * This function is only meaningful in macos
  */
 export const getSystemPaths = async (): Promise<string> => {
-  // This function is only meaningful in macos
   if (process.platform !== 'darwin') return '';
 
   return new Promise<any>((resolve, reject) => {

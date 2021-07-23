@@ -46,14 +46,14 @@ export const getHistory = (): Log[] => {
 };
 
 /**
- * @param  {number} count
+ * @param count
  */
 export const setMaxLogCnt = (count: number): void => {
   conf.set('maxCount', count);
 };
 
 /**
- * @param  {string} str
+ * @param str
  */
 export const getBestMatch = (str: string) => {
   if (str.trim() === '') return '';
@@ -66,8 +66,8 @@ export const getBestMatch = (str: string) => {
 };
 
 /**
- * @param  {string} bundleId
- * @param  {string} inputStr
+ * @param bundleId
+ * @param inputStr
  */
 export const pushInputStrLog = (bundleId: string, inputStr: string | undefined): void => {
   if (!inputStr || inputStr === '') return;
@@ -85,8 +85,8 @@ export const pushInputStrLog = (bundleId: string, inputStr: string | undefined):
 };
 
 /**
- * @param  {string} bundleId
- * @param  {Action} action
+ * @param bundleId
+ * @param action
  */
 export const pushActionLog = (bundleId: string, action: Action): void => {
   const availableTypes: string[] = getActionTypesToLog();
@@ -113,7 +113,7 @@ export const initHistory = (): void => {
 };
 
 /**
- * @param  {string[]} types
+ * @param types
  */
 export const setActionTypesToLog = (types: string[]): void => {
   conf.set('actionTypesToLog', types);

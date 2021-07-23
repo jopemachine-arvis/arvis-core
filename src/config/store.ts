@@ -13,9 +13,9 @@ import {
 } from './path';
 
 /**
- * @param  {Record<string, Command[]>} commands
- * @param  {string} bundleId
- * @returns {Record<string, Command[]>} Commands except for the command equivalent of bundleId.
+ * @param commands
+ * @param bundleId
+ * @returns Commands except for the command equivalent of bundleId.
  */
 const removeOldCommand = (commands: Record<string, Command[]>, bundleId: string): Record<string, Command[]> => {
   const ret = commands;
@@ -33,11 +33,11 @@ const removeOldCommand = (commands: Record<string, Command[]>, bundleId: string)
 };
 
 /**
- * @param  {Record<string, Command[]>} commands
- * @param  {Command[]} newCommands
- * @param  {string} bundleId
- * @param  {Record<string, any> | undefined} vars
- * @returns {Record<string, Command[]>} Command object with new commands
+ * @param commands
+ * @param newCommands
+ * @param bundleId
+ * @param vars
+ * @returns Command object with new commands
  */
 const addCommands = (
   commands: Record<string, Command[]>,
@@ -62,8 +62,8 @@ const addCommands = (
 };
 
 /**
- * @param  {Record<string, any> | undefined} vars
- * @param  {Record<string, Command[]>} commands
+ * @param vars
+ * @param commands
  */
 const applyExtensionVarToTrigger = (vars: Record<string, any> | undefined, commands: Record<string, Command[]>): Record<string, Command[]> => {
   if (!vars) return commands;
@@ -78,7 +78,7 @@ const applyExtensionVarToTrigger = (vars: Record<string, any> | undefined, comma
 };
 
 /**
- * @param  {WorkflowConfigFile|PluginConfigFile} info
+ * @param info
  */
 const injectBundleId = (info: WorkflowConfigFile | PluginConfigFile): WorkflowConfigFile | PluginConfigFile => {
   info.bundleId = getBundleId(info.creator, info.name);
@@ -115,8 +115,8 @@ export class Store {
   }
 
   /**
-   * @param  {string} key
-   * @param  {any} defaultValue
+   * @param key
+   * @param defaultValue
    */
   private getter(key: string, defaultValue: any) {
     if (this.store.has(key)) {
@@ -143,28 +143,28 @@ export class Store {
   }
 
   /**
-   * @param  {string} bundleId
-   * @param  {string} outputPath
-   * @description Create zip file exporting plugin with bundleId to outputPath
+   * Create zip file exporting plugin with bundleId to outputPath
+   * @param bundleId
+   * @param outputPath
    */
   public async exportPlugin(bundleId: string, outputPath: string): Promise<void> {
     return zipDirectory(getPluginInstalledPath(bundleId), outputPath);
   }
 
   /**
-   * @param  {string} bundleId
-   * @param  {string} outputPath
-   * @description Create zip file exporting workflow with bundleId to outputPath
+   * Create zip file exporting workflow with bundleId to outputPath
+   * @param bundleId
+   * @param outputPath
    */
   public async exportWorkflow(bundleId: string, outputPath: string): Promise<void> {
     return zipDirectory(getWorkflowInstalledPath(bundleId), outputPath);
   }
 
   /**
-   * @param  {string[]} bundleIds?
-   * @summary Reload workflows info based on workflowInstallPath's arvis-workflow.json
-   *          This funtion is called by file watcher if arvis-workflow.json's changes are detected.
-   * @description If bundleIds is given, reload only that workflows info.
+   * Reload workflows info based on workflowInstallPath's arvis-workflow.json
+   * This funtion is called by file watcher if arvis-workflow.json's changes are detected.
+   * If bundleIds is given, reload only that workflows info.
+   * @param bundleIds?
    */
   public reloadWorkflows = async (bundleIds?: string[]): Promise<void> => {
     return new Promise(async (resolve, reject) => {
@@ -222,11 +222,11 @@ export class Store {
   }
 
   /**
-   * @param  {boolean} initializePluginWorkspace
-   * @param  {string[]} bundleIds?
-   * @summary Reload plugins info based on pluginInstallPath's arvis-plugin.json
-   *          This funtion is called by file watcher if arvis-plugin.json's changes are detected.
-   * @description If bundleIds is given, reload only that plugins info.
+   * Reload plugins info based on pluginInstallPath's arvis-plugin.json
+   * This funtion is called by file watcher if arvis-plugin.json's changes are detected.
+   * If bundleIds is given, reload only that plugins info.
+   * @param initializePluginWorkspace
+   * @param bundleIds?
    */
   public reloadPlugins = async ({
     initializePluginWorkspace,
@@ -314,14 +314,14 @@ export class Store {
   }
 
   /**
-   * @param  {string} bundleId
+   * @param bundleId
    */
   public getWorkflow = (bundleId: string) => {
     return this.getInstalledWorkflows()[bundleId];
   }
 
   /**
-   * @param  {PluginConfigFile} plugin
+   * @param plugin
    */
   public setPlugin = (plugin: PluginConfigFile): void => {
     this.store.set('plugins', {
@@ -331,8 +331,7 @@ export class Store {
   }
 
   /**
-   *
-   * @param  {WorkflowConfigFile} workflow
+   * @param workflow
    */
   public setWorkflow = (workflow: WorkflowConfigFile): void => {
     const bundleId = getBundleId(workflow.creator, workflow.name);
@@ -385,8 +384,8 @@ export class Store {
   }
 
   /**
-   * @param  {string} bundleId
-   * @summary Called to unInstaller to remove information from the workflow from the Store
+   * Called to unInstaller to remove information from the workflow from the Store
+   * @param bundleId
    */
   public deleteWorkflow(bundleId: string): void {
     // Update workflow installation info

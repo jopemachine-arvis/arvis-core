@@ -1,5 +1,8 @@
 import { ActionFlowManager } from '../core/actionFlowManager';
 
+/**
+ * @param command?
+ */
 export const resolveExtensionType = (command?: Command | PluginItem): 'workflow' | 'plugin' => {
   const actionFlowManager = ActionFlowManager.getInstance();
   if (actionFlowManager.hasEmptyTriggerStk()) {

@@ -1,9 +1,9 @@
 import { Store } from '../config/store';
 
 /**
- * @param  {string} bundleId
- * @param  {string} outputPath
- * @description Create zip file exporting workflow with bundleId to outputPath
+ * Create zip file exporting workflow with bundleId to outputPath
+ * @param bundleId
+ * @param outputPath
  */
 export const exportWorkflow = (
   bundleId: string,

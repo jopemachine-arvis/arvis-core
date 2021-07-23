@@ -3,10 +3,10 @@ import _ from 'lodash';
 import { escapeBraket, replaceAll } from '../utils';
 
 /**
- * @param  {string} str
- * @param  {Record<string, any>} queryArgs
- * @param  {boolean} appendQuotes
- * @returns {string} args applied string
+ * @param str
+ * @param queryArgs
+ * @param appendQuotes
+ * @returns applied string
  */
 const applyArgs = ({
   str,
@@ -30,11 +30,11 @@ const applyArgs = ({
 };
 
 /**
- * @param  {string} script
- * @param  {Record<string, any>} queryArgs
- * @param  {boolean} appendQuotes
- * @returns {string} args applied string
- * @description In script, all white space characters in 'args' should be escaped.
+ * In script, all white space characters in 'args' should be escaped.
+ * @param script
+ * @param queryArgs
+ * @param appendQuotes
+ * @returns applied string
  */
 const applyArgsToScript = ({
   script,
@@ -55,8 +55,8 @@ const applyArgsToScript = ({
 };
 
 /**
- * @param  {Record<string, any>} args
- * @param  {Action} action
+ * @param args
+ * @param action
  * @returns {Action}
  */
 const applyArgsInAction = (args: Record<string, any>, action: Action): Action => {
@@ -85,8 +85,8 @@ const applyArgsInAction = (args: Record<string, any>, action: Action): Action =>
 };
 
 /**
- * @param  {Record<string, any> | undefined} args
- * @param  {Command} command
+ * @param args
+ * @param command
  * @returns  {Command}
  */
 const applyArgsInCommand = (args: Record<string, any> | undefined, command: Command): Command => {
@@ -111,8 +111,8 @@ const applyArgsInCommand = (args: Record<string, any> | undefined, command: Comm
 };
 
 /**
- * @param  {Record<string, any>} args
- * @param  {Record<string, any> | undefined} vars
+ * @param args
+ * @param  vars
  * @returns  {Record<string, any>}
  */
 const applyExtensionVars = (args: Record<string, any>, vars: Record<string, any> | undefined): Record<string, any> => {
@@ -125,7 +125,7 @@ const applyExtensionVars = (args: Record<string, any>, vars: Record<string, any>
 };
 
 /**
- * @param  {string[]} querys
+ * @param querys
  * @returns {Record<string, any>}
  */
 const extractArgsFromQuery = (querys: string[]): Record<string, any> => {
@@ -142,7 +142,7 @@ const extractArgsFromQuery = (querys: string[]): Record<string, any> => {
 };
 
 /**
- * @param  {PluginItem} item
+ * @param item
  * @returns {Record<string, any>}
  */
 const extractArgsFromPluginItem = (item: PluginItem): Record<string, any> => {
@@ -167,8 +167,8 @@ const extractArgsFromPluginItem = (item: PluginItem): Record<string, any> => {
 };
 
 /**
- * @param  {ScriptFilterItem} item
- * @param  {any} vars
+ * @param item
+ * @param vars
  * @returns {Record<string, any>}
  */
 const extractArgsFromScriptFilterItem = (

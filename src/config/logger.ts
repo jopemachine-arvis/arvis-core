@@ -12,17 +12,17 @@ export const defaultLogLevels: LogType[] = [LogType.debug, LogType.error, LogTyp
 let logLevels: LogType[] = defaultLogLevels;
 
 /**
- * @param  {LogType[]} types
- * @description Print out the logs that are included in the "types".
+ * Print out the logs that are included in the "types".
+ * @param types
  */
 export const setLogLevels = (types: LogType[]): void => {
   logLevels = types;
 };
 
 /**
- * @param  {LogType} type
- * @param  {any} message
- * @param  {any[]} optionalParams optionalParams of console.log, console.error
+ * @param type
+ * @param message
+ * @param optionalParams optionalParams of console.log, console.error
  */
 export const log = (type: LogType, message?: any, ...optionalParams: any[]): void => {
   if (type === LogType.error) {
@@ -35,8 +35,8 @@ export const log = (type: LogType, message?: any, ...optionalParams: any[]): voi
 };
 
 /**
- * @param  {LogType} type
- * @param  {string} groupName
+ * @param type
+ * @param groupName
  */
 export const group = (type: LogType, groupName: string) => {
   if (logLevels.includes(type)) {
@@ -45,14 +45,13 @@ export const group = (type: LogType, groupName: string) => {
 };
 
 /**
- * @param  {}
  */
 export const groupEnd = () => {
   console.groupEnd();
 };
 
 /**
- * @param  {Error} err
+ * @param err
  */
 export const trace = (err: Error): void => {
   if (logLevels.includes(LogType.error)) {

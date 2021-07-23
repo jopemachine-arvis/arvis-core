@@ -1,9 +1,8 @@
 import { Store } from '../config/store';
 
 /**
- * @param  {}
- * @returns {Record<string, Command[]>} commandList
- * @summary Find available workflow commands
+ * Find available workflow commands
+ * @returns commandList
  */
 export const getCommandList = (): Record<string, Command[]> => {
   const store = Store.getInstance();

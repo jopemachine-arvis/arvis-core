@@ -1,5 +1,5 @@
 /**
- * @param  {number} ms
+ * @param ms
  * @returns {Promise<void>}
  * @summary Sleep for a specified amount of time.
  */

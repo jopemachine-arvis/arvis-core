@@ -2,7 +2,7 @@ import fse from 'fs-extra';
 import { userConfigPath } from './path';
 
 /**
- * @description Migrate previous extenion's setting
+ * Migrate previous extenion's setting
  */
 export const applyUserConfigs = (userConfig: any, extensionInfo: WorkflowConfigFile | PluginConfigFile): any => {
   const result: WorkflowConfigFile | PluginConfigFile = { ...extensionInfo };
@@ -26,9 +26,9 @@ export const getUserConfigs = async (): Promise<any> => {
 };
 
 /**
- * @param  {string} bundleId
- * @param  {'variables'} type
- * @param  {any} target
+ * @param bundleId
+ * @param type
+ * @param target
  */
 export const addUserConfigs = async (bundleId: string, type: 'variables', target: any): Promise<void> => {
   const userConfigs = await getUserConfigs();

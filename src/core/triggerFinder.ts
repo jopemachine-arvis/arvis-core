@@ -2,10 +2,10 @@ import _ from 'lodash';
 import '../types';
 
 /**
- * @param  {string[]} targetAttrs
- * @param  {Readonly<Command[]> | Readonly<Action[]>} actions
- * @param  {string} triggerBasePath?
- * @description If triggerBasePath exists, include triggerPath in the return value.
+ * If triggerBasePath exists, include triggerPath in the return value.
+ * @param targetAttrs
+ * @param actions
+ * @param triggerBasePath?
  */
 export function findTriggers(
   targetAttrs: string[],

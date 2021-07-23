@@ -1,20 +1,21 @@
 import alphaSort from 'alpha-sort';
 import _ from 'lodash';
+import PCancelable from 'p-cancelable';
 import { getCommandList } from './commandList';
 import { pluginWorkspace } from './pluginWorkspace';
 import { getWorkflowList } from './workflowList';
 
 /**
- * @param  {string} inputStr
- * @returns {Promise<any>}
+ * @param inputStr
  */
 const findPluginCommands = async (inputStr: string): Promise<{
   pluginSortOutputs: PluginItem[],
   pluginNoSortOutputs: PluginItem[]
+  unresolvedItems: PCancelable<PluginExectionResult>[]
 }> => {
-  const pluginResults = await pluginWorkspace.search(inputStr);
+  const { pluginExecutionResults, unresolvedPlugins } = await pluginWorkspace.search(inputStr);
   const [pluginNoSortItems, pluginItems] = _.partition(
-    pluginResults,
+    pluginExecutionResults,
     (result) => result.noSort
   );
 
@@ -29,12 +30,12 @@ const findPluginCommands = async (inputStr: string): Promise<{
   return {
     pluginSortOutputs,
     pluginNoSortOutputs,
+    unresolvedItems: unresolvedPlugins
   };
 };
 
 /**
- * @param  {string} inputStr
- * @returns {Promise<Command[]>}
+ * @param inputStr
  */
 const findWorkflowCommands = async (inputStr: string): Promise<Command[]> => {
   const commands = getCommandList();
@@ -88,26 +89,28 @@ const findWorkflowCommands = async (inputStr: string): Promise<Command[]> => {
 };
 
 /**
- * @param  {string} inputStr
- * @returns {Promise<(Command | PluginItem)[]>}
- * @description Return commands containing inputStr and plugin execution results
- *              workflowItem has higher display priority than pluginItem
+ * Return commands containing inputStr and plugin execution results
+ * workflowItem has higher display priority than pluginItem
+ * @param inputStr
  */
 const findCommands = async (
   inputStr: string
-): Promise<(Command | PluginItem)[]> => {
+): Promise<{ items: (Command | PluginItem)[], unresolved: PCancelable<PluginExectionResult>[] }> => {
   const workflowCommands = await findWorkflowCommands(inputStr);
-  const { pluginNoSortOutputs, pluginSortOutputs } = await findPluginCommands(
+  const { pluginNoSortOutputs, pluginSortOutputs, unresolvedItems } = await findPluginCommands(
     inputStr
   );
 
-  return [
-    ...workflowCommands,
-    ...pluginSortOutputs.sort((a, b) =>
-      a.stringSimilarity! > b.stringSimilarity! ? -1 : 1
-    ),
-    ...pluginNoSortOutputs,
-  ];
+  return {
+    items: [
+      ...workflowCommands,
+      ...pluginSortOutputs.sort((a, b) =>
+        a.stringSimilarity! > b.stringSimilarity! ? -1 : 1
+      ),
+      ...pluginNoSortOutputs,
+    ],
+    unresolved: unresolvedItems,
+  };
 };
 
 export { findCommands, findWorkflowCommands, findPluginCommands };

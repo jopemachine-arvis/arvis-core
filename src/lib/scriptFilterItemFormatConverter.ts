@@ -2,6 +2,10 @@ import _ from 'lodash';
 import parseJson from 'parse-json';
 import { xml2json } from 'xml-js';
 
+/**
+ * @param stdout
+ * @param stderr?
+ */
 export const xmlToJsonScriptFilterItemFormat = (stdout: string, stderr?: string) => {
   try {
     let target = parseJson(
@@ -27,8 +31,8 @@ export const xmlToJsonScriptFilterItemFormat = (stdout: string, stderr?: string)
 };
 
 /**
- * @param  {any} variables
- * @summary Extract variables from xml format's ScriptFilterItem
+ * Extract variables from xml format's ScriptFilterItem
+ * @param variables
  */
 export const xmlExtractGlobalVars = (variables: any) => {
   return _.reduce(
@@ -46,8 +50,8 @@ export const xmlExtractGlobalVars = (variables: any) => {
 };
 
 /**
- * @param  {any} xmlScriptFilterItem
- * @summary Convert xml format's ScriptFilterItem to json format's ScriptFilterItem
+ * Convert xml format's ScriptFilterItem to json format's ScriptFilterItem
+ * @param xmlScriptFilterItem
  */
 export const xmlScriptFilterItemToJsonScriptFilterItem = (
   xmlScriptFilterItem: any

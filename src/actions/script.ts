@@ -7,7 +7,7 @@ import { applyArgsToScript } from '../core/argsHandler';
 import { extractScriptOnThisPlatform } from '../core/scriptExtracter';
 
 /**
- * @param  {ExecaError} err
+ * @param err
  */
 const scriptErrorHandler = (err: ExecaError): void => {
   if (err.timedOut) {
@@ -20,8 +20,8 @@ const scriptErrorHandler = (err: ExecaError): void => {
 };
 
 /**
- * @param  {ScriptAction} action
- * @param  {Record<string, any>} queryArgs
+ * @param action
+ * @param queryArgs
  */
 export const handleScriptAction = async (action: ScriptAction, queryArgs: Record<string, any>): Promise<ExecaReturnValue<string> | void> => {
   const actionFlowManager = ActionFlowManager.getInstance();

@@ -5,7 +5,7 @@ import PCancelable from 'p-cancelable';
 import path from 'path';
 import { compareTwoStrings } from 'string-similarity';
 import { getEnvs, getHistory, log, LogType } from '../config';
-import { trace } from '../config/logger';
+import { group, groupEnd, trace } from '../config/logger';
 import { getPluginInstalledPath } from '../config/path';
 import { ActionFlowManager } from './actionFlowManager';
 import { getPluginList } from './pluginList';
@@ -13,11 +13,11 @@ import { getPluginList } from './pluginList';
 const arvisEnvs = process.env;
 
 /**
- * @param  {string} modulePath
- * @param  {Record<string, any>} envs
- * @summary Remove cache from existing module for module updates,
- *          Add environment variables,
- *          And dynamically require new modules using eval.
+ * Remove cache from existing module for module updates,
+ * Add environment variables,
+ * And dynamically require new modules using eval.
+ * @param modulePath
+ * @param envs
  */
 const requireDynamically = (modulePath: string, envs: Record<string, any> = {}): any => {
   modulePath = modulePath.split('\\').join('/');
@@ -65,9 +65,7 @@ export const pluginWorkspace: PluginWorkspace = {
 
     for (const pluginInfo of pluginInfos) {
       const modulePath = path.normalize(
-        `${getPluginInstalledPath(pluginInfo.bundleId)}${path.sep}${
-          pluginInfo.main
-        }`
+        `${getPluginInstalledPath(pluginInfo.bundleId)}${path.sep}${pluginInfo.main}`
       );
 
       try {
@@ -99,29 +97,36 @@ export const pluginWorkspace: PluginWorkspace = {
   },
 
   cancelPrevious: (): void => {
-    _.map(pluginWorkspace.asyncWorks, (work) => {
+    _.forEach(pluginWorkspace.asyncWorks, (work) => {
       if (!work.isCanceled) {
         work.cancel();
       }
     });
   },
 
-  getAsyncWork: (pluginBundleId, asyncPluginPromise): PCancelable<any> => {
+  generateAsyncWork: (pluginBundleId: string, asyncPluginPromise: Promise<PluginExectionResult>, setTimer: boolean) => {
     const work = new PCancelable<any>((resolve, reject, onCancel) => {
-      const timer = setTimeout(
-        () => work.cancel(),
-        pluginWorkspace.asyncPluginTimer
-      );
+      let timer: NodeJS.Timeout | undefined;
+
+      if (setTimer) {
+        timer = setTimeout(
+          () =>
+            reject({
+              name: 'Unresolved',
+              asyncPluginPromise: pluginWorkspace.generateAsyncWork(pluginBundleId, asyncPluginPromise, false)
+            })
+          ,
+          pluginWorkspace.asyncPluginTimer
+        );
+      }
 
       onCancel(() => {
-        reject({
-          name: 'CancelError',
-        });
+        reject({ name: 'CancelError' });
       });
 
       asyncPluginPromise
         .then((result) => {
-          clearTimeout(timer);
+          setTimer && clearTimeout(timer!);
           if (!result.items || !result.items.length) resolve({ items: [] });
 
           result.items = result.items
@@ -137,24 +142,53 @@ export const pluginWorkspace: PluginWorkspace = {
     });
 
     work.catch((err) => {
-      if (work.isCanceled) {
-        return;
-      } else {
-        throw err;
-      }
+      const expectedCancel = err.name === 'CancelError' || err.name === 'Unresolved';
+      if (expectedCancel) return;
+      throw err;
     });
 
     return work;
   },
 
-  /**
-   * @param  {string} inputStr
-   * @returns {Promise<PluginExectionResult[]>}
-   */
-  search: async (inputStr: string): Promise<PluginExectionResult[]> => {
+  getAsyncWork: (pluginBundleId: string, asyncPluginPromise: Promise<PluginExectionResult>): PCancelable<any> => {
+    return pluginWorkspace.generateAsyncWork(pluginBundleId, asyncPluginPromise, true);
+  },
+
+  appendPluginItemAttr: (inputStr: string, PluginExectionResults: PluginExectionResult[]) => {
+    PluginExectionResults
+      .map((result) => result.items)
+      .map((items) =>
+        items
+          .filter((item: any) => !!item)
+          .map((item: any) => {
+            if (!item.icon && getPluginList()[item.bundleId].defaultIcon) {
+              item.icon = {
+                path: getPluginList()[item.bundleId].defaultIcon,
+              };
+            }
+
+            const compareTarget = item.command ? item.command : item.title;
+
+            // pluginItem is treated like keyword
+            item.type = 'keyword';
+            item.isPluginItem = true;
+            item.actions = getPluginList()[item.bundleId].actions;
+
+            item.stringSimilarity = compareTwoStrings(
+              compareTarget.toString(),
+              inputStr.toString()
+            );
+          })
+      );
+  },
+
+  search: async (inputStr: string): Promise<{
+    pluginExecutionResults: PluginExectionResult[],
+    unresolvedPlugins: PCancelable<PluginExectionResult>[]
+  }> => {
     pluginWorkspace.cancelPrevious();
 
-    const pluginExecutionResults: any[] = [];
+    const pluginExecutionResults: PluginExectionResult[] = [];
     const asyncPluginWorks: PCancelable<any>[] = [];
 
     for (const pluginBundleId of pluginWorkspace.pluginModules.keys()) {
@@ -165,7 +199,7 @@ export const pluginWorkspace: PluginWorkspace = {
       process.env = bindedEnvs as any;
 
       try {
-        const pluginExecutionResult = (pluginModule as Function)({
+        const pluginExecutionResult: PluginExectionResult | Promise<PluginExectionResult> = (pluginModule as Function)({
           inputStr,
           history: getHistory(),
         });
@@ -200,14 +234,19 @@ export const pluginWorkspace: PluginWorkspace = {
     const asyncPluginResults = await Promise.allSettled(asyncPluginWorks);
     pluginWorkspace.restoreArvisEnvs();
 
-    const successes = asyncPluginResults
-      .filter((result) => result.status === 'fulfilled')
-      .map((item) => (item as any).value);
+    const successes =
+      asyncPluginResults
+        .filter((result) => result.status === 'fulfilled')
+        .map((item) => (item as any).value);
+
+    const unresolved = asyncPluginResults
+      .filter((result) => result.status === 'rejected' && result.reason.name === 'Unresolved')
+      .map((item) => (item as any).reason.asyncPluginPromise);
 
     const errors: Error[] = asyncPluginResults
       .filter((result) => result.status === 'rejected')
       .map((item) => (item as any).reason)
-      .filter((error) => error.name !== 'CancelError');
+      .filter((error) => error.name !== 'CancelError' && error.name !== 'Unresolved');
 
     const asyncPrintResult = _.flattenDeep(successes);
     pluginExecutionResults.push(...asyncPrintResult);
@@ -218,31 +257,7 @@ export const pluginWorkspace: PluginWorkspace = {
       }
     }
 
-    pluginExecutionResults
-      .map((result) => result.items)
-      .map((items) =>
-        items
-          .filter((item: any) => !!item)
-          .map((item: any) => {
-            if (!item.icon && getPluginList()[item.bundleId].defaultIcon) {
-              item.icon = {
-                path: getPluginList()[item.bundleId].defaultIcon,
-              };
-            }
-
-            const compareTarget = item.command ? item.command : item.title;
-
-            // pluginItem is treated like keyword
-            item.type = 'keyword';
-            item.isPluginItem = true;
-            item.actions = getPluginList()[item.bundleId].actions;
-
-            item.stringSimilarity = compareTwoStrings(
-              compareTarget.toString(),
-              inputStr.toString()
-            );
-          })
-      );
+    pluginWorkspace.appendPluginItemAttr(inputStr, pluginExecutionResults);
 
     for (const pluginExecutionResult of pluginExecutionResults) {
       pluginExecutionResult.items = pluginExecutionResult.items.filter(
@@ -251,9 +266,14 @@ export const pluginWorkspace: PluginWorkspace = {
     }
 
     if (ActionFlowManager.getInstance().printPluginItems) {
-      log(LogType.info, 'Plugin Items: ', pluginExecutionResults);
+      group(LogType.info, 'Plugin Items');
+      log(LogType.info, pluginExecutionResults);
+      groupEnd();
     }
 
-    return pluginExecutionResults;
+    return {
+      pluginExecutionResults,
+      unresolvedPlugins: unresolved,
+    };
   },
 };

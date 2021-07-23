@@ -1,10 +1,10 @@
 import parseJson from 'parse-json';
 
 /**
- * @summary Return all json candidates from string
- * @param  {string} str
- * @returns {any[]} All json candidates
- * @description Ref: https://stackoverflow.com/questions/10574520/extract-json-from-text
+ * Return all json candidates from string
+ * Ref: https://stackoverflow.com/questions/10574520/extract-json-from-text
+ * @param str
+ * @returns All json candidates
  */
 export default function extractJSON(str: string): any[] {
   let firstOpen = 0;

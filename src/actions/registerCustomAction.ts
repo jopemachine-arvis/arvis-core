@@ -1,11 +1,10 @@
 export const customActions = {};
 
 /**
- * @param  {string} type
- * @param  {(action:Action)=>void} callback
- * @returns {void}
- * @description Register an unregistered action of a workflow
- *              Used in 'notification' type in GUI
+ * Register an unregistered action of a workflow
+ * Used in 'notification' type in GUI
+ * @param type
+ * @param callback
  */
 export const registerCustomAction = (
   type: string,

@@ -18,11 +18,12 @@ import {
   extractArgsFromScriptFilterItem,
 } from './argsHandler';
 import { getPluginList } from './pluginList';
+import { Renderer } from './rendererUpdater';
 import { getWorkflowList } from './workflowList';
 
 /**
- * @description Manage the execution of tasks
- *              In the CUI, GUI, create a singleton object of this class to execute action, scriptfilter
+ * Manage the execution of tasks
+ * In the CUI, GUI, create a singleton object of this class to execute action, scriptfilter
  */
 export class ActionFlowManager {
   private static instance: ActionFlowManager;
@@ -59,25 +60,6 @@ export class ActionFlowManager {
 
   public isInitialTrigger?: boolean = true;
 
-  public onWorkEndHandler?: () => void;
-  public onItemPressHandler?: () => void;
-
-  public onItemShouldBeUpdate?: ({
-    items,
-    needIndexInfoClear,
-  }: {
-    items: (ScriptFilterItem | Command)[];
-    needIndexInfoClear: boolean;
-  }) => void;
-
-  public onInputShouldBeUpdate?: ({
-    str,
-    needItemsUpdate,
-  }: {
-    str: string;
-    needItemsUpdate: boolean;
-  }) => void;
-
   private constructor() {
     this.triggerStk = [];
     this.globalVariables = {};
@@ -91,8 +73,7 @@ export class ActionFlowManager {
   }
 
   /**
-   * @summary
-   * @description cleanup work stack and other infomations
+   * cleanup work stack and other infomations
    */
   public clearTriggerStk = (): void => {
     if (this.printTriggerStack) {
@@ -133,7 +114,7 @@ export class ActionFlowManager {
   }
 
   /**
-   * @param {Trigger} trigger
+   * @param trigger
    */
   public pushTrigger = (trigger: Trigger): void => {
     this.triggerStk.push(trigger);
@@ -141,11 +122,9 @@ export class ActionFlowManager {
   }
 
   /**
-   * @summary If the script filters are nested, return to the previous script filter.
+   * If the script filters are nested, return to the previous script filter.
    */
   public popTrigger = (): void => {
-    this.throwErrOnRendererUpdaterNotSet();
-
     if (this.triggerStk.length >= 2) {
       if (this.getTopTrigger().type === 'hotkey') {
         // Double pop when executed through hotkey
@@ -154,13 +133,13 @@ export class ActionFlowManager {
 
       this.triggerStk.pop();
       if (this.getTopTrigger().type === 'scriptFilter') {
-        this.onItemShouldBeUpdate!({
+        Renderer.onItemShouldBeUpdate({
           items: this.getTopTrigger().items!,
           needIndexInfoClear: true,
         });
       } else if (this.getTopTrigger().type === 'keyword') {
         const keywordItem = (this.getTopTrigger().actionTrigger) as any;
-        this.onItemShouldBeUpdate!({
+        Renderer.onItemShouldBeUpdate({
           items: [{
             title: keywordItem.title,
             subtitle: keywordItem.subtitle
@@ -169,7 +148,7 @@ export class ActionFlowManager {
         });
       }
 
-      this.onInputShouldBeUpdate!({
+      Renderer.onInputShouldBeUpdate!({
         str: this.getTopTrigger().input,
         needItemsUpdate: false,
       });
@@ -177,17 +156,17 @@ export class ActionFlowManager {
       this.debugTriggerStk();
     } else if (this.triggerStk.length !== 0) {
       this.clearTriggerStk();
-      this.onInputShouldBeUpdate!({ str: '', needItemsUpdate: true });
+      Renderer.onInputShouldBeUpdate!({ str: '', needItemsUpdate: true });
     } else {
       this.clearTriggerStk();
-      this.onInputShouldBeUpdate!({ str: '', needItemsUpdate: true });
-      this.onWorkEndHandler!();
+      Renderer.onInputShouldBeUpdate!({ str: '', needItemsUpdate: true });
+      Renderer.onWorkEndHandler();
     }
   }
 
   /**
-   * @summary When an error occurs, onItemShouldBeUpdate is called by this method
-   *          And those error messages are displayed to the user in the form of items.
+   * When an error occurs, onItemShouldBeUpdate is called by this method
+   * And those error messages are displayed to the user in the form of items.
    */
   public setErrorItem = ({
     error,
@@ -198,13 +177,9 @@ export class ActionFlowManager {
     errorItems?: ScriptFilterItem[];
     options?: { extractJson?: boolean } | undefined;
   }): void => {
-    if (!this.onItemShouldBeUpdate) {
-      throw new Error('Renderer update funtions are not set!');
-    }
-
     if (options && options.extractJson === true && errorItems!.length >= 1) {
       if (errorItems) {
-        this.onItemShouldBeUpdate({
+        Renderer.onItemShouldBeUpdate({
           items: errorItems,
           needIndexInfoClear: true,
         });
@@ -220,7 +195,7 @@ export class ActionFlowManager {
         );
       }
 
-      this.onItemShouldBeUpdate({
+      Renderer.onItemShouldBeUpdate({
         items: [
           {
             bundleId: 'error',
@@ -239,15 +214,13 @@ export class ActionFlowManager {
   }
 
   /**
-   * @param  {number} selectedItemIdx
-   * @param  {Readonly<ModifierInput>} modifiers
+   * @param selectedItemIdx
+   * @param modifiers
    */
   public setModifierOnScriptFilterItem = (
     selectedItemIdx: number,
     modifiers: Readonly<ModifierInput>
   ): void => {
-    this.throwErrOnRendererUpdaterNotSet();
-
     if (
       this.hasEmptyTriggerStk() ||
       this.getTopTrigger().type !== 'scriptFilter' ||
@@ -286,15 +259,13 @@ export class ActionFlowManager {
       };
     }
 
-    this.onItemShouldBeUpdate!({ items, needIndexInfoClear: false });
+    Renderer.onItemShouldBeUpdate!({ items, needIndexInfoClear: false });
   }
 
   /**
    * @summary
    */
   public clearModifierOnScriptFilterItem = (): void => {
-    this.throwErrOnRendererUpdaterNotSet();
-
     if (
       this.hasEmptyTriggerStk() ||
       this.getTopTrigger().type !== 'scriptFilter' ||
@@ -303,15 +274,15 @@ export class ActionFlowManager {
       return;
     }
 
-    this.onItemShouldBeUpdate!({
+    Renderer.onItemShouldBeUpdate!({
       items: this.getTopTrigger().items!,
       needIndexInfoClear: false,
     });
   }
 
   /**
-   * @param  {any} err
-   * @param  {any} options
+   * @param err
+   * @param options
    */
   public handleScriptFilterError = (
     err: any,
@@ -333,23 +304,20 @@ export class ActionFlowManager {
   }
 
   /**
-   * @description
    */
   public setRunningScriptfilterItem = ({ selectedItem, setRunningText }: { selectedItem: Command, setRunningText: boolean }): void => {
-    this.throwErrOnRendererUpdaterNotSet();
-
     if (setRunningText) {
       selectedItem.subtitle = selectedItem.runningSubtext ?? '';
     }
 
-    this.onItemShouldBeUpdate!({
+    Renderer.onItemShouldBeUpdate!({
       items: [selectedItem],
       needIndexInfoClear: true,
     });
   }
 
   /**
-   * @param  {PluginItem|Command} item
+   * @param item
    */
   public setExtensionInfo = (item: PluginItem | Command): void => {
     if ((item as PluginItem).isPluginItem) {
@@ -383,9 +351,9 @@ export class ActionFlowManager {
   }
 
   /**
-   * @param  {Command | ScriptFilterItem | PluginItem} item
-   * @description If triggerStk is empty, return item's action
-   *              otherwise, return nextAction (topWork's action)
+   * If triggerStk is empty, return item's action
+   * otherwise, return nextAction (topWork's action)
+   * @param item
    */
   private prepareNextActions = ({
     item,
@@ -400,10 +368,9 @@ export class ActionFlowManager {
   }
 
   /**
-   * @param  {Command | ScriptFilterItem | PluginItem} item
-   * @param  {string} inputStr
-   * @returns {Record<string, any>}
-   * @description Returns args using according args extraction method
+   * Returns args using according args extraction method
+   * @param item
+   * @param inputStr
    */
   private prepareArgs = ({
     item,
@@ -476,29 +443,13 @@ export class ActionFlowManager {
   }
 
   /**
-   * @param  {}
-   */
-  private throwErrOnRendererUpdaterNotSet = (): void => {
-    if (
-      !this.onItemPressHandler ||
-      !this.onInputShouldBeUpdate ||
-      !this.onItemShouldBeUpdate ||
-      !this.onWorkEndHandler
-    ) {
-      throw new Error('Renderer update funtions are not set!');
-    }
-  }
-
-  /**
-   * @param  {TriggerAction} triggerAction
-   * @param  {Record<string, any>} args
-   * @description This function handle Trigger as Actions.
-   *              Which means keyword, scriptfilter.
-   *              If one of those would be Action, force users to enter input and enter again.
+   * This function handle Trigger as Actions.
+   * Which means keyword, scriptfilter.
+   * If one of those would be Action, force users to enter input and enter again.
+   * @param triggerAction
+   * @param args
    */
   private handleTriggerAction = (triggerAction: TriggerAction, args: Record<string, any>): void => {
-    this.throwErrOnRendererUpdaterNotSet();
-
     if (triggerAction.type === 'resetInput') {
       handleResetInputAction((triggerAction as ResetInputAction).newInput);
       return;
@@ -522,42 +473,42 @@ export class ActionFlowManager {
       if (triggerAction.type === 'scriptFilter') {
         scriptFilterExcute(nextInput);
 
-        this.onInputShouldBeUpdate!({
+        Renderer.onInputShouldBeUpdate!({
           str: nextInput + optionalWhitespace,
           needItemsUpdate: false,
         });
       } else if (triggerAction.type === 'keyword') {
         handleKeywordAction(triggerAction as KeywordAction);
 
-        this.onInputShouldBeUpdate!({
+        Renderer.onInputShouldBeUpdate!({
           str: nextInput + optionalWhitespace,
           needItemsUpdate: false,
         });
       }
 
-      this.onItemPressHandler!();
+      Renderer.onItemPressHandler!();
       return;
     }
   }
 
   /**
-   * @param  {Action} action
+   * @param action
    */
   private hasAsyncActionChain = (action: Action): boolean => {
     return !_.isUndefined((action as AsyncAction).asyncChain);
   }
 
   /**
-   * @param  {Command|ScriptFilterItem|PluginItem} item
-   * @param  {Record<string, any>} args
-   * @param  {Action[]} targetActions
-   * @param  {Readonly<ModifierInput>} modifier
-   * @param  {AsyncAction} nextAction
-   * @returns  {Action[]} actions
-   * @description Actions after async action (like script) must be executed after the async action is completed.
-   *              This function handle these async action chain.
-   *              Actions after async action are removed from targetActions.
-   *              And return this targetActions.
+   * Actions after async action (like script) must be executed after the async action is completed.
+   * This function handle these async action chain.
+   * Actions after async action are removed from targetActions.
+   * And return this targetActions.
+   * @param item
+   * @param args
+   * @param targetActions
+   * @param modifier
+   * @param nextAction
+   * @returns actions
    */
   private handleAsyncActionChain = (
     item: Command | ScriptFilterItem | PluginItem,
@@ -604,7 +555,7 @@ export class ActionFlowManager {
   }
 
   /**
-   * @description return top trigger's parent action type.
+   * @returns top trigger's parent action type.
    */
   private getParentActionType = (): string | undefined => {
     if (!this.getTopTrigger() || !this.hasEmptyTriggerStk()) return undefined;
@@ -616,8 +567,8 @@ export class ActionFlowManager {
   }
 
   /**
-   * @returns {boolean} If return false, commandExcute quits to enable users to give more input
-   * @description Handle Multiple Actions, Process a sequence of actions that follow back.
+   * Handle Multiple Actions, Process a sequence of actions that follow back.
+   * @returns If return false, commandExcute quits to enable users to give more input
    */
   private handleActionChain = ({
     item,
@@ -630,7 +581,6 @@ export class ActionFlowManager {
     targetActions: Action[];
     modifier: Readonly<ModifierInput>;
   }): boolean => {
-    this.throwErrOnRendererUpdaterNotSet();
     const actionFlowManager = ActionFlowManager.getInstance();
 
     let handleActionResult: {
@@ -699,12 +649,12 @@ export class ActionFlowManager {
   }
 
   /**
-   * @param  {Command|ScriptFilterItem|PluginItem} item
-   * @param  {string} inputStr
-   * @param  {Readonly<ModifierInput>} modifier
+   * If return value is false, need more user input
+   * @param item
+   * @param inputStr
+   * @param modifier
    * @summary Handle command item properly
-   * @returns {boolean} If return value is true, no need more user input
-   *                    If return value is false, need more user input
+   * @returns If return value is true, no need more user input
    */
   public commandExcute(
     item: Command | ScriptFilterItem | PluginItem,
@@ -749,19 +699,17 @@ export class ActionFlowManager {
   }
 
   /**
-   * @param  {Command|ScriptFilterItem|PluginItem} item
-   * @param  {string} inputStr
-   * @param  {Readonly<ModifierInput>} modifier
-   * @summary Handler for enter event.
-   *          Handle command item properly and call renderer update functions
+   * Handler for enter event.
+   * Handle command item properly and call renderer update functions
+   * @param item
+   * @param inputStr
+   * @param modifier
    */
   public handleItemPressEvent(
     item: Command | ScriptFilterItem | PluginItem,
     inputStr: string,
     modifier: Readonly<ModifierInput>
   ): void {
-    this.throwErrOnRendererUpdaterNotSet();
-
     // Ignore this exeution if previous work is pending.
     if (this.prevScriptfilterIsExecuting()) {
       return;
@@ -771,9 +719,9 @@ export class ActionFlowManager {
 
     if (quit) {
       this.clearTriggerStk();
-      this.onItemShouldBeUpdate!({ items: [], needIndexInfoClear: true });
-      this.onItemPressHandler!();
-      this.onWorkEndHandler!();
+      Renderer.onItemShouldBeUpdate!({ items: [], needIndexInfoClear: true });
+      Renderer.onItemPressHandler!();
+      Renderer.onWorkEndHandler();
     }
   }
 }

@@ -1,7 +1,7 @@
 const clipboardy = require('clipboardy');
 
 /**
- * @param  {string} str
+ * @param str
  */
 export const copyToClipboard = (str: string): Promise<string> => {
   return clipboardy.write(str);

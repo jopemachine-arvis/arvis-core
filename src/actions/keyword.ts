@@ -1,9 +1,15 @@
-import { ActionFlowManager, getPluginList, getWorkflowList, resolveExtensionType } from '../core';
+import {
+  ActionFlowManager,
+  getPluginList,
+  getWorkflowList,
+  Renderer,
+  resolveExtensionType,
+} from '../core';
 
 /**
- * @param  {KeywordAction} item
- * @description Used in only keyword action, not keyword trigger.
- *              (Because keyword trigger is immediately executed)
+ * Used in only keyword action, not keyword trigger.
+ * (Because keyword trigger is immediately executed)
+ * @param item
  */
 export const handleKeywordAction = (item: KeywordAction): void => {
   const actionFlowManager = ActionFlowManager.getInstance();
@@ -14,16 +20,15 @@ export const handleKeywordAction = (item: KeywordAction): void => {
 
   const defaultIcon = infolist[actionFlowManager.getTopTrigger().bundleId].defaultIcon;
 
-  actionFlowManager.onItemShouldBeUpdate &&
-    actionFlowManager.onItemShouldBeUpdate({
-      items: [
-        {
-          title: item.title ?? '',
-          subtitle: item.subtitle ?? '',
-          bundleId: actionFlowManager.getTopTrigger().bundleId,
-          icon: defaultIcon,
-        },
-      ],
-      needIndexInfoClear: true,
-    });
+  Renderer.onItemShouldBeUpdate({
+    items: [
+      {
+        title: item.title ?? '',
+        subtitle: item.subtitle ?? '',
+        bundleId: actionFlowManager.getTopTrigger().bundleId,
+        icon: defaultIcon,
+      },
+    ],
+    needIndexInfoClear: true,
+  });
 };
