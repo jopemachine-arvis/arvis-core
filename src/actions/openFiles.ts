@@ -3,16 +3,16 @@ import isUrl from 'is-url';
 import open from 'open';
 
 /**
- * @param filePath
+ * @param path
  */
-export const openFile = async (filePath: string): Promise<void> => {
+export const openFile = async (path: string): Promise<void> => {
   // Replace whitespace with encoded whitespace if there is.
   // If not want this encoding method, replace it in extension before passing it in this.
-  const assumeUrl = filePath.split(' ')[0];
+  const assumeUrl = path.split(' ')[0];
 
   if (isUrl(assumeUrl)) {
-    filePath = encodeUrl(filePath);
+    path = encodeUrl(path);
   }
 
-  await open(filePath, { wait: false });
+  await open(path, { wait: false });
 };

@@ -4,7 +4,6 @@ import fs from 'fs';
 /**
  * @param source
  * @param out
- * @returns {Promise<void>}
  */
 export const zipDirectory = (source: string, out: string): Promise<void> => {
   const archive = archiver('zip', { zlib: { level: 9 } });

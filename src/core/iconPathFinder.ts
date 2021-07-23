@@ -60,7 +60,6 @@ export const determineIconPath = (
 
 /**
  * @param command
- * @returns
  */
 export const determineDefaultIconPath = (command: Command): string | undefined => {
   if (!command.bundleId) {
