@@ -96,6 +96,13 @@ const findWorkflowCommands = async (inputStr: string): Promise<Command[]> => {
 const findCommands = async (
   inputStr: string
 ): Promise<{ items: (Command | PluginItem)[], unresolved: PCancelable<PluginExectionResult>[] }> => {
+  if (inputStr === '') {
+    return {
+      items: [],
+      unresolved: []
+    }
+  }
+
   const workflowCommands = await findWorkflowCommands(inputStr);
   const { pluginNoSortOutputs, pluginSortOutputs, unresolvedItems } = await findPluginCommands(
     inputStr
