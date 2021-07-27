@@ -100,7 +100,7 @@ const findCommands = async (
     return {
       items: [],
       unresolved: []
-    }
+    };
   }
 
   const workflowCommands = await findWorkflowCommands(inputStr);

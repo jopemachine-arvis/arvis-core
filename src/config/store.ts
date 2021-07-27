@@ -309,7 +309,7 @@ export class Store {
     return this.getter('plugins', {});
   }
 
-  public getTriggers(): (Action | Command)[] {
+  public getTriggers(): Record<string, (Action | Command)[]> {
     return this.getter('triggers', []);
   }
 
