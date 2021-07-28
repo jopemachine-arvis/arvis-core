@@ -6,6 +6,7 @@ import {
 import { checkUpdatableExtensions } from '../lib/checkUpdatableExtensions';
 import { getBundleId, getNameFromBundleId } from '../lib/getBundleId';
 import { getSystemPaths } from '../lib/getSystemPaths';
+import { overwriteExtensionInfo } from '../lib/overwriteExtensionInfo';
 import { resolveExtensionType } from '../lib/resolveExtensionType';
 import {
   xmlExtractGlobalVars,
@@ -85,6 +86,7 @@ export {
   isArgTypeNoButHaveArg,
   isInputMeetWithspaceCond,
   logger,
+  overwriteExtensionInfo,
   path,
   pluginWorkspace,
   registerCustomAction,
