@@ -1,7 +1,7 @@
 // tslint:disable: forin
 import _ from 'lodash';
+import { getClipboardText } from '../lib/getClipboardText';
 import { escapeBraket, replaceAll } from '../utils';
-const clipboardy = require('clipboardy');
 
 /**
  * @param str
@@ -128,7 +128,7 @@ const applyExtensionVars = (args: Record<string, any>, vars: Record<string, any>
 const extractArgsFromHotkey = async () => {
   return {
     '{query}': '',
-    '{clipboard}': await clipboardy.read(),
+    '{clipboard}': await getClipboardText(),
     $1: '',
   };
 };
@@ -139,7 +139,7 @@ const extractArgsFromHotkey = async () => {
 const extractArgsFromQuery = async (querys: string[]): Promise<Record<string, any>> => {
   const args = {
     '{query}': querys.join(' '),
-    '{clipboard}': await clipboardy.read(),
+    '{clipboard}': await getClipboardText(),
     $1: '',
   };
 
@@ -164,13 +164,13 @@ const extractArgsFromPluginItem = async (item: PluginItem): Promise<Record<strin
       const arg = escapeBraket(item.arg);
       args = {
         '{query}': arg,
-        '{clipboard}': await clipboardy.read(),
+        '{clipboard}': await getClipboardText(),
         $1: arg,
       };
     } else if (typeof item.arg === 'number') {
       args = {
         '{query}': item.arg,
-        '{clipboard}': await clipboardy.read(),
+        '{clipboard}': await getClipboardText(),
         $1: item.arg,
       };
     } else {
@@ -200,13 +200,13 @@ const extractArgsFromScriptFilterItem = async (
       const arg = escapeBraket(item.arg);
       args = {
         '{query}': arg,
-        '{clipboard}': await clipboardy.read(),
+        '{clipboard}': await getClipboardText(),
         $1: arg,
       };
     } else if (typeof item.arg === 'number') {
       args = {
         '{query}': item.arg,
-        '{clipboard}': await clipboardy.read(),
+        '{clipboard}': await getClipboardText(),
         $1: item.arg,
       };
     } else {

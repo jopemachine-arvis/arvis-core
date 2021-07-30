@@ -10,14 +10,12 @@ jobs:
       fail-fast: false
       matrix:
         node-version:
-          # Uncomment when using Got v10
           - 14
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - run: sudo apt install xsel
       - run: npm install
       - run: npm run build
       - run: npm test

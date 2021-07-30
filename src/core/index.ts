@@ -16,6 +16,7 @@ import {
 import { setAsyncPluginTimer } from '../lib/setAsyncPluginTimer';
 import { setExternalEnvs } from '../lib/setExternalEnvs';
 import { setStoreAvailabiltyChecker } from '../lib/setStoreAvailabiltyChecker';
+import { getClipboardText } from '../lib/getClipboardText';
 
 import { ActionFlowManager } from './actionFlowManager';
 import { handleAction } from './actionHandler';
@@ -67,6 +68,7 @@ export {
   findHotkeys,
   findTriggers,
   getBundleId,
+  getClipboardText,
   getCommandList,
   getEnvs,
   getExternalEnvs,

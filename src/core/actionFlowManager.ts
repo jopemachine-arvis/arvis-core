@@ -655,7 +655,7 @@ export class ActionFlowManager {
       log(LogType.info, vars);
       groupEnd();
     }
-  };
+  }
 
   /**
    * Handle command item properly.
