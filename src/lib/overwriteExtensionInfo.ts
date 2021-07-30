@@ -14,5 +14,5 @@ export const overwriteExtensionInfo = async (
   extension[infoKey] = info;
   extension.bundleId = undefined;
 
-  await fse.writeJSON(extensionJsonPath , extension, { encoding: 'utf-8' });
+  await fse.writeJSON(extensionJsonPath , extension, { encoding: 'utf-8', spaces: 4 });
 };

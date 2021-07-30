@@ -6,14 +6,20 @@ const throwErrOnRendererUpdaterNotSet = (): void => {
   throw new Error('Renderer update funtions are not set!');
 };
 
+/**
+ */
 export const setOnWorkEndHandler = (funcArg: () => void): void => {
   Renderer.onWorkEndHandler = funcArg;
 };
 
+/**
+ */
 export const setOnItemPressHandler = (funcArg: () => void): void => {
   Renderer.onItemPressHandler = funcArg;
 };
 
+/**
+ */
 export const setOnItemShouldBeUpdate = (funcArg: ({ }: {
   items: (ScriptFilterItem | Command)[];
   needIndexInfoClear: boolean;
@@ -21,6 +27,8 @@ export const setOnItemShouldBeUpdate = (funcArg: ({ }: {
   Renderer.onItemShouldBeUpdate = funcArg;
 };
 
+/**
+ */
 export const setOnInputShouldBeUpdate = (funcArg: ({ }: {
   str: string;
   needItemsUpdate: boolean;
@@ -28,6 +36,8 @@ export const setOnInputShouldBeUpdate = (funcArg: ({ }: {
   Renderer.onInputShouldBeUpdate = funcArg;
 };
 
+/**
+ */
 const Renderer = {
   onInputShouldBeUpdate: ({ }: {
     str: string;

@@ -229,7 +229,7 @@ export async function scriptFilterExcute(
       : getWorkflowList()[bundleId].variables ?? {};
 
   const extractedArgs: Record<string, any> = applyExtensionVars(
-    extractArgsFromQuery(querys),
+    await extractArgsFromQuery(querys),
     extensionVariables
   );
 

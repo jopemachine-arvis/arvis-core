@@ -1,6 +1,7 @@
 // tslint:disable: forin
 import _ from 'lodash';
 import { escapeBraket, replaceAll } from '../utils';
+const clipboardy = require('clipboardy');
 
 /**
  * @param str
@@ -22,6 +23,7 @@ const applyArgs = ({
 
     const newStr =
       appendQuotes === true ? `"${queryArgs[key].trim()}"` : queryArgs[key];
+
     str = replaceAll(str, `"${key}"`, newStr);
     str = replaceAll(str, `'${key}'`, newStr);
     str = replaceAll(str, key, newStr);
@@ -110,7 +112,7 @@ const applyArgsInCommand = (args: Record<string, any> | undefined, command: Comm
 
 /**
  * @param args
- * @param  vars
+ * @param vars
  */
 const applyExtensionVars = (args: Record<string, any>, vars: Record<string, any> | undefined): Record<string, any> => {
   if (vars) {
@@ -122,10 +124,24 @@ const applyExtensionVars = (args: Record<string, any>, vars: Record<string, any>
 };
 
 /**
+ */
+const extractArgsFromHotkey = async () => {
+  return {
+    '{query}': '',
+    '{clipboard}': await clipboardy.read(),
+    $1: '',
+  };
+};
+
+/**
  * @param querys
  */
-const extractArgsFromQuery = (querys: string[]): Record<string, any> => {
-  const args = { '{query}': querys.join(' '), $1: '' };
+const extractArgsFromQuery = async (querys: string[]): Promise<Record<string, any>> => {
+  const args = {
+    '{query}': querys.join(' '),
+    '{clipboard}': await clipboardy.read(),
+    $1: '',
+  };
 
   for (const qIdx in querys) {
     querys[qIdx] = escapeBraket(querys[qIdx]);
@@ -140,15 +156,23 @@ const extractArgsFromQuery = (querys: string[]): Record<string, any> => {
 /**
  * @param item
  */
-const extractArgsFromPluginItem = (item: PluginItem): Record<string, any> => {
+const extractArgsFromPluginItem = async (item: PluginItem): Promise<Record<string, any>> => {
   let args = {};
 
   if (item.arg) {
     if (typeof item.arg === 'string') {
       const arg = escapeBraket(item.arg);
-      args = { '{query}': arg, $1: arg };
+      args = {
+        '{query}': arg,
+        '{clipboard}': await clipboardy.read(),
+        $1: arg,
+      };
     } else if (typeof item.arg === 'number') {
-      args = { '{query}': item.arg, $1: item.arg };
+      args = {
+        '{query}': item.arg,
+        '{clipboard}': await clipboardy.read(),
+        $1: item.arg,
+      };
     } else {
       args = { ...item.arg };
     }
@@ -165,18 +189,26 @@ const extractArgsFromPluginItem = (item: PluginItem): Record<string, any> => {
  * @param item
  * @param vars
  */
-const extractArgsFromScriptFilterItem = (
+const extractArgsFromScriptFilterItem = async (
   item: ScriptFilterItem,
   vars: Record<string, any>
-): Record<string, any> => {
+): Promise<Record<string, any>> => {
   let args = {};
 
   if (item.arg) {
     if (typeof item.arg === 'string') {
       const arg = escapeBraket(item.arg);
-      args = { '{query}': arg, $1: arg };
+      args = {
+        '{query}': arg,
+        '{clipboard}': await clipboardy.read(),
+        $1: arg,
+      };
     } else if (typeof item.arg === 'number') {
-      args = { '{query}': item.arg, $1: item.arg };
+      args = {
+        '{query}': item.arg,
+        '{clipboard}': await clipboardy.read(),
+        $1: item.arg,
+      };
     } else {
       args = { ...item.arg };
     }
@@ -195,10 +227,11 @@ const extractArgsFromScriptFilterItem = (
 
 export {
   applyArgs,
-  applyArgsToScript,
   applyArgsInAction,
   applyArgsInCommand,
+  applyArgsToScript,
   applyExtensionVars,
+  extractArgsFromHotkey,
   extractArgsFromPluginItem,
   extractArgsFromQuery,
   extractArgsFromScriptFilterItem,

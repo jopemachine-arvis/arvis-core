@@ -13,6 +13,7 @@ import extractJson from '../utils/extractJson';
 import { handleAction } from './actionHandler';
 import {
   applyExtensionVars,
+  extractArgsFromHotkey,
   extractArgsFromPluginItem,
   extractArgsFromQuery,
   extractArgsFromScriptFilterItem,
@@ -372,13 +373,13 @@ export class ActionFlowManager {
    * @param item
    * @param inputStr
    */
-  private prepareArgs = ({
+  private prepareArgs = async ({
     item,
     inputStr,
   }: {
     item: Command | ScriptFilterItem | PluginItem;
     inputStr: string;
-  }): Record<string, any> => {
+  }): Promise<Record<string, any>> => {
     const bundleId: string = this.hasEmptyTriggerStk()
       ? item.bundleId!
       : this.getTopTrigger().bundleId;
@@ -395,7 +396,7 @@ export class ActionFlowManager {
     // Plugin Trigger
     if (this.hasEmptyTriggerStk() && (item as PluginItem).isPluginItem) {
       return applyExtensionVars(
-        extractArgsFromPluginItem(item as PluginItem),
+        await extractArgsFromPluginItem(item as PluginItem),
         extensionVariables
       );
     }
@@ -403,7 +404,7 @@ export class ActionFlowManager {
     // Workflow Trigger: Hotkey
     if (this.hasEmptyTriggerStk() && (item as Command).type === 'hotkey') {
       return applyExtensionVars(
-        emptyQuery,
+        await extractArgsFromHotkey(),
         extensionVariables
       );
     }
@@ -415,7 +416,7 @@ export class ActionFlowManager {
       );
 
       return applyExtensionVars(
-        extractArgsFromQuery(
+        await extractArgsFromQuery(
           queryStr ? queryStr.trim().split((item as Command).command!) : []
         ),
         extensionVariables
@@ -424,7 +425,7 @@ export class ActionFlowManager {
 
     if (this.getTopTrigger().type === 'keyword') {
       return applyExtensionVars(
-        extractArgsFromQuery(inputStr.split(' ')),
+        await extractArgsFromQuery(inputStr.split(' ')),
         extensionVariables
       );
     }
@@ -433,7 +434,7 @@ export class ActionFlowManager {
     if (this.getTopTrigger().type === 'scriptFilter') {
       const vars = { ...(item as ScriptFilterItem).variables, ...this.globalVariables! };
       return applyExtensionVars(
-        extractArgsFromScriptFilterItem(item, vars),
+        await extractArgsFromScriptFilterItem(item, vars),
         extensionVariables
       );
     }
@@ -649,22 +650,22 @@ export class ActionFlowManager {
   }
 
   /**
-   * If return value is false, need more user input
+   * Handle command item properly.
+   * If return value is 'false', need more user input
    * @param item
    * @param inputStr
    * @param modifier
-   * @summary Handle command item properly
    * @returns If return value is true, no need more user input
    */
-  public commandExcute(
+  public async commandExcute(
     item: Command | ScriptFilterItem | PluginItem,
     inputStr: string,
     modifier: Readonly<ModifierInput>
-  ): boolean {
+  ): Promise<boolean> {
     // If triggerStk is empty, the actions becomes command, otherwise the top action of the stack is 'actions'.
     // If triggerStk is empty, the args becomes query, otherwise args becomes arg of items
     const actions: Action[] | undefined = this.prepareNextActions({ item });
-    const args: Record<string, any> = this.prepareArgs({ item, inputStr });
+    const args: Record<string, any> = await this.prepareArgs({ item, inputStr });
 
     if (this.hasEmptyTriggerStk()) {
       // Trigger Type: one of 'keyword', 'scriptFilter'
@@ -705,17 +706,17 @@ export class ActionFlowManager {
    * @param inputStr
    * @param modifier
    */
-  public handleItemPressEvent(
+  public async handleItemPressEvent(
     item: Command | ScriptFilterItem | PluginItem,
     inputStr: string,
     modifier: Readonly<ModifierInput>
-  ): void {
+  ): Promise<void> {
     // Ignore this exeution if previous work is pending.
     if (this.prevScriptfilterIsExecuting()) {
       return;
     }
 
-    const quit: boolean = this.commandExcute(item, inputStr, modifier);
+    const quit: boolean = await this.commandExcute(item, inputStr, modifier);
 
     if (quit) {
       this.clearTriggerStk();
