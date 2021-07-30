@@ -3,7 +3,7 @@
 import _ from 'lodash';
 import { handleKeywordAction, handleResetInputAction } from '../actions';
 import { scriptFilterExcute } from '../actions/scriptFilter';
-import { log, LogType, pushInputStrLog } from '../config';
+import { group, groupEnd, log, LogType, pushInputStrLog } from '../config';
 import {
   getPluginInstalledPath,
   getWorkflowInstalledPath,
@@ -51,9 +51,9 @@ export class ActionFlowManager {
   public printActionType?: boolean;
   public printTriggerStack?: boolean;
   public printScriptOutput?: boolean;
-  public printArgs?: boolean;
   public printScriptfilter?: boolean;
   public printPluginItems?: boolean;
+  public printVariables?: boolean;
 
   public loggerColorType?: 'cui' | 'gui' = 'cui';
 
@@ -649,6 +649,14 @@ export class ActionFlowManager {
     return quit;
   }
 
+  public printVariableInfo = (vars: Record<string, any>) => {
+    if (this.printVariables) {
+      group(LogType.info, 'Variables');
+      log(LogType.info, vars);
+      groupEnd();
+    }
+  };
+
   /**
    * Handle command item properly.
    * If return value is 'false', need more user input
@@ -666,6 +674,8 @@ export class ActionFlowManager {
     // If triggerStk is empty, the args becomes query, otherwise args becomes arg of items
     const actions: Action[] | undefined = this.prepareNextActions({ item });
     const args: Record<string, any> = await this.prepareArgs({ item, inputStr });
+
+    this.printVariableInfo(args);
 
     if (this.hasEmptyTriggerStk()) {
       // Trigger Type: one of 'keyword', 'scriptFilter'

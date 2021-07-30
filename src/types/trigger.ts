@@ -6,7 +6,7 @@ declare global {
   export interface Trigger {
     /**
      * Trigger's type
-     *              Possible value is `keyword`, `scriptfilter`, `hotkey`
+     * Possible value is `keyword`, `scriptfilter`, `hotkey`
      */
     readonly type: string;
 
@@ -31,31 +31,31 @@ declare global {
 
     /**
      * trigger that triggers action.
-     *              starts with command object or pluginItem and becomes scriptFilterItem or action
+     * starts with command object or pluginItem and becomes scriptFilterItem or action
      */
     actionTrigger: Command | PluginItem | ScriptFilterItem | Action;
 
     /**
      * Used in only type is 'scriptFilter'
-     *              Indicates whether scriptfilter script is running
+     * Indicates whether scriptfilter script is running
      */
     scriptfilterCompleted?: boolean;
 
     /**
      * Used in only type is 'scriptFilter'
-     *              ExecaChildProcess object (promise)
+     * ExecaChildProcess object (promise)
      */
     scriptfilterProc?: PCancelable<execa.ExecaReturnValue<string>> | null;
 
     /**
      * Used in only type is 'scriptFilter'
-     *              Scriptfilter's rerun interval
+     * Scriptfilter's rerun interval
      */
     scriptfilterRerun?: number;
 
     /**
      * Used in only type is 'scriptFilter'
-     *              Scriptfilter's script execution result
+     * Scriptfilter's script execution result
      */
     items?: ScriptFilterItem[];
   }

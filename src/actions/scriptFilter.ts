@@ -233,6 +233,8 @@ export async function scriptFilterExcute(
     extensionVariables
   );
 
+  actionFlowManager.printVariableInfo(extractedArgs);
+
   const scriptWork: PCancelable<execa.ExecaReturnValue<string>> =
     new PCancelable((resolve, _reject, onCancel) => {
       const proc: execa.ExecaChildProcess<string> = handleScriptFilterChange(
