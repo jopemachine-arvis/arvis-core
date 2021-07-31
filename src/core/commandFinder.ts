@@ -96,7 +96,8 @@ const findWorkflowCommands = async (inputStr: string): Promise<Command[]> => {
  * @param targets
  * @param logDict
  */
-const sortByLatestUse = (targets: Command[] | PluginItem[], logDict: Map<string, number>) => {
+const sortByLatestUse = (targets: Command[] | PluginItem[], logDict: Map<string, number>): Command[] | PluginItem[] => {
+  if (targets.length <= 0) return [];
   const compareTarget = targets[0]['isPluginItem'] ? 'title' : 'command';
 
   return targets.sort((a: Command | PluginItem, b: Command | PluginItem) => {
