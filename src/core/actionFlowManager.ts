@@ -9,6 +9,7 @@ import {
   getWorkflowInstalledPath,
 } from '../config/path';
 import { triggerTypes } from '../lib/triggerTypes';
+import { exitify } from '../utils';
 import extractJson from '../utils/extractJson';
 import { handleAction } from './actionHandler';
 import {
@@ -680,7 +681,8 @@ export class ActionFlowManager {
     // If triggerStk is empty, the actions becomes command, otherwise the top action of the stack is 'actions'.
     // If triggerStk is empty, the args becomes query, otherwise args becomes arg of items
     const actions: Action[] | undefined = this.prepareNextActions({ item });
-    const args: Record<string, any> = await this.prepareArgs({ item, inputStr });
+    const { exit, value: args } = await exitify(this.prepareArgs)({ item, inputStr });
+    if (exit) return true;
 
     this.printVariableInfo(args);
 

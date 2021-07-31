@@ -15,6 +15,7 @@ import {
 } from '../core';
 import { applyExtensionVars, extractArgsFromQuery } from '../core/argsHandler';
 import { handleScriptFilterChange } from '../core/scriptFilterChangeHandler';
+import { exitify } from '../utils';
 
 /**
  * @summary
@@ -228,8 +229,11 @@ export async function scriptFilterExcute(
       ? getPluginList()[bundleId].variables
       : getWorkflowList()[bundleId].variables ?? {};
 
+  const { exit, value } = await exitify(extractArgsFromQuery)(querys);
+  if (exit) return;
+
   const extractedArgs: Record<string, any> = applyExtensionVars(
-    await extractArgsFromQuery(querys),
+    value,
     extensionVariables
   );
 

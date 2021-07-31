@@ -61,18 +61,30 @@ const findWorkflowCommands = async (inputStr: string): Promise<Command[]> => {
     // e.g. when given inputStr is 'en' => output: en, enc, enct..
     const isForwardCandidates = commandStr.startsWith(inputStr);
 
-    // const same = isBackwardCandidates && isForwardCandidates;
+    const same = isBackwardCandidates && isForwardCandidates;
 
     if (isForwardCandidates || isBackwardCandidates) {
       for (const command of commands[commandStr]) {
-        const { bundleId, argType } = command;
+        const { type, bundleId, argType, withspace } = command;
         const { defaultIcon, enabled } = getWorkflowList()[bundleId!];
 
-        // Except if argType is 'no' and query exists
-        if (
-          argType === 'no' &&
+        // Exclude when withspace is 'true' and not satisfy the condition
+        const isWithspaceButNotHaveWhitespace =
           isBackwardCandidates &&
-          inputStr !== commandStr
+          type === 'scriptFilter' &&
+          withspace &&
+          !same &&
+          !inputStr.startsWith(commandStr + ' ');
+
+        // Exclude when argType is 'no' and query exists
+        const argTypeIsNoButHasQuery =
+          isBackwardCandidates &&
+          argType === 'no' &&
+          inputStr !== commandStr;
+
+        if (
+          argTypeIsNoButHasQuery ||
+          isWithspaceButNotHaveWhitespace
         ) {
           break;
         }

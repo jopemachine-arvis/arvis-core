@@ -124,7 +124,7 @@ const applyExtensionVars = (args: Record<string, any>, vars: Record<string, any>
 
 /**
  */
-const extractArgsFromHotkey = async () => {
+const extractArgsFromHotkey = async (): Promise<Record<string, any>> => {
   return {
     '{query}': '',
     '{clipboard}': await getClipboardText(),
