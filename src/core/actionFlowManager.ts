@@ -74,7 +74,7 @@ export class ActionFlowManager {
   }
 
   /**
-   * cleanup work stack and other infomations
+   * Cleanup trigger stack and other infomations
    */
   public clearTriggerStk = (): void => {
     if (this.printTriggerStack) {
@@ -166,7 +166,7 @@ export class ActionFlowManager {
   }
 
   /**
-   * When an error occurs, onItemShouldBeUpdate is called by this method
+   * When an error occurs, 'onItemShouldBeUpdate' is called by this method
    * And those error messages are displayed to the user in the form of items.
    */
   public setErrorItem = ({
@@ -352,8 +352,8 @@ export class ActionFlowManager {
   }
 
   /**
-   * If triggerStk is empty, return item's action
-   * otherwise, return nextAction (topWork's action)
+   * If triggerStk is empty, return item's actions
+   * otherwise, return nextAction (top trigger's action)
    * @param item
    */
   private prepareNextActions = ({
@@ -568,8 +568,20 @@ export class ActionFlowManager {
   }
 
   /**
+   * @returns
+   */
+  private forwardifyTriggers = (actionsPointer: Action[]): Action[] => {
+    return actionsPointer.sort((actionA, actionB) => {
+      const aIsTrig = triggerTypes.includes(actionA.type);
+      const bIsTrig = triggerTypes.includes(actionB.type);
+      if ((aIsTrig && !bIsTrig) || (!aIsTrig && bIsTrig)) return 1;
+      return -1;
+    });
+  }
+
+  /**
    * Handle Multiple Actions, Process a sequence of actions that follow back.
-   * @returns If return false, commandExcute quits to enable users to give more input
+   * @returns If return false, 'commandExcute' quits to enable users to give more input
    */
   private handleActionChain = ({
     item,
@@ -590,14 +602,9 @@ export class ActionFlowManager {
     } = { args, nextActions: [] };
 
     let quit = true;
-    let actionsPointer: Action[] | undefined = targetActions ? [...targetActions] : [];
-
-    actionsPointer.sort((actionA, actionB) => {
-      const aIsTrig = triggerTypes.includes(actionA.type);
-      const bIsTrig = triggerTypes.includes(actionB.type);
-      if ((aIsTrig && !bIsTrig) || (!aIsTrig && bIsTrig)) return 1;
-      return -1;
-    });
+    let actionsPointer: Action[] | undefined = targetActions ?
+      this.forwardifyTriggers([...targetActions]) :
+      [];
 
     while (actionsPointer.length > 0) {
       const parentActionType: string | undefined = this.getParentActionType();

@@ -1,6 +1,7 @@
 import alphaSort from 'alpha-sort';
 import _ from 'lodash';
 import PCancelable from 'p-cancelable';
+import { getHistory } from '../config/history';
 import { getCommandList } from './commandList';
 import { pluginWorkspace } from './pluginWorkspace';
 import { getWorkflowList } from './workflowList';
@@ -21,7 +22,10 @@ const findPluginCommands = async (inputStr: string): Promise<{
 
   const pluginSortOutputs: PluginItem[] = pluginItems
     .map((result) => result.items)
-    .reduce((prev, curr) => [...prev, ...curr], []);
+    .reduce((prev, curr) => [...prev, ...curr], [])
+    .sort((a, b) =>
+      a.stringSimilarity! > b.stringSimilarity! ? -1 : 1
+    );
 
   const pluginNoSortOutputs: PluginItem[] = pluginNoSortItems
     .map((result) => result.items)
@@ -89,6 +93,34 @@ const findWorkflowCommands = async (inputStr: string): Promise<Command[]> => {
 };
 
 /**
+ * @param targets
+ * @param logDict
+ */
+const sortByLatestUse = (targets: Command[] | PluginItem[], logDict: Map<string, number>) => {
+  const compareTarget = targets[0]['isPluginItem'] ? 'title' : 'command';
+
+  return targets.sort((a: Command | PluginItem, b: Command | PluginItem) => {
+    const aP = logDict.has(a[compareTarget]!) ? logDict.get(a[compareTarget]!) : -1;
+    const bP = logDict.has(b[compareTarget]!) ? logDict.get(b[compareTarget]!) : -1;
+    return aP! > bP! ? -1 : 1;
+  });
+};
+
+/**
+ */
+const getLogDict = (): Map<string, number> => {
+  const logDict = new Map<string, number>();
+
+  getHistory().forEach((log: Log, index: number) => {
+    if (log.type === 'query') {
+      logDict.set(log.inputStr!, index);
+    }
+  });
+
+  return logDict;
+};
+
+/**
  * Return commands containing inputStr and plugin execution results
  * workflowItem has higher display priority than pluginItem
  * @param inputStr
@@ -108,13 +140,13 @@ const findCommands = async (
     inputStr
   );
 
+  const logDict = getLogDict();
+
   return {
     items: [
-      ...workflowCommands,
-      ...pluginSortOutputs.sort((a, b) =>
-        a.stringSimilarity! > b.stringSimilarity! ? -1 : 1
-      ),
-      ...pluginNoSortOutputs,
+      ...sortByLatestUse(workflowCommands, logDict),
+      ...sortByLatestUse(pluginSortOutputs, logDict),
+      ...sortByLatestUse(pluginNoSortOutputs, logDict),
     ],
     unresolved: unresolvedItems,
   };

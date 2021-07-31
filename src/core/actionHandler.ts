@@ -116,7 +116,7 @@ function handleAction({
 
   let nextActions: Action[] = [];
 
-  _.map(actions, (action) => {
+  _.map(actions, (action: Action) => {
     const { type } = action;
 
     let nextAction: Action[] | undefined = action.actions;
@@ -344,8 +344,6 @@ function handleAction({
       nextActions = [...nextActions, ...nextAction];
     }
   });
-
-  // Theoretically, nextAction may have more than one script filter, but the case is not considered yet..
 
   return {
     nextActions: nextActions ?? [],

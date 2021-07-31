@@ -5,6 +5,7 @@ import {
 } from '../lib/argUtility';
 import { checkUpdatableExtensions } from '../lib/checkUpdatableExtensions';
 import { getBundleId, getNameFromBundleId } from '../lib/getBundleId';
+import { getClipboardText } from '../lib/getClipboardText';
 import { getSystemPaths } from '../lib/getSystemPaths';
 import { overwriteExtensionInfo } from '../lib/overwriteExtensionInfo';
 import { resolveExtensionType } from '../lib/resolveExtensionType';
@@ -16,7 +17,6 @@ import {
 import { setAsyncPluginTimer } from '../lib/setAsyncPluginTimer';
 import { setExternalEnvs } from '../lib/setExternalEnvs';
 import { setStoreAvailabiltyChecker } from '../lib/setStoreAvailabiltyChecker';
-import { getClipboardText } from '../lib/getClipboardText';
 
 import { ActionFlowManager } from './actionFlowManager';
 import { handleAction } from './actionHandler';

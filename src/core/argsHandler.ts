@@ -35,7 +35,6 @@ const applyArgs = ({
  * In script, all white space characters in 'args' should be escaped.
  * @param script
  * @param queryArgs
- * @param appendQuotes
  * @returns applied string
  */
 const applyArgsToScript = ({

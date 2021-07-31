@@ -55,7 +55,7 @@ export const setMaxLogCnt = (count: number): void => {
 /**
  * @param str
  */
-export const getBestMatch = (str: string) => {
+export const getLatestMatch = (str: string) => {
   if (str.trim() === '') return '';
 
   const history = getHistory().reverse();
