@@ -10,10 +10,12 @@ export const exitify = (asyncFunc: any) => async (...args: any[]): Promise<{
   value: any;
 }> => {
   let exit = false;
+  const actionFlowManager = ActionFlowManager.getInstance();
+  const prevHasEmptyTriggerStk = actionFlowManager.hasEmptyTriggerStk();
+
   const value = await asyncFunc(...args);
 
-  const actionFlowManager = ActionFlowManager.getInstance();
-  if (actionFlowManager.hasEmptyTriggerStk()) {
+  if (!prevHasEmptyTriggerStk && actionFlowManager.hasEmptyTriggerStk()) {
     exit = true;
   }
 

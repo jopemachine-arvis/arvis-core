@@ -657,6 +657,9 @@ export class ActionFlowManager {
     return quit;
   }
 
+  /**
+   * @param vars
+   */
   public printVariableInfo = (vars: Record<string, any>) => {
     if (this.printVariables) {
       group(LogType.info, 'Variables');
