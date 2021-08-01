@@ -105,27 +105,29 @@ export const pluginWorkspace: PluginWorkspace = {
   },
 
   generateAsyncWork: (pluginBundleId: string, asyncPluginPromise: Promise<PluginExectionResult>, setTimer: boolean) => {
-    const work = new PCancelable<any>((resolve, reject, onCancel) => {
+    const asyncWork = new PCancelable<any>((resolve, reject, onCancel) => {
       let timer: NodeJS.Timeout | undefined;
+      let unresolved = false;
 
       if (setTimer) {
         timer = setTimeout(
-          () =>
+          () => {
+            unresolved = true;
             reject({
               name: 'Unresolved',
               asyncPluginPromise: pluginWorkspace.generateAsyncWork(pluginBundleId, asyncPluginPromise, false)
             })
+          }
           ,
           pluginWorkspace.asyncPluginTimer
         );
       }
 
-      onCancel(() => {
-        reject({ name: 'CancelError' });
-      });
+      onCancel(() => reject({ name: 'CancelError' }));
 
       asyncPluginPromise
         .then((result) => {
+          if (unresolved) return;
           setTimer && clearTimeout(timer!);
           if (!result.items || !result.items.length) resolve({ items: [] });
 
@@ -141,13 +143,13 @@ export const pluginWorkspace: PluginWorkspace = {
         .catch(reject);
     });
 
-    work.catch((err) => {
+    asyncWork.catch((err) => {
       const expectedCancel = err.name === 'CancelError' || err.name === 'Unresolved';
       if (expectedCancel) return;
       throw err;
     });
 
-    return work;
+    return asyncWork;
   },
 
   getAsyncWork: (pluginBundleId: string, asyncPluginPromise: Promise<PluginExectionResult>): PCancelable<any> => {

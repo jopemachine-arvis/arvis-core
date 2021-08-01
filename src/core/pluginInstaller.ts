@@ -81,7 +81,7 @@ export const installByPath = async (installedPath: string): Promise<void | Error
 };
 
 /**
- * @param installFile arvisplugin files
+ * @param installFile arvisplugin file
  */
 export const install = async (installFile: string): Promise<void | Error> => {
   let extractedPath: string;
