@@ -116,7 +116,7 @@ export const pluginWorkspace: PluginWorkspace = {
             reject({
               name: 'Unresolved',
               asyncPluginPromise: pluginWorkspace.generateAsyncWork(pluginBundleId, asyncPluginPromise, false)
-            })
+            });
           }
           ,
           pluginWorkspace.asyncPluginTimer
