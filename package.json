@@ -1,6 +1,6 @@
 {
   "name": "arvis-core",
-  "version": "0.10.6",
+  "version": "0.10.8",
   "description": "Core module of Arvis",
   "main": "dist/index.js",
   "files": [
@@ -47,7 +47,7 @@
   "bugs": {
     "url": "https://github.com/jopemachine/arvis-core/issues"
   },
-  "homepage": "https://github.com/jopemachine/arvis-core#readme",
+  "homepage": "https://jopemachine.github.io/arvis.com/",
   "devDependencies": {
     "@types/archiver": "^5.1.0",
     "@types/chalk": "^2.2.0",

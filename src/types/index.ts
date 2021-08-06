@@ -6,6 +6,8 @@ import './actions/condAction';
 import './actions/conditionalAction';
 import './actions/hotkeyAction';
 import './actions/if';
+import './actions/keyDispatchingAction';
+import './actions/keyDispatchingTarget';
 import './actions/keywordAction';
 import './actions/notificationAction';
 import './actions/openAction';
