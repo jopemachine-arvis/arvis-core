@@ -1,6 +1,6 @@
 // tslint:disable: no-string-literal
 import chalk from 'chalk';
-import execa, { ExecaError, ExecaReturnValue } from 'execa';
+import execa, { ExecaReturnValue } from 'execa';
 import _ from 'lodash';
 import PCancelable from 'p-cancelable';
 import parseJson from 'parse-json';
@@ -87,7 +87,7 @@ const scriptFilterCompleteEventHandler = (
     scriptFilterResult.stderr
   );
 
-  actionFlowManager.printScriptfilter && log(LogType.info, '[SF Result]', stdio);
+  actionFlowManager.printScriptfilter && log(LogType.info, '[Scriptfilter Result]', stdio);
 
   const { items, rerun: scriptfilterRerun, variables } = stdio;
 
@@ -104,8 +104,8 @@ const scriptFilterCompleteEventHandler = (
   const { bundleId } = actionFlowManager.getTopTrigger();
 
   const infolist = resolveExtensionType() === 'workflow'
-      ? getWorkflowList()
-      : getPluginList();
+    ? getWorkflowList()
+    : getPluginList();
 
   const defaultIcon = infolist[bundleId].defaultIcon;
 
@@ -117,31 +117,6 @@ const scriptFilterCompleteEventHandler = (
   });
 
   Renderer.onItemShouldBeUpdate({ items, needIndexInfoClear: true });
-};
-
-/**
- * Handler when scriptfilter's script fails
- * @param err
- * @param options
- */
-const scriptErrorHandler = (
-  err: ExecaError,
-  options?: { extractJson?: boolean } | undefined
-): void => {
-  const actionFlowManager = ActionFlowManager.getInstance();
-
-  if (err.timedOut) {
-    log(LogType.error, `Script timeout!\n'${err}`);
-  } else if (err.isCanceled) {
-    // Command was canceled by other scriptfilter.
-  } else {
-    if (actionFlowManager.hasEmptyTriggerStk()) {
-      // Command was canceled by user.
-    } else {
-      log(LogType.error, err);
-      actionFlowManager.handleScriptFilterError(err, options);
-    }
-  }
 };
 
 /**
@@ -239,20 +214,12 @@ export async function scriptFilterExcute(
 
   actionFlowManager.printVariableInfo(extractedArgs);
 
-  const scriptWork: PCancelable<execa.ExecaReturnValue<string>> =
-    new PCancelable((resolve, _reject, onCancel) => {
-      const proc: execa.ExecaChildProcess<string> = handleScriptFilterChange(
-        bundleId,
-        // Assume
-        actionTrigger as Command | Action | PluginItem,
-        extractedArgs
-      );
-      proc.then(resolve).catch((err: ExecaError) =>
-        scriptErrorHandler(err, { extractJson: err['extractJson'] ?? true })
-      );
-      proc.unref();
-      onCancel(() => proc.cancel());
-    });
+  const scriptWork: PCancelable<execa.ExecaReturnValue<string>> = handleScriptFilterChange(
+    bundleId,
+    // Assum
+    actionTrigger as Command | Action | PluginItem,
+    extractedArgs
+  );
 
   actionFlowManager.updateTopTrigger({
     args: extractedArgs,
@@ -260,7 +227,7 @@ export async function scriptFilterExcute(
   });
 
   return scriptWork
-    .then((result) => {
+    .then((result: ExecaReturnValue<string>) => {
       if (
         actionFlowManager.getTopTrigger().scriptfilterProc &&
         !actionFlowManager.getTopTrigger().scriptfilterProc!.isCanceled &&
@@ -280,7 +247,7 @@ export async function scriptFilterExcute(
     .catch((err) => {
       // In case of cancel command by user
       if (_.isUndefined(actionFlowManager.getTopTrigger())) return;
-      if (!scriptWork.isCanceled) {
+      if (!scriptWork.isCanceled && !err.isCanceled) {
         console.error(`Unexpected Error occurs:\n\n${err}`);
         actionFlowManager.handleScriptFilterError(err, { extractJson: false });
       }

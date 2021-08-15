@@ -1,5 +1,8 @@
+import cp, { ChildProcess } from 'child_process';
 import execa from 'execa';
 import _ from 'lodash';
+import PCancelable from 'p-cancelable';
+import { v4 as generateUuid } from 'uuid';
 import { getEnvs } from '../config';
 import { getWorkflowInstalledPath } from '../config/path';
 import { ActionFlowManager } from './actionFlowManager';
@@ -10,12 +13,39 @@ type ScriptExecuterOption = {
   shell?: boolean | string;
 };
 
+let scriptExecutor: ChildProcess;
+
+/**
+ * Should call startScriptExecutor to start executor process before call excute
+ * Forward 'arvis-core/scripts/scriptExecutor.js' file's path to executorFilePath
+ */
+export const startScriptExecutor = async (executorFilePath: string) => {
+  scriptExecutor = cp.fork(executorFilePath);
+  return scriptExecutor;
+};
+
+/**
+ * Should call endScriptExecutor before quit arvis
+ */
+export const endScriptExecutor = async () => {
+  if (scriptExecutor) {
+    scriptExecutor.kill();
+  }
+};
+
+/**
+ * Make unique identifier
+ */
+const generateRequestId = () => {
+  return generateUuid();
+};
+
 /**
  * @param bundleId
  * @param scriptStr
  * @param vars
  * @param options?
- * @returns Executed process
+ * @returns Cancelable promise returning executed process's return value
  */
 export const execute = ({
   bundleId,
@@ -27,7 +57,11 @@ export const execute = ({
   scriptStr: string;
   vars: Record<string, any>;
   options?: ScriptExecuterOption | undefined;
-}): execa.ExecaChildProcess<string> => {
+}): PCancelable<execa.ExecaReturnValue<string>> => {
+  if (!scriptExecutor) {
+    throw new Error('execute should not be called before scriptExecutor process starts.');
+  }
+
   const { execPath, name, version, type } =
     ActionFlowManager.getInstance().extensionInfo!;
 
@@ -44,9 +78,7 @@ export const execute = ({
   // 100MB
   const maxBuffer = 100000000;
 
-  // If it doesn't finish within the timeout time, an error is considered to have occurred.
-  // Timeout time to should be changed.
-  return execa.command(scriptStr, {
+  const executorOptions = JSON.stringify({
     all,
     buffer: true,
     cleanup: true,
@@ -68,5 +100,30 @@ export const execute = ({
       version: version ?? '',
       vars: vars ?? {},
     }),
+  });
+
+  const requestId = generateRequestId();
+  scriptExecutor.send({ id: requestId, event: 'execute', scriptStr, executorOptions });
+
+  return new PCancelable<execa.ExecaReturnValue<string>>((resolve, reject, onCancel) => {
+    // Remove previous 'canceled' message event listenrers
+    scriptExecutor.removeAllListeners();
+
+    scriptExecutor.on('message', ({ id, payload }: { id: string; payload: string }) => {
+      if (id !== requestId) return;
+
+      const result: execa.ExecaReturnValue<string> = JSON.parse(payload);
+
+      if (result.failed || result.isCanceled) {
+        // Most of cancel error are not handled in here because previous canceled event listerers are all unregistered.
+        reject(result);
+      } else {
+        resolve(result);
+      }
+    });
+
+    onCancel(() => {
+      scriptExecutor.send({ id: requestId, event: 'cancel' });
+    });
   });
 };

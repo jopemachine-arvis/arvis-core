@@ -1,4 +1,5 @@
 import execa from 'execa';
+import PCancelable from 'p-cancelable';
 import { log, LogType } from '../config';
 import { extractVarEnv } from '../config/envHandler';
 import { ActionFlowManager } from './actionFlowManager';
@@ -23,7 +24,7 @@ export const handleScriptFilterChange = (
   command: Command | PluginItem | Action,
   queryArgs: Record<string, any>,
   options?: Readonly<ScriptFilterChangeHandlerOption>
-): execa.ExecaChildProcess<string> => {
+): PCancelable<execa.ExecaReturnValue<string>> => {
   if (command.type !== 'scriptFilter') {
     throw new Error(`Command is not scriptfilter! ${command}`);
   }
@@ -40,7 +41,7 @@ export const handleScriptFilterChange = (
   const actionFlowManager = ActionFlowManager.getInstance();
 
   if (actionFlowManager.printScriptfilter) {
-    log(LogType.info, '[SF Script]', scriptStr);
+    log(LogType.info, '[Scriptfilter Script]', scriptStr);
   }
 
   const vars: Record<string, any> = extractVarEnv(queryArgs);

@@ -71,7 +71,6 @@
     "src/**.d.ts"
   ],
   "exclude": [
-    "node_modules",
-    "execa"
+    "node_modules"
   ]
 }

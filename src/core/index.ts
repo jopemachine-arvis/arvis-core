@@ -32,7 +32,7 @@ import {
 import { getPluginList } from './pluginList';
 import { reloadPlugins } from './pluginReloader';
 import { pluginWorkspace } from './pluginWorkspace';
-import { execute } from './scriptExecutor';
+import { endScriptExecutor, execute, startScriptExecutor } from './scriptExecutor';
 import { findTriggers } from './triggerFinder';
 import { getTriggers } from './triggerList';
 import { exportWorkflow } from './workflowExporter';
@@ -61,6 +61,7 @@ export {
   checkUpdatableExtensions,
   determineDefaultIconPath,
   determineIconPath,
+  endScriptExecutor,
   execute,
   exportPlugin,
   exportWorkflow,
@@ -101,6 +102,7 @@ export {
   setExternalEnvs,
   setMacPathsEnv,
   setStoreAvailabiltyChecker,
+  startScriptExecutor,
   Store,
   uninstallPlugin,
   uninstallWorkflow,

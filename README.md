@@ -43,7 +43,7 @@ The storage path for all installed extension files is stored in the `data` path 
 
 ## Related
 
-- [arvis](https://github.com/jopemachine/arvis) - Arvis GUI
+- [arvis](https://github.com/jopemachine/arvis) - Arvis main repository
 
 - [arvis-extension-validator](https://github.com/jopemachine/arvis-extension-validator) - Arvis extension's JSON schema, cli and library to validate these.
 

@@ -11,9 +11,9 @@ import { extractScriptOnThisPlatform } from '../core/scriptExtracter';
  */
 const scriptErrorHandler = (err: ExecaError): void => {
   if (err.timedOut) {
-    log(LogType.error, `Script timeout!`);
+    log(LogType.error, `Script Timeout!`);
   } else if (err.isCanceled) {
-    log(LogType.error, `Script canceled`);
+    log(LogType.error, `Script Canceled`);
   } else {
     log(LogType.error, `Script Error\n\n${err}`);
   }
@@ -29,23 +29,22 @@ export const handleScriptAction = async (action: ScriptAction, queryArgs: Record
     action.script
   );
 
-  const scriptWork = execute({
-    bundleId: actionFlowManager.getTopTrigger().bundleId,
-    scriptStr: applyArgsToScript({ script: scriptStr, queryArgs }),
-    vars: extractVarEnv(queryArgs),
-    options: { all: true, shell },
-  });
+  try {
+    const result: execa.ExecaReturnValue<string> = await execute({
+      bundleId: actionFlowManager.getTopTrigger().bundleId,
+      scriptStr: applyArgsToScript({ script: scriptStr, queryArgs }),
+      vars: extractVarEnv(queryArgs),
+      options: { all: true, shell },
+    });
 
-  return scriptWork
-    .then((result: execa.ExecaReturnValue<string>) => {
-      if (actionFlowManager.printScriptOutput) {
-        if (result.all && result.all.trim() !== '') {
-          log(LogType.info, `[Script output]\n\n${result.all}`);
-        } else {
-          log(LogType.info, `[Script output] script ends and no print output`);
-        }
+    if (actionFlowManager.printScriptOutput) {
+      if (result.all && result.all.trim() !== '') {
+        log(LogType.info, `[Script output]\n\n${result.all}`);
+      } else {
+        log(LogType.info, `[Script output] script ends and no print output`);
       }
-      return result;
-    })
-    .catch(scriptErrorHandler);
+    }
+  } catch (err) {
+    scriptErrorHandler(err);
+  }
 };
