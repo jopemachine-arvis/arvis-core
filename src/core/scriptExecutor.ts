@@ -114,8 +114,7 @@ export const execute = ({
 
       const result: execa.ExecaReturnValue<string> = JSON.parse(payload);
 
-      if (result.failed || result.isCanceled) {
-        // Most of cancel error are not handled in here because previous canceled event listerers are all unregistered.
+      if (_.isError(result)) {
         reject(result);
       } else {
         resolve(result);
