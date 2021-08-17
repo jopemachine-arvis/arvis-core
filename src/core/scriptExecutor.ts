@@ -19,7 +19,7 @@ let scriptExecutor: ChildProcess;
  * Should call startScriptExecutor to start executor process before call excute
  * Forward 'arvis-core/scripts/scriptExecutor.js' file's path to executorFilePath
  */
-export const startScriptExecutor = async (executorFilePath: string) => {
+export const startScriptExecutor = (executorFilePath: string): ChildProcess => {
   scriptExecutor = cp.fork(executorFilePath);
   return scriptExecutor;
 };
@@ -27,7 +27,7 @@ export const startScriptExecutor = async (executorFilePath: string) => {
 /**
  * Should call endScriptExecutor before quit arvis
  */
-export const endScriptExecutor = async () => {
+export const endScriptExecutor = () => {
   if (scriptExecutor) {
     scriptExecutor.kill();
   }
@@ -112,7 +112,7 @@ export const execute = ({
     scriptExecutor.on('message', ({ id, payload }: { id: string; payload: string }) => {
       if (id !== requestId) return;
 
-      const result: execa.ExecaReturnValue<string> = JSON.parse(payload);
+      const result: execa.ExecaReturnValue<string> | Error = JSON.parse(payload);
 
       if (_.isError(result)) {
         reject(result);
