@@ -14,13 +14,33 @@ type ScriptExecuterOption = {
 };
 
 let scriptExecutor: ChildProcess;
+let useExecutorProcess: boolean = false;
 
 /**
- * Should call startScriptExecutor to start executor process before call excute
- * Forward 'arvis-core/scripts/scriptExecutor.js' file's path to executorFilePath
+ * Should call startScriptExecutor to start executor process before call 'excute'
+ * Bind 'arvis-core/scripts/scriptExecutor.js' file's path to executorFilePath
  */
 export const startScriptExecutor = (executorFilePath: string): ChildProcess => {
   scriptExecutor = cp.fork(executorFilePath);
+
+  const printExitWarning = () => console.warn('scriptExecutor\'s ipc channel was closed. It might be error unless arvis is supposed to be quited.');
+
+  scriptExecutor.on('close', () => {
+    printExitWarning();
+  });
+
+  scriptExecutor.on('exit', () => {
+    printExitWarning();
+  });
+
+  scriptExecutor.on('disconnect', () => {
+    printExitWarning();
+  });
+
+  scriptExecutor.on('error', (err) => {
+    console.error('ScriptExecutor Error', err);
+  });
+
   return scriptExecutor;
 };
 
@@ -31,6 +51,12 @@ export const endScriptExecutor = () => {
   if (scriptExecutor) {
     scriptExecutor.kill();
   }
+};
+
+/**
+ */
+export const setUseExecutorProcess = (arg: boolean) => {
+  useExecutorProcess = arg;
 };
 
 /**
@@ -58,10 +84,6 @@ export const execute = ({
   vars: Record<string, any>;
   options?: ScriptExecuterOption | undefined;
 }): PCancelable<execa.ExecaReturnValue<string>> => {
-  if (!scriptExecutor) {
-    throw new Error('execute should not be called before scriptExecutor process starts.');
-  }
-
   const { execPath, name, version, type } =
     ActionFlowManager.getInstance().extensionInfo!;
 
@@ -78,7 +100,7 @@ export const execute = ({
   // 100MB
   const maxBuffer = 100000000;
 
-  const executorOptions = JSON.stringify({
+  const executorOptions = {
     all,
     buffer: true,
     cleanup: true,
@@ -89,7 +111,6 @@ export const execute = ({
     killSignal: 'SIGTERM',
     maxBuffer,
     preferLocal: false,
-    serialization: 'json',
     shell,
     timeout,
     windowsHide: true,
@@ -100,29 +121,47 @@ export const execute = ({
       version: version ?? '',
       vars: vars ?? {},
     }),
-  });
+  };
 
   const requestId = generateRequestId();
-  scriptExecutor.send({ id: requestId, event: 'execute', scriptStr, executorOptions });
 
-  return new PCancelable<execa.ExecaReturnValue<string>>((resolve, reject, onCancel) => {
-    // Remove previous 'canceled' message event listenrers
-    scriptExecutor.removeAllListeners();
+  if (!useExecutorProcess) {
+    return new PCancelable<execa.ExecaReturnValue<string>>((resolve, reject, onCancel) => {
+      const proc = execa.command(scriptStr, executorOptions);
+      proc.then(resolve).catch(reject);
 
-    scriptExecutor.on('message', ({ id, payload }: { id: string; payload: string }) => {
-      if (id !== requestId) return;
-
-      const result: execa.ExecaReturnValue<string> | Error = JSON.parse(payload);
-
-      if (_.isError(result)) {
-        reject(result);
-      } else {
-        resolve(result);
-      }
+      onCancel(() => {
+        proc.cancel();
+      });
     });
+  } else {
+    if (!scriptExecutor) {
+      throw new Error('execute should not be called before scriptExecutor process starts.');
+    }
 
-    onCancel(() => {
-      scriptExecutor.send({ id: requestId, event: 'cancel' });
+    // If it doesn't finish within the timeout time, an error is considered to have occurred.
+    // Timeout time to should be changed.
+    scriptExecutor.send({ id: requestId, event: 'execute', scriptStr, executorOptions: JSON.stringify(executorOptions) });
+
+    return new PCancelable<execa.ExecaReturnValue<string>>((resolve, reject, onCancel) => {
+      // Remove previous 'canceled' message event listenrers
+      scriptExecutor.removeAllListeners();
+
+      scriptExecutor.on('message', ({ id, payload }: { id: string; payload: string }) => {
+        if (id !== requestId) return;
+
+        const result: execa.ExecaReturnValue<string> | Error = JSON.parse(payload);
+
+        if (_.isError(result)) {
+          reject(result);
+        } else {
+          resolve(result);
+        }
+      });
+
+      onCancel(() => {
+        scriptExecutor.send({ id: requestId, event: 'cancel' });
+      });
     });
-  });
+  }
 };

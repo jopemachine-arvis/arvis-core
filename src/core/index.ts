@@ -32,7 +32,7 @@ import {
 import { getPluginList } from './pluginList';
 import { reloadPlugins } from './pluginReloader';
 import { pluginWorkspace } from './pluginWorkspace';
-import { endScriptExecutor, execute, startScriptExecutor } from './scriptExecutor';
+import { endScriptExecutor, execute, setUseExecutorProcess, startScriptExecutor } from './scriptExecutor';
 import { findTriggers } from './triggerFinder';
 import { getTriggers } from './triggerList';
 import { exportWorkflow } from './workflowExporter';
@@ -102,6 +102,7 @@ export {
   setExternalEnvs,
   setMacPathsEnv,
   setStoreAvailabiltyChecker,
+  setUseExecutorProcess,
   startScriptExecutor,
   Store,
   uninstallPlugin,

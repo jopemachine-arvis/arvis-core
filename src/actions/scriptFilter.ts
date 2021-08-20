@@ -218,7 +218,7 @@ export async function scriptFilterExcute(
     bundleId,
     // Assum
     actionTrigger as Command | Action | PluginItem,
-    extractedArgs
+    extractedArgs,
   );
 
   actionFlowManager.updateTopTrigger({
