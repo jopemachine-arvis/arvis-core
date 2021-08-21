@@ -1,9 +1,9 @@
-import cp, { ChildProcess } from 'child_process';
 import execa from 'execa';
 import _ from 'lodash';
 import PCancelable from 'p-cancelable';
 import { v4 as generateUuid } from 'uuid';
 import { getEnvs } from '../config';
+import { getMacPathsEnv } from '../config/envHandler';
 import { getWorkflowInstalledPath } from '../config/path';
 import { ActionFlowManager } from './actionFlowManager';
 
@@ -13,28 +13,92 @@ type ScriptExecuterOption = {
   shell?: boolean | string;
 };
 
-let scriptExecutor: ChildProcess;
+let scriptExecutor: execa.ExecaChildProcess<string>;
 let useExecutorProcess: boolean = false;
+
+const scriptExecutorProcess = `
+const execa = require(process.argv[1]);
+
+let executionTimer;
+
+// Wait a little longer than child process spawning will normally uses (around 15ms).
+const executionDelay = 25;
+
+const requests = new Map();
+
+const addRequest = (id, proc) => {
+  requests.set(id, proc);
+};
+
+const cancelProc = (id) => {
+  if (requests.has(id)) {
+    requests.get(id).cancel();
+  }
+};
+
+const clearExecutionTimer = () => {
+  if (executionTimer) {
+    clearTimeout(executionTimer);
+  }
+};
+
+const handleExecute = (id, scriptStr, executorOptions) => {
+  let payload;
+
+  // Clear previous script execution timer.
+  clearExecutionTimer();
+
+  const handler = () => {
+    clearExecutionTimer();
+
+    const proc = execa.command(scriptStr, executorOptions);
+    addRequest(id, proc);
+
+    return proc.then((result) => {
+      payload = result;
+      return result;
+    }).catch((err) => {
+      payload = err;
+    }).finally(() => {
+      requests.delete(id);
+      process.send({ id, payload: JSON.stringify(payload) });
+    });
+  };
+
+  executionTimer = setTimeout(handler, executionDelay);
+};
+
+process.on('message', async ({ id, event, scriptStr, executorOptions }) => {
+  switch (event) {
+    case 'execute':
+      handleExecute(id, scriptStr, JSON.parse(executorOptions));
+      break;
+
+    case 'cancel':
+      cancelProc(id);
+      break;
+
+    default:
+      console.error('Unsupported event type ' + event);
+      break;
+  }
+});
+`;
 
 /**
  * Should call startScriptExecutor to start executor process before call 'excute'
  * Bind 'arvis-core/scripts/scriptExecutor.js' file's path to executorFilePath
  */
-export const startScriptExecutor = (executorFilePath: string): ChildProcess => {
-  scriptExecutor = cp.fork(executorFilePath);
+export const startScriptExecutor = (modulePath: { execa: string }): execa.ExecaChildProcess<string> => {
+  const env = process.env;
+  if (process.platform === 'darwin') {
+    env['PATH'] = getMacPathsEnv();
+  }
 
-  const printExitWarning = () => console.warn('scriptExecutor\'s ipc channel was closed. It might be error unless arvis is supposed to be quited.');
+  scriptExecutor = execa('node', ['--eval', scriptExecutorProcess, modulePath.execa], { stdio: ['ipc'], detached: true, extendEnv: true, env, encoding: 'utf8' });
 
-  scriptExecutor.on('close', () => {
-    printExitWarning();
-  });
-
-  scriptExecutor.on('exit', () => {
-    printExitWarning();
-  });
-
-  scriptExecutor.on('disconnect', () => {
-    printExitWarning();
+  scriptExecutor.on('exit', (exitCode) => {
+    console.warn('scriptExecutor\'s ipc channel was closed. It might be error unless arvis is supposed to be quited.\nexit code: ' + exitCode);
   });
 
   scriptExecutor.on('error', (err) => {
@@ -47,7 +111,7 @@ export const startScriptExecutor = (executorFilePath: string): ChildProcess => {
 /**
  * Should call endScriptExecutor before quit arvis
  */
-export const endScriptExecutor = () => {
+export const endScriptExecutor = (): void => {
   if (scriptExecutor) {
     scriptExecutor.kill();
   }
@@ -55,14 +119,14 @@ export const endScriptExecutor = () => {
 
 /**
  */
-export const setUseExecutorProcess = (arg: boolean) => {
+export const setUseExecutorProcess = (arg: boolean): void => {
   useExecutorProcess = arg;
 };
 
 /**
  * Make unique identifier
  */
-const generateRequestId = () => {
+const generateRequestId = (): string => {
   return generateUuid();
 };
 

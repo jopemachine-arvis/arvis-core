@@ -1,13 +1,13 @@
 {
   "name": "arvis-core",
-  "version": "0.12.7",
+  "version": "0.12.11",
   "description": "Core module of Arvis",
   "main": "dist/index.js",
   "files": [
-    "dist/**",
-    "scripts/**"
+    "dist/**"
   ],
   "scripts": {
+    "start-scriptExecutor": "node ./scripts/scriptExecutor.js",
     "test": "jest --verbose ./__test__/unit",
     "build": "tsc",
     "start": "npm run build && dist/cli.js",
