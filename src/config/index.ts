@@ -7,7 +7,7 @@ import {
   pushInputStrLog,
   setMaxLogCnt,
 } from './history';
-import { group, groupEnd, log, LogType, setLogLevels, trace } from './logger';
+import { injectCustomConsole, log, LogType, setLogLevels, trace } from './logger';
 import pathConfig from './path';
 import { Store } from './store';
 import { applyUserConfigs, getUserConfigs } from './userConfig';
@@ -18,9 +18,8 @@ export {
   getHistory,
   getHistoryFilePath,
   getUserConfigs,
-  group,
-  groupEnd,
   initHistory,
+  injectCustomConsole,
   log,
   LogType,
   pathConfig,

@@ -23,21 +23,11 @@ import { exitify } from '../utils';
 const printActionLog = (): void => {
   const actionFlowManager = ActionFlowManager.getInstance();
   if (actionFlowManager.printActionType) {
-    if (actionFlowManager.loggerColorType === 'gui') {
-      log(
-        LogType.info,
-        `%c[Action: scriptfilter]%c `,
-        'color: red',
-        'color: unset',
-        actionFlowManager.getTopTrigger().actionTrigger
-      );
-    } else {
-      log(
-        LogType.info,
-        chalk.redBright(`[Action: scriptfilter] `),
-        actionFlowManager.getTopTrigger().actionTrigger
-      );
-    }
+    log(
+      LogType.info,
+      chalk.redBright(`[Action: scriptfilter] `),
+      actionFlowManager.getTopTrigger().actionTrigger
+    );
   }
 };
 

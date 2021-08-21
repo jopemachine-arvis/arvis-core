@@ -11,6 +11,15 @@ export const defaultLogLevels: LogType[] = [LogType.debug, LogType.error, LogTyp
 
 let logLevels: LogType[] = defaultLogLevels;
 
+let logger: Console = console;
+
+/**
+ * Set custom console
+ */
+export const injectCustomConsole = (customConsole: any) => {
+  logger = customConsole;
+};
+
 /**
  * Print out the logs that are included in the "types".
  * @param types
@@ -25,29 +34,17 @@ export const setLogLevels = (types: LogType[]): void => {
  * @param optionalParams optionalParams of console.log, console.error
  */
 export const log = (type: LogType, message?: any, ...optionalParams: any[]): void => {
-  if (type === LogType.error) {
-    console.error(message, ...optionalParams);
-  } else if (type === LogType.warn) {
-    console.warn(message, ...optionalParams);
-  } else if (logLevels.includes(type)) {
-    console.log(message, ...optionalParams);
-  }
-};
-
-/**
- * @param type
- * @param groupName
- */
-export const group = (type: LogType, groupName: string) => {
   if (logLevels.includes(type)) {
-    console.group(groupName);
+    if (type === LogType.debug) {
+      logger.log(`[Debug] ${message}`, ...optionalParams);
+    } else if (type === LogType.error) {
+      logger.error(message, ...optionalParams);
+    } else if (type === LogType.warn) {
+      logger.warn(message, ...optionalParams);
+    } else {
+      logger.log(message, ...optionalParams);
+    }
   }
-};
-
-/**
- */
-export const groupEnd = () => {
-  console.groupEnd();
 };
 
 /**
@@ -58,3 +55,4 @@ export const trace = (err: Error): void => {
     console.trace(err);
   }
 };
+

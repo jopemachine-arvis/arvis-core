@@ -5,7 +5,7 @@ import PCancelable from 'p-cancelable';
 import path from 'path';
 import { compareTwoStrings } from 'string-similarity';
 import { getEnvs, getHistory, log, LogType } from '../config';
-import { group, groupEnd, trace } from '../config/logger';
+import { trace } from '../config/logger';
 import { getPluginInstalledPath } from '../config/path';
 import { ActionFlowManager } from './actionFlowManager';
 import { getPluginList } from './pluginList';
@@ -184,6 +184,19 @@ export const pluginWorkspace: PluginWorkspace = {
       );
   },
 
+  debug: (pluginExecutionResults: PluginExectionResult[]) => {
+    if (ActionFlowManager.getInstance().printPluginItems) {
+      const debuggingResult = {};
+      for (const res of pluginExecutionResults) {
+        if (res.items.length > 0) {
+          debuggingResult[res.items[0].bundleId!] = res;
+        }
+      }
+
+      log(LogType.info, 'Executed plugins information', debuggingResult);
+    }
+  },
+
   search: async (inputStr: string): Promise<{
     pluginExecutionResults: PluginExectionResult[],
     unresolvedPlugins: PCancelable<PluginExectionResult>[]
@@ -267,11 +280,7 @@ export const pluginWorkspace: PluginWorkspace = {
       );
     }
 
-    if (ActionFlowManager.getInstance().printPluginItems) {
-      group(LogType.info, 'Plugin Items');
-      log(LogType.info, pluginExecutionResults);
-      groupEnd();
-    }
+    pluginWorkspace.debug(pluginExecutionResults);
 
     return {
       pluginExecutionResults,

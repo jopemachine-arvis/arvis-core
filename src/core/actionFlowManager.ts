@@ -3,7 +3,7 @@
 import _ from 'lodash';
 import { handleKeywordAction, handleResetInputAction } from '../actions';
 import { scriptFilterExcute } from '../actions/scriptFilter';
-import { group, groupEnd, log, LogType, pushInputStrLog } from '../config';
+import { log, LogType, pushInputStrLog } from '../config';
 import {
   getPluginInstalledPath,
   getWorkflowInstalledPath,
@@ -56,8 +56,6 @@ export class ActionFlowManager {
   public printPluginItems?: boolean;
   public printVariables?: boolean;
 
-  public loggerColorType?: 'cui' | 'gui' = 'cui';
-
   public maxRetrieveCount?: number;
 
   public isInitialTrigger?: boolean = true;
@@ -79,7 +77,7 @@ export class ActionFlowManager {
    */
   public clearTriggerStk = (): void => {
     if (this.printTriggerStack) {
-      log(LogType.info, 'Trigger stack cleared!');
+      log(LogType.debug, 'Trigger stack cleared!');
     }
 
     this.triggerStk.length = 0;
@@ -662,9 +660,7 @@ export class ActionFlowManager {
    */
   public printVariableInfo = (vars: Record<string, any>) => {
     if (this.printVariables) {
-      group(LogType.info, 'Variables');
       log(LogType.info, vars);
-      groupEnd();
     }
   }
 

@@ -8,73 +8,28 @@ import {
   handleScriptAction as handleScriptAction,
   openFile as openFileAction,
 } from '../actions';
-import { group, groupEnd, log, LogType } from '../config';
+import { log, LogType } from '../config';
 import { escapeBraket } from '../utils';
 import { ActionFlowManager } from './actionFlowManager';
 import { applyArgsInAction } from './argsHandler';
 import { handleModifiers } from './modifierHandler';
 
 /**
- * @param action
- * @param color
- * @param extra
- */
-const printActionDebuggingLogOnCUI = (
-  action: Action,
-  color: Function,
-  extra: any
-) => {
-  group(LogType.info, `[Action: ${action.type}]`);
-  log(LogType.info, color(`[Action: ${action.type}] `), action, extra);
-  groupEnd();
-};
-
-/**
- * @param action
- * @param color
- * @param extra
- */
-const printActionDebuggingLogOnGUI = (
-  action: Action,
-  color: string,
-  extra: any
-) => {
-  group(LogType.info, `[Action: ${action.type}]`);
-
-  log(
-    LogType.info,
-    `%c[Action: ${action.type}]%c `,
-    `color: ${color}`,
-    'color: unset',
-    action,
-    extra
-  );
-
-  groupEnd();
-};
-
-/**
  * @summary
  */
 const printActionDebuggingLog = ({
   cuiColorApplier,
-  guiColor,
   action,
   extra = '',
 }: {
   cuiColorApplier: Function;
-  guiColor: string;
   action: Action;
   extra?: any;
 }) => {
   const actionFlowManager = ActionFlowManager.getInstance();
   if (!actionFlowManager.printActionType) return;
 
-  if (actionFlowManager.loggerColorType === 'cui') {
-    printActionDebuggingLogOnCUI(action, cuiColorApplier, extra);
-  } else if (actionFlowManager.loggerColorType === 'gui') {
-    printActionDebuggingLogOnGUI(action, guiColor, extra);
-  }
+  log(LogType.info, cuiColorApplier(`[Action: ${action.type}] `), action, extra);
 };
 
 /**
@@ -141,7 +96,6 @@ function handleAction({
           printActionDebuggingLog({
             action,
             cuiColorApplier: chalk.redBright,
-            guiColor: 'red',
             extra: `script executed: '${(action as ScriptAction).script}'`,
           });
 
@@ -171,7 +125,6 @@ function handleAction({
           printActionDebuggingLog({
             action,
             cuiColorApplier: chalk.blackBright,
-            guiColor: 'black',
           });
 
           const nextFirstAction = action['actions']
@@ -207,7 +160,6 @@ function handleAction({
           printActionDebuggingLog({
             action,
             cuiColorApplier: chalk.blueBright,
-            guiColor: 'blue',
             extra: `open target: '${(action as OpenAction).target}'`,
           });
 
@@ -223,7 +175,6 @@ function handleAction({
           printActionDebuggingLog({
             action,
             cuiColorApplier: chalk.greenBright,
-            guiColor: 'green',
             extra: `copied string: '${(action as ClipboardAction).text}'`,
           });
 
@@ -245,7 +196,6 @@ function handleAction({
           printActionDebuggingLog({
             action,
             cuiColorApplier: chalk.blueBright,
-            guiColor: 'blue',
             extra: `arg extracted: '${nextQueryArgs['{query}']}'`,
           });
 
@@ -288,7 +238,6 @@ function handleAction({
             printActionDebuggingLog({
               action,
               cuiColorApplier: chalk.magentaBright,
-              guiColor: 'magenta',
               extra: `condition is evaluated by '${condIsTrue}'`,
             });
           }
@@ -311,7 +260,6 @@ function handleAction({
           printActionDebuggingLog({
             action,
             cuiColorApplier: chalk.blackBright,
-            guiColor: 'black',
             extra: `reset input by '${(action as ResetInputAction).newInput}'`,
           });
           break;

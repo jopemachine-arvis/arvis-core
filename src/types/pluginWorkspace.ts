@@ -13,6 +13,7 @@ declare global {
       asyncPluginPromise: Promise<any>,
       setTimer: boolean,
     ) => PCancelable<PluginExectionResult[]>;
+    debug: (pluginExecutionResults: PluginExectionResult[]) => void;
     getAsyncWork: (
       pluginBundleId: string,
       asyncPluginPromise: Promise<any>

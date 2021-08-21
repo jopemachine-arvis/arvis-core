@@ -2,7 +2,7 @@ import execa from 'execa';
 import _ from 'lodash';
 import PCancelable from 'p-cancelable';
 import { v4 as generateUuid } from 'uuid';
-import { getEnvs } from '../config';
+import { getEnvs, log, LogType } from '../config';
 import { getMacPathsEnv } from '../config/envHandler';
 import { getWorkflowInstalledPath } from '../config/path';
 import { ActionFlowManager } from './actionFlowManager';
@@ -98,11 +98,11 @@ export const startScriptExecutor = (modulePath: { execa: string }): execa.ExecaC
   scriptExecutor = execa('node', ['--eval', scriptExecutorProcess, modulePath.execa], { stdio: ['ipc'], detached: true, extendEnv: true, env, encoding: 'utf8' });
 
   scriptExecutor.on('exit', (exitCode) => {
-    console.warn('scriptExecutor\'s ipc channel was closed. It might be error unless arvis is supposed to be quited.\nexit code: ' + exitCode);
+    log(LogType.warn, 'scriptExecutor\'s ipc channel was closed. It might be error unless arvis is supposed to be quited.\nexit code: ' + exitCode);
   });
 
   scriptExecutor.on('error', (err) => {
-    console.error('ScriptExecutor Error', err);
+    log(LogType.error, 'ScriptExecutor Error', err);
   });
 
   return scriptExecutor;
