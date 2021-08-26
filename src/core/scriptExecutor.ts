@@ -95,7 +95,13 @@ export const startScriptExecutor = (modulePath: { execa: string }): execa.ExecaC
     env['PATH'] = getMacPathsEnv();
   }
 
-  scriptExecutor = execa('node', ['--eval', scriptExecutorProcess, modulePath.execa], { stdio: ['ipc'], detached: true, extendEnv: true, env, encoding: 'utf8' });
+  scriptExecutor = execa('node', ['--eval', scriptExecutorProcess, modulePath.execa], {
+    env,
+    stdio: ['ipc'],
+    detached: true,
+    extendEnv: true,
+    encoding: 'utf8'
+  });
 
   scriptExecutor.on('exit', (exitCode) => {
     log(LogType.warn, 'scriptExecutor\'s ipc channel was closed. It might be error unless arvis is supposed to be quited.\nexit code: ' + exitCode);
@@ -187,22 +193,8 @@ export const execute = ({
     }),
   };
 
-  const requestId = generateRequestId();
-
-  if (!useExecutorProcess) {
-    return new PCancelable<execa.ExecaReturnValue<string>>((resolve, reject, onCancel) => {
-      const proc = execa.command(scriptStr, executorOptions);
-      proc.then(resolve).catch(reject);
-
-      onCancel(() => {
-        proc.cancel();
-      });
-    });
-  } else {
-    if (!scriptExecutor) {
-      throw new Error('execute should not be called before scriptExecutor process starts.');
-    }
-
+  if (useExecutorProcess && scriptExecutor && scriptExecutor.connected) {
+    const requestId = generateRequestId();
     // If it doesn't finish within the timeout time, an error is considered to have occurred.
     // Timeout time to should be changed.
     scriptExecutor.send({ id: requestId, event: 'execute', scriptStr, executorOptions: JSON.stringify(executorOptions) });
@@ -225,6 +217,17 @@ export const execute = ({
 
       onCancel(() => {
         scriptExecutor.send({ id: requestId, event: 'cancel' });
+      });
+    });
+  } else {
+    console.warn('script executor not executed or ipc channel was closed due to error. This can cause some lagging in scriptfilter');
+
+    return new PCancelable<execa.ExecaReturnValue<string>>((resolve, reject, onCancel) => {
+      const proc = execa.command(scriptStr, executorOptions);
+      proc.then(resolve).catch(reject);
+
+      onCancel(() => {
+        proc.cancel();
       });
     });
   }
