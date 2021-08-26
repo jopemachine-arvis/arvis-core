@@ -4,23 +4,23 @@ import {
   getExtensionHistoryPath,
 } from './path';
 
-let macPathsEnv: string = '';
+let shellPathsEnv: string = '';
 let externalEnv: Record<string, any> = {};
 
 /**
- * Because mac gui apps doesn't inherit PATH env, need to set it manually
+ * Because mac, linux GUI gui apps doesn't inherit PATH env, need to set it manually
  * @param path
  */
-export const setMacPathsEnv = (path: string): void => {
-  macPathsEnv = path;
+export const setShellPathEnv = (path: string): void => {
+  shellPathsEnv = path;
 };
 
 /**
  * Before call getMacPaths, should call setMacPathsEnv.
  * @returns $PATH value
  */
-export const getMacPathsEnv = (): string => {
-  return macPathsEnv;
+export const getShellPathsEnv = (): string => {
+  return shellPathsEnv;
 };
 
 /**
@@ -94,8 +94,8 @@ export const getEnvs = ({
 
   // In macos, GUI App does not inherit $PATH.
   // So need to provide path directly
-  if (process.platform === 'darwin') {
-    env['PATH'] = macPathsEnv;
+  if (process.platform !== 'win32') {
+    env['PATH'] = shellPathsEnv;
   }
 
   // Environment variable setting for alfred workflows

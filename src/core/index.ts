@@ -6,7 +6,7 @@ import {
 import { checkUpdatableExtensions } from '../lib/checkUpdatableExtensions';
 import { getBundleId, getNameFromBundleId } from '../lib/getBundleId';
 import { getClipboardText } from '../lib/getClipboardText';
-import { getSystemPaths } from '../lib/getSystemPaths';
+import { getShellPaths } from '../lib/getShellPaths';
 import { overwriteExtensionInfo } from '../lib/overwriteExtensionInfo';
 import { resolveExtensionType } from '../lib/resolveExtensionType';
 import {
@@ -45,7 +45,7 @@ import { reloadWorkflows } from './workflowReloader';
 import { updateWorkflowTrigger } from './workflowTriggerUpdater';
 
 import { Store } from '../config';
-import { getEnvs, getExternalEnvs, getMacPathsEnv, setMacPathsEnv } from '../config/envHandler';
+import { getEnvs, getExternalEnvs, getShellPathsEnv, setShellPathEnv } from '../config/envHandler';
 import * as history from '../config/history';
 import * as logger from '../config/logger';
 import * as path from '../config/path';
@@ -73,10 +73,10 @@ export {
   getCommandList,
   getEnvs,
   getExternalEnvs,
-  getMacPathsEnv,
   getNameFromBundleId,
   getPluginList,
-  getSystemPaths,
+  getShellPaths,
+  getShellPathsEnv,
   getTriggers,
   getUserConfigs,
   getWorkflowList,
@@ -100,7 +100,7 @@ export {
   scriptFilterExcute,
   setAsyncPluginTimer,
   setExternalEnvs,
-  setMacPathsEnv,
+  setShellPathEnv,
   setStoreAvailabiltyChecker,
   setUseExecutorProcess,
   startScriptExecutor,

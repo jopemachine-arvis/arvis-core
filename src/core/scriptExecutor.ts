@@ -3,7 +3,7 @@ import _ from 'lodash';
 import PCancelable from 'p-cancelable';
 import { v4 as generateUuid } from 'uuid';
 import { getEnvs, log, LogType } from '../config';
-import { getMacPathsEnv } from '../config/envHandler';
+import { getShellPathsEnv } from '../config/envHandler';
 import { getWorkflowInstalledPath } from '../config/path';
 import { ActionFlowManager } from './actionFlowManager';
 
@@ -91,8 +91,8 @@ process.on('message', async ({ id, event, scriptStr, executorOptions }) => {
  */
 export const startScriptExecutor = (modulePath: { execa: string }): execa.ExecaChildProcess<string> => {
   const env = process.env;
-  if (process.platform === 'darwin') {
-    env['PATH'] = getMacPathsEnv();
+  if (process.platform !== 'win32') {
+    env['PATH'] = getShellPathsEnv();
   }
 
   scriptExecutor = execa('node', ['--eval', scriptExecutorProcess, modulePath.execa], {
