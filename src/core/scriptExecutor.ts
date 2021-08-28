@@ -21,7 +21,7 @@ const execa = require(process.argv[1]);
 
 let executionTimer;
 
-// Wait a little longer than child process spawning will normally uses (around 15ms).
+// Debounce for a liitle longer than child process spawning will normally uses (around 15ms).
 const executionDelay = 25;
 
 const requests = new Map();
@@ -100,16 +100,18 @@ export const startScriptExecutor = (modulePath: { execa: string }): execa.ExecaC
     stdio: ['ipc'],
     detached: true,
     extendEnv: true,
-    encoding: 'utf8'
+    encoding: 'utf8',
   });
 
   scriptExecutor.on('exit', (exitCode) => {
-    log(LogType.warn, 'scriptExecutor\'s ipc channel was closed. It might be error unless arvis is supposed to be quited.\nexit code: ' + exitCode);
+    log(LogType.warn, 'ScriptExecutor\'s ipc channel was closed. It might be error unless arvis is supposed to be quited.\nexit code: ' + exitCode);
   });
 
   scriptExecutor.on('error', (err) => {
     log(LogType.error, 'ScriptExecutor Error', err);
   });
+
+  scriptExecutor.stderr!.pipe(process.stderr);
 
   return scriptExecutor;
 };
@@ -220,7 +222,7 @@ export const execute = ({
       });
     });
   } else {
-    console.warn('script executor not executed or ipc channel was closed due to error. This can cause some lagging in scriptfilter');
+    console.warn('ScriptExecutor not executed or ipc channel was closed due to error. This can cause performance down in scriptfilter');
 
     return new PCancelable<execa.ExecaReturnValue<string>>((resolve, reject, onCancel) => {
       const proc = execa.command(scriptStr, executorOptions);

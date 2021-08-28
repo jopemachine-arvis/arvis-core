@@ -39,12 +39,16 @@ const findPluginCommands = async (inputStr: string): Promise<{
 };
 
 /**
+ * If inputStr is '', return no commands.
+ * If inputStr is undefined, return all commands.
  * @param inputStr
  */
-const findWorkflowCommands = async (inputStr: string): Promise<Command[]> => {
+const findWorkflowCommands = (inputStr?: string): Command[] => {
   const commands = getCommandList();
 
   if (inputStr === '') return [];
+  // If there are no argument, find all commands
+  else if (!inputStr) inputStr = '';
 
   const searchResult: any[] = [];
 
@@ -148,7 +152,7 @@ const findCommands = async (
     };
   }
 
-  const workflowCommands = await findWorkflowCommands(inputStr);
+  const workflowCommands = findWorkflowCommands(inputStr);
   const { pluginNoSortOutputs, pluginSortOutputs, unresolvedItems } = await findPluginCommands(
     inputStr
   );

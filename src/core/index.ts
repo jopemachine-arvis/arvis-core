@@ -20,7 +20,7 @@ import { setStoreAvailabiltyChecker } from '../lib/setStoreAvailabiltyChecker';
 
 import { ActionFlowManager } from './actionFlowManager';
 import { handleAction } from './actionHandler';
-import { findCommands } from './commandFinder';
+import { findCommands, findPluginCommands, findWorkflowCommands } from './commandFinder';
 import { getCommandList } from './commandList';
 import { findHotkeys } from './hotkeyFinder';
 import { determineDefaultIconPath, determineIconPath } from './iconPathFinder';
@@ -67,7 +67,9 @@ export {
   exportWorkflow,
   findCommands,
   findHotkeys,
+  findPluginCommands,
   findTriggers,
+  findWorkflowCommands,
   getBundleId,
   getClipboardText,
   getCommandList,
