@@ -10,31 +10,35 @@ import { getWorkflowList } from './workflowList';
  * @param inputStr
  */
 const findPluginCommands = async (inputStr: string): Promise<{
-  pluginSortOutputs: PluginItem[],
-  pluginNoSortOutputs: PluginItem[]
-  unresolvedItems: PCancelable<PluginExectionResult>[]
+  pluginOutputs: PluginItem[],
+  pluginFallbackOutputs: PluginItem[]
+  deferedItems: PCancelable<PluginExectionResult>[]
 }> => {
+  pluginWorkspace.executingAsyncPlugins = true;
+
   const { pluginExecutionResults, unresolvedPlugins } = await pluginWorkspace.search(inputStr);
   const [pluginNoSortItems, pluginItems] = _.partition(
     pluginExecutionResults,
     (result) => result.noSort
   );
 
-  const pluginSortOutputs: PluginItem[] = pluginItems
+  const pluginOutputs: PluginItem[] = pluginItems
     .map((result) => result.items)
     .reduce((prev, curr) => [...prev, ...curr], [])
     .sort((a, b) =>
       a.stringSimilarity! > b.stringSimilarity! ? -1 : 1
     );
 
-  const pluginNoSortOutputs: PluginItem[] = pluginNoSortItems
+  const pluginFallbackOutputs: PluginItem[] = pluginNoSortItems
     .map((result) => result.items)
     .reduce((prev, curr) => [...prev, ...curr], []);
 
+  pluginWorkspace.executingAsyncPlugins = false;
+
   return {
-    pluginSortOutputs,
-    pluginNoSortOutputs,
-    unresolvedItems: unresolvedPlugins
+    pluginOutputs,
+    pluginFallbackOutputs,
+    deferedItems: unresolvedPlugins
   };
 };
 
@@ -112,13 +116,17 @@ const findWorkflowCommands = (inputStr?: string): Command[] => {
  * @param targets
  * @param logDict
  */
-const sortByLatestUse = (targets: Command[] | PluginItem[], logDict: Map<string, number>): Command[] | PluginItem[] => {
+const sortByLatestUse = (targets: Command[] | PluginItem[], logDict?: Map<string, number>): Command[] | PluginItem[] => {
   if (targets.length <= 0) return [];
+  if (!logDict) {
+    logDict = getLogDict();
+  }
+
   const compareTarget = targets[0]['isPluginItem'] ? 'title' : 'command';
 
   return targets.sort((a: Command | PluginItem, b: Command | PluginItem) => {
-    const aP = logDict.has(a[compareTarget]!) ? logDict.get(a[compareTarget]!) : -1;
-    const bP = logDict.has(b[compareTarget]!) ? logDict.get(b[compareTarget]!) : -1;
+    const aP = logDict!.has(a[compareTarget]!) ? logDict!.get(a[compareTarget]!) : -1;
+    const bP = logDict!.has(b[compareTarget]!) ? logDict!.get(b[compareTarget]!) : -1;
     return aP! > bP! ? -1 : 1;
   });
 };
@@ -144,16 +152,17 @@ const getLogDict = (): Map<string, number> => {
  */
 const findCommands = async (
   inputStr: string
-): Promise<{ items: (Command | PluginItem)[], unresolved: PCancelable<PluginExectionResult>[] }> => {
+): Promise<{ items: (Command | PluginItem)[], deferedItems: PCancelable<PluginExectionResult>[] }> => {
   if (inputStr === '') {
     return {
       items: [],
-      unresolved: []
+      deferedItems: []
     };
   }
 
   const workflowCommands = findWorkflowCommands(inputStr);
-  const { pluginNoSortOutputs, pluginSortOutputs, unresolvedItems } = await findPluginCommands(
+
+  const { pluginFallbackOutputs, pluginOutputs, deferedItems } = await findPluginCommands(
     inputStr
   );
 
@@ -162,11 +171,11 @@ const findCommands = async (
   return {
     items: [
       ...sortByLatestUse(workflowCommands, logDict),
-      ...sortByLatestUse(pluginSortOutputs, logDict),
-      ...sortByLatestUse(pluginNoSortOutputs, logDict),
+      ...sortByLatestUse(pluginOutputs, logDict),
+      ...sortByLatestUse(pluginFallbackOutputs, logDict),
     ],
-    unresolved: unresolvedItems,
+    deferedItems,
   };
 };
 
-export { findCommands, findWorkflowCommands, findPluginCommands };
+export { findCommands, findWorkflowCommands, findPluginCommands, sortByLatestUse };

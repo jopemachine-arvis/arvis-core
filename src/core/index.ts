@@ -20,7 +20,7 @@ import { setStoreAvailabiltyChecker } from '../lib/setStoreAvailabiltyChecker';
 
 import { ActionFlowManager } from './actionFlowManager';
 import { handleAction } from './actionHandler';
-import { findCommands, findPluginCommands, findWorkflowCommands } from './commandFinder';
+import { findCommands, findPluginCommands, findWorkflowCommands, sortByLatestUse } from './commandFinder';
 import { getCommandList } from './commandList';
 import { findHotkeys } from './hotkeyFinder';
 import { determineDefaultIconPath, determineIconPath } from './iconPathFinder';
@@ -105,6 +105,7 @@ export {
   setShellPathEnv,
   setStoreAvailabiltyChecker,
   setUseExecutorProcess,
+  sortByLatestUse,
   startScriptExecutor,
   Store,
   uninstallPlugin,

@@ -7,6 +7,7 @@ declare global {
     pluginModules: Map<string, PluginModule>;
     asyncWorks: PCancelable<PluginExectionResult[]>[];
     asyncPluginTimer: number;
+    executingAsyncPlugins: boolean;
     setAsyncPluginTimer: (timer: number) => void;
     generateAsyncWork: (
       pluginBundleId: string,

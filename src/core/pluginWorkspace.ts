@@ -50,6 +50,8 @@ export const pluginWorkspace: PluginWorkspace = {
 
   asyncPluginTimer: 100,
 
+  executingAsyncPlugins: false,
+
   setAsyncPluginTimer: (timer: number): void => {
     pluginWorkspace.asyncPluginTimer = timer;
   },
