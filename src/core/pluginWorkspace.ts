@@ -16,6 +16,10 @@ let requestId: number;
 
 let asyncPluginTimer = 100;
 
+let executingAsyncPlugins = false;
+
+let executingDeferedPlugins = false;
+
 export const pluginEventEmitter = new EventEmitter();
 
 export const deferedPluginEventEmitter = new EventEmitter();
@@ -24,6 +28,14 @@ let requestIdx = -1;
 const generateRequestId = (): number => {
   requestIdx = (requestIdx + 1) % Number.MAX_SAFE_INTEGER;
   return requestIdx;
+};
+
+export const setIsExecutingAsyncPlugins = (value: boolean) => {
+  executingAsyncPlugins = value;
+};
+
+export const setIsExecutingDeferedPlugins = (value: boolean) => {
+  executingDeferedPlugins = value;
 };
 
 export const requestIsLatest = (id: number) => {
@@ -71,6 +83,7 @@ export const startPluginExecutor = (): execa.ExecaChildProcess<string> => {
         const { deferedPluginResults, errors }: { deferedPluginResults: PluginExectionResult[], errors: Error[] } = JSON.parse(payload);
         const deferedPluginsItems = pluginWorkspace.pluginExecutionHandler(query, deferedPluginResults, errors);
 
+        setIsExecutingDeferedPlugins(false);
         errors.forEach((error) => log(LogType.error, 'Defered plugin runtime error occurs\n', error));
         deferedPluginEventEmitter.emit('deferedPluginExecution', { id, event, payload: JSON.stringify(deferedPluginsItems) });
       }
@@ -83,13 +96,15 @@ export const startPluginExecutor = (): execa.ExecaChildProcess<string> => {
 };
 
 export const pluginWorkspace: PluginWorkspace = {
-  executingAsyncPlugins: false,
-
-  deferedPluginEventEmitter,
+  pluginModules: new Map(),
 
   requestIsLatest,
 
-  pluginModules: new Map(),
+  deferedPluginEventEmitter,
+
+  isExecutingAsyncPlugins: () => executingAsyncPlugins,
+
+  isExecutingDeferedPlugins: () => executingDeferedPlugins,
 
   setAsyncPluginTimer: (timer: number): void => {
     asyncPluginTimer = timer;
@@ -183,7 +198,17 @@ export const pluginWorkspace: PluginWorkspace = {
       const retrieveHandler =
         async ({ id, event, payload }: { id: number; event: string; payload: string }) => {
           if (id === requestId && event === 'pluginExecution') {
-            const { pluginExecutionResults, errors }: { pluginExecutionResults: PluginExectionResult[], errors: Error[] } = JSON.parse(payload);
+            const {
+              errors,
+              hasDeferedPluings,
+              pluginExecutionResults,
+            }: {
+              errors: Error[],
+              hasDeferedPluings: boolean,
+              pluginExecutionResults: PluginExectionResult[],
+            } = JSON.parse(payload);
+
+            setIsExecutingDeferedPlugins(hasDeferedPluings);
             resolve(pluginWorkspace.pluginExecutionHandler(inputStr, pluginExecutionResults, errors));
           }
         };

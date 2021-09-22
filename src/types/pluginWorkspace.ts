@@ -5,7 +5,8 @@ declare global {
     appendPluginItemAttr: (inputStr: string, pluginItems: PluginExectionResult[]) => void;
     debug: (pluginExecutionResults: PluginExectionResult[]) => void;
     deferedPluginEventEmitter: any;
-    executingAsyncPlugins: boolean;
+    isExecutingAsyncPlugins: () => boolean;
+    isExecutingDeferedPlugins: () => boolean;
     pluginExecutionHandler: (inputStr: string, pluginExecutionResults: PluginExectionResult[], errors?: Error[]) => PluginExectionResult[];
     pluginModules: Map<string, PluginModule>;
     reload: (pluginInfos: (PluginConfigFile & { envs?: Record<string, any> })[], bundleIds?: string[]) => void;

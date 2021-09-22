@@ -146,7 +146,7 @@ const run = async (query) => {
   return {
     errors,
     pluginExecutionResults,
-    unresolvedPlugins: unresolved,
+    deferedPluginPromises: unresolved,
   };
 };
 
@@ -255,7 +255,7 @@ process.on('message', async ({ id, event, query, pluginInfos, bundleIds, timer }
         // If requestId equasl id, the request is latest request.
         requestId = id;
 
-        const { errors, pluginExecutionResults, unresolvedPlugins } = await run(query);
+        const { errors, pluginExecutionResults, deferedPluginPromises } = await run(query);
 
         process.send({
           id,
@@ -263,10 +263,11 @@ process.on('message', async ({ id, event, query, pluginInfos, bundleIds, timer }
           payload: JSON.stringify({
             errors,
             pluginExecutionResults,
+            hasDeferedPluings: deferedPluginPromises.length > 0,
           })
         });
 
-        handleDeferedPlugins(id, query, unresolvedPlugins);
+        handleDeferedPlugins(id, query, deferedPluginPromises);
       }
 
       break;

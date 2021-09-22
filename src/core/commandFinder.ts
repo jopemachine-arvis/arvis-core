@@ -2,7 +2,7 @@ import alphaSort from 'alpha-sort';
 import _ from 'lodash';
 import { getHistory } from '../config/history';
 import { getCommandList } from './commandList';
-import { pluginWorkspace } from './pluginWorkspace';
+import { pluginWorkspace, setIsExecutingAsyncPlugins } from './pluginWorkspace';
 import { getWorkflowList } from './workflowList';
 
 /**
@@ -12,7 +12,7 @@ const findPluginCommands = async (inputStr: string): Promise<{
   pluginOutputs: PluginItem[],
   pluginFallbackOutputs: PluginItem[]
 }> => {
-  pluginWorkspace.executingAsyncPlugins = true;
+  setIsExecutingAsyncPlugins(true);
 
   const pluginExecutionResults = await pluginWorkspace.search(inputStr);
   const [pluginFallbackItems, pluginItems] = _.partition(
@@ -31,7 +31,7 @@ const findPluginCommands = async (inputStr: string): Promise<{
     .map((result) => result.items)
     .reduce((prev, curr) => [...prev, ...curr], []);
 
-  pluginWorkspace.executingAsyncPlugins = false;
+  setIsExecutingAsyncPlugins(false);
 
   return {
     pluginOutputs,
