@@ -1,15 +1,15 @@
 {
   "name": "arvis-core",
-  "version": "0.15.0",
+  "version": "0.16.0",
   "description": "Core module of Arvis",
   "main": "dist/index.js",
   "files": [
-    "dist/**"
+    "dist/**",
+    "assets/**"
   ],
   "scripts": {
     "test": "jest --verbose ./__test__/unit",
-    "build": "tsc",
-    "start": "npm run build && dist/cli.js",
+    "build": "tsc && node scripts/workerBuilder",
     "lint": "tslint --project tsconfig.json --fix",
     "rebuild": "rm -rf node_modules && npm i && npm run build"
   },

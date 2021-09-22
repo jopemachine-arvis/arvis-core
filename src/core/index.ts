@@ -31,7 +31,7 @@ import {
 } from './pluginInstaller';
 import { getPluginList } from './pluginList';
 import { reloadPlugins } from './pluginReloader';
-import { pluginWorkspace } from './pluginWorkspace';
+import { pluginWorkspace, startPluginExecutor } from './pluginWorkspace';
 import { endScriptExecutor, execute, setUseExecutorProcess, startScriptExecutor } from './scriptExecutor';
 import { findTriggers } from './triggerFinder';
 import { getTriggers } from './triggerList';
@@ -107,6 +107,7 @@ export {
   setUseExecutorProcess,
   sortByLatestUse,
   startScriptExecutor,
+  startPluginExecutor,
   Store,
   uninstallPlugin,
   uninstallWorkflow,

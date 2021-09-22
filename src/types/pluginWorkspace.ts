@@ -1,28 +1,16 @@
-import PCancelable from 'p-cancelable';
-
 export {};
 
 declare global {
   export interface PluginWorkspace {
-    pluginModules: Map<string, PluginModule>;
-    asyncWorks: PCancelable<PluginExectionResult[]>[];
-    asyncPluginTimer: number;
-    executingAsyncPlugins: boolean;
-    setAsyncPluginTimer: (timer: number) => void;
-    generateAsyncWork: (
-      pluginBundleId: string,
-      asyncPluginPromise: Promise<any>,
-      setTimer: boolean,
-    ) => PCancelable<PluginExectionResult[]>;
-    debug: (pluginExecutionResults: PluginExectionResult[]) => void;
-    getAsyncWork: (
-      pluginBundleId: string,
-      asyncPluginPromise: Promise<any>
-    ) => PCancelable<PluginExectionResult[]>;
-    reload: (pluginInfos: any[], bundleIds?: string[]) => void;
-    search: (inputStr: string) => Promise<{ pluginExecutionResults: PluginExectionResult[], unresolvedPlugins: PCancelable<PluginExectionResult>[] }>;
-    cancelPrevious: () => void;
-    restoreArvisEnvs: () => void;
     appendPluginItemAttr: (inputStr: string, pluginItems: PluginExectionResult[]) => void;
+    debug: (pluginExecutionResults: PluginExectionResult[]) => void;
+    deferedPluginEventEmitter: any;
+    executingAsyncPlugins: boolean;
+    pluginExecutionHandler: (inputStr: string, pluginExecutionResults: PluginExectionResult[], errors?: Error[]) => PluginExectionResult[];
+    pluginModules: Map<string, PluginModule>;
+    reload: (pluginInfos: (PluginConfigFile & { envs?: Record<string, any> })[], bundleIds?: string[]) => void;
+    requestIsLatest: (id: number) => boolean;
+    search: (inputStr: string) => Promise<PluginExectionResult[]>;
+    setAsyncPluginTimer: (timer: number) => void;
   }
 }

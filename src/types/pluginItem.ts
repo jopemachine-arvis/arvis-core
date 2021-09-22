@@ -4,19 +4,14 @@ declare global {
   export interface PluginItem {
     readonly title: string;
     readonly command?: string;
-    readonly type: 'keyword';
     readonly valid?: boolean;
     readonly subtitle?: string;
     readonly autocomplete?: string;
     readonly arg?: Record<string, any> | string;
     readonly variables?: Record<string, any>;
-    readonly actions?: Action[];
     readonly text?: {
       copy?: string;
       largetype?: string;
-    };
-    readonly icon?: {
-      path?: string;
     };
     readonly quicklookurl?: string;
     readonly mods?: {
@@ -40,6 +35,11 @@ declare global {
         title?: string;
         subtitle?: string;
       };
+    };
+    actions?: Action[];
+    type: 'keyword';
+    icon?: {
+      path?: string;
     };
     bundleId?: string;
     stringSimilarity?: number;

@@ -1,11 +1,8 @@
-// arvis-core
-// last edited: '0.12.4'
-
-const execa = require('execa');
+const execa = require(process.argv[1]);
 
 let executionTimer;
 
-// Wait a little longer than child process spawning will normally uses (around 15ms).
+// Debounce for a liitle longer than child process spawning will normally uses (around 15ms).
 const executionDelay = 25;
 
 const requests = new Map();

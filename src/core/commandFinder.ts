@@ -1,6 +1,5 @@
 import alphaSort from 'alpha-sort';
 import _ from 'lodash';
-import PCancelable from 'p-cancelable';
 import { getHistory } from '../config/history';
 import { getCommandList } from './commandList';
 import { pluginWorkspace } from './pluginWorkspace';
@@ -12,12 +11,11 @@ import { getWorkflowList } from './workflowList';
 const findPluginCommands = async (inputStr: string): Promise<{
   pluginOutputs: PluginItem[],
   pluginFallbackOutputs: PluginItem[]
-  deferedItems: PCancelable<PluginExectionResult>[]
 }> => {
   pluginWorkspace.executingAsyncPlugins = true;
 
-  const { pluginExecutionResults, unresolvedPlugins } = await pluginWorkspace.search(inputStr);
-  const [pluginNoSortItems, pluginItems] = _.partition(
+  const pluginExecutionResults = await pluginWorkspace.search(inputStr);
+  const [pluginFallbackItems, pluginItems] = _.partition(
     pluginExecutionResults,
     (result) => result.noSort
   );
@@ -29,7 +27,7 @@ const findPluginCommands = async (inputStr: string): Promise<{
       a.stringSimilarity! > b.stringSimilarity! ? -1 : 1
     );
 
-  const pluginFallbackOutputs: PluginItem[] = pluginNoSortItems
+  const pluginFallbackOutputs: PluginItem[] = pluginFallbackItems
     .map((result) => result.items)
     .reduce((prev, curr) => [...prev, ...curr], []);
 
@@ -38,7 +36,6 @@ const findPluginCommands = async (inputStr: string): Promise<{
   return {
     pluginOutputs,
     pluginFallbackOutputs,
-    deferedItems: unresolvedPlugins
   };
 };
 
@@ -152,17 +149,16 @@ const getLogDict = (): Map<string, number> => {
  */
 const findCommands = async (
   inputStr: string
-): Promise<{ items: (Command | PluginItem)[], deferedItems: PCancelable<PluginExectionResult>[] }> => {
+): Promise<{ items: (Command | PluginItem)[] }> => {
   if (inputStr === '') {
     return {
       items: [],
-      deferedItems: []
     };
   }
 
   const workflowCommands = findWorkflowCommands(inputStr);
 
-  const { pluginFallbackOutputs, pluginOutputs, deferedItems } = await findPluginCommands(
+  const { pluginFallbackOutputs, pluginOutputs } = await findPluginCommands(
     inputStr
   );
 
@@ -174,7 +170,6 @@ const findCommands = async (
       ...sortByLatestUse(pluginOutputs, logDict),
       ...sortByLatestUse(pluginFallbackOutputs, logDict),
     ],
-    deferedItems,
   };
 };
 

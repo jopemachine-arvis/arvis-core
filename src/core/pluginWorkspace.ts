@@ -1,185 +1,141 @@
 // tslint:disable: no-eval
-import isPromise from 'is-promise';
+import { EventEmitter } from 'events';
+import execa from 'execa';
 import _ from 'lodash';
-import PCancelable from 'p-cancelable';
-import path from 'path';
 import { compareTwoStrings } from 'string-similarity';
-import { getEnvs, getHistory, log, LogType } from '../config';
-import { trace } from '../config/logger';
-import { getPluginInstalledPath } from '../config/path';
+import { getEnvs, log, LogType } from '../config';
+import { getShellPathsEnv } from '../config/envHandler';
+import { pluginInstallPath } from '../config/path';
 import { ActionFlowManager } from './actionFlowManager';
 import { getPluginList } from './pluginList';
+const pluginExecutorProcess = require('../../assets/pluginExecutor.json').pluginExecutor;
 
-const arvisEnvs = process.env;
+let pluginExecutor: execa.ExecaChildProcess<string>;
 
-/**
- * Remove cache from existing module for module updates,
- * Add environment variables,
- * And dynamically require new modules using eval.
- * @param modulePath
- * @param envs
- */
-const requireDynamically = (modulePath: string, envs: Record<string, any> = {}): any => {
-  modulePath = modulePath.split('\\').join('/');
+let requestId: number;
 
-  try {
-    const moduleCache = eval(`
-      require.cache[require.resolve('${modulePath}')];
-    `);
+let asyncPluginTimer = 100;
 
-    if (moduleCache) {
-      eval(`
-        Object.keys(require.cache).forEach(function(key) {
-          delete require.cache[key];
-        });
-      `);
-    }
-  } catch (err) {
-    log(LogType.debug, 'Plugin module cache not deleted', err);
+export const pluginEventEmitter = new EventEmitter();
+
+export const deferedPluginEventEmitter = new EventEmitter();
+
+let requestIdx = -1;
+const generateRequestId = (): number => {
+  requestIdx = (requestIdx + 1) % Number.MAX_SAFE_INTEGER;
+  return requestIdx;
+};
+
+export const requestIsLatest = (id: number) => {
+  return requestId === id;
+};
+
+export const startPluginExecutor = (): execa.ExecaChildProcess<string> => {
+  const env = {
+    ...process.env,
+    pluginInstallPath,
+  };
+
+  if (process.platform !== 'win32') {
+    env['PATH'] = getShellPathsEnv();
   }
 
-  process.env = { ...process.env, ...envs };
+  pluginExecutor = execa('node', ['--eval', pluginExecutorProcess], {
+    env,
+    stdio: ['ipc'],
+    detached: true,
+    extendEnv: true,
+    encoding: 'utf8',
+  });
 
-  return eval(`require('${modulePath}');`);
+  pluginExecutor.on('exit', (exitCode) => {
+    throw new Error('PluginExecutor\'s ipc channel was closed!\nExit code: ' + exitCode);
+  });
+
+  pluginExecutor.on('error', (err) => {
+    log(LogType.error, 'PluginExecutor Error', err);
+  });
+
+  pluginExecutor.on('message', async ({ id, event, payload, query }: { id: number; event: string; payload: string; query: string }) => {
+    if (event === 'message') {
+      const { message, params } = JSON.parse(payload);
+      log(LogType.info, message, params);
+    }
+
+    if (event === 'pluginExecution') {
+      pluginEventEmitter.emit('pluginExecution', { id, event, payload });
+    }
+
+    if (event === 'deferedPluginExecution') {
+      if (id === requestId) {
+        const { deferedPluginResults, errors }: { deferedPluginResults: PluginExectionResult[], errors: Error[] } = JSON.parse(payload);
+        const deferedPluginsItems = pluginWorkspace.pluginExecutionHandler(query, deferedPluginResults, errors);
+
+        errors.forEach((error) => log(LogType.error, 'Defered plugin runtime error occurs\n', error));
+        deferedPluginEventEmitter.emit('deferedPluginExecution', { id, event, payload: JSON.stringify(deferedPluginsItems) });
+      }
+    }
+  });
+
+  pluginExecutor.send({ event: 'setTimer', timer: asyncPluginTimer });
+  pluginExecutor.stderr!.pipe(process.stderr);
+  return pluginExecutor;
 };
 
 export const pluginWorkspace: PluginWorkspace = {
-  pluginModules: new Map(),
-
-  asyncWorks: [],
-
-  asyncPluginTimer: 100,
-
   executingAsyncPlugins: false,
 
+  deferedPluginEventEmitter,
+
+  requestIsLatest,
+
+  pluginModules: new Map(),
+
   setAsyncPluginTimer: (timer: number): void => {
-    pluginWorkspace.asyncPluginTimer = timer;
+    asyncPluginTimer = timer;
+    pluginExecutor && pluginExecutor.send({ event: 'setTimer', timer });
   },
 
-  restoreArvisEnvs: () => {
-    process.env = arvisEnvs as any;
-  },
-
-  reload: (pluginInfos: any[], bundleIds?: string[]): void => {
-    const newPluginModules: Map<string, PluginModule> = bundleIds
-      ? pluginWorkspace.pluginModules
-      : new Map();
-
+  reload: (pluginInfos: (PluginConfigFile & { envs?: Record<string, any> })[], bundleIds?: string[]): void => {
     for (const pluginInfo of pluginInfos) {
-      const modulePath = path.normalize(
-        `${getPluginInstalledPath(pluginInfo.bundleId)}${path.sep}${pluginInfo.main}`
-      );
-
-      try {
-        const envs = getEnvs({
-          extensionType: 'plugin',
-          bundleId: pluginInfo.bundleId,
-          name: pluginInfo.name,
-          version: pluginInfo.version,
-          vars: pluginInfo.variables ?? {},
-        });
-
-        newPluginModules.set(pluginInfo.bundleId, {
-          bindedEnvs: envs,
-          module: requireDynamically(modulePath, envs),
-        });
-
-      } catch (err) {
-        log(
-          LogType.error,
-          `Plugin '${pluginInfo.bundleId}' raised error on require: \n${err}`
-        );
-
-        trace(err as Error);
-      }
+      pluginInfo.envs = getEnvs({
+        extensionType: 'plugin',
+        bundleId: pluginInfo.bundleId!,
+        name: pluginInfo.name,
+        version: pluginInfo.version,
+        vars: pluginInfo.variables ?? {},
+      });
     }
 
-    pluginWorkspace.pluginModules = newPluginModules;
-    log(LogType.debug, 'Updated pluginModules', pluginWorkspace.pluginModules);
-  },
-
-  cancelPrevious: (): void => {
-    _.forEach(pluginWorkspace.asyncWorks, (work) => {
-      if (!work.isCanceled) {
-        work.cancel();
-      }
+    pluginExecutor.send({
+      event: 'reload',
+      bundleIds: JSON.stringify(bundleIds),
+      pluginInfos: JSON.stringify(pluginInfos),
     });
   },
 
-  generateAsyncWork: (pluginBundleId: string, asyncPluginPromise: Promise<PluginExectionResult>, setTimer: boolean) => {
-    const asyncWork = new PCancelable<any>((resolve, reject, onCancel) => {
-      let timer: NodeJS.Timeout | undefined;
-      let unresolved = false;
-
-      if (setTimer) {
-        timer = setTimeout(
-          () => {
-            unresolved = true;
-            reject({
-              name: 'Unresolved',
-              asyncPluginPromise: pluginWorkspace.generateAsyncWork(pluginBundleId, asyncPluginPromise, false)
-            });
-          }
-          ,
-          pluginWorkspace.asyncPluginTimer
-        );
-      }
-
-      onCancel(() => reject({ name: 'CancelError' }));
-
-      asyncPluginPromise
-        .then((result) => {
-          if (unresolved) return;
-          setTimer && clearTimeout(timer!);
-          if (!result.items || !result.items.length) resolve({ items: [] });
-
-          result.items = result.items
-            .filter((item: any) => !!item)
-            .map((item: any) => {
-              item.bundleId = pluginBundleId;
-              return item;
-            });
-
-          resolve(result);
-        })
-        .catch(reject);
-    });
-
-    asyncWork.catch((err) => {
-      const expectedCancel = err.name === 'CancelError' || err.name === 'Unresolved';
-      if (expectedCancel) return;
-      throw err;
-    });
-
-    return asyncWork;
-  },
-
-  getAsyncWork: (pluginBundleId: string, asyncPluginPromise: Promise<PluginExectionResult>): PCancelable<any> => {
-    return pluginWorkspace.generateAsyncWork(pluginBundleId, asyncPluginPromise, true);
-  },
-
-  appendPluginItemAttr: (inputStr: string, PluginExectionResults: PluginExectionResult[]) => {
-    PluginExectionResults
+  appendPluginItemAttr: (inputStr: string, pluginExectionResults: PluginExectionResult[]) => {
+    pluginExectionResults
       .map((result) => result.items)
       .map((items) =>
         items
-          .filter((item: any) => !!item)
-          .map((item: any) => {
-            if (!item.icon && getPluginList()[item.bundleId].defaultIcon) {
+          .filter((item: PluginItem | undefined) => !!item)
+          .map((item: PluginItem) => {
+            if (!item.icon && getPluginList()[item.bundleId!].defaultIcon) {
               item.icon = {
-                path: getPluginList()[item.bundleId].defaultIcon,
+                path: getPluginList()[item.bundleId!].defaultIcon,
               };
             }
 
-            const compareTarget = item.command ? item.command : item.title;
+            const stringSimilarityCompareTarget = item.command ?? item.title;
 
             // pluginItem is treated like keyword
             item.type = 'keyword';
             item.isPluginItem = true;
-            item.actions = getPluginList()[item.bundleId].actions;
+            item.actions = getPluginList()[item.bundleId!].actions;
 
             item.stringSimilarity = compareTwoStrings(
-              compareTarget.toString(),
+              stringSimilarityCompareTarget.toString(),
               inputStr.toString()
             );
           })
@@ -199,80 +155,8 @@ export const pluginWorkspace: PluginWorkspace = {
     }
   },
 
-  search: async (inputStr: string): Promise<{
-    pluginExecutionResults: PluginExectionResult[],
-    unresolvedPlugins: PCancelable<PluginExectionResult>[]
-  }> => {
-    pluginWorkspace.cancelPrevious();
-
-    const pluginExecutionResults: PluginExectionResult[] = [];
-    const asyncPluginWorks: PCancelable<any>[] = [];
-
-    for (const pluginBundleId of pluginWorkspace.pluginModules.keys()) {
-      if (!getPluginList()[pluginBundleId].enabled) continue;
-      const { module: pluginModule, bindedEnvs } =
-        pluginWorkspace.pluginModules.get(pluginBundleId)!;
-
-      process.env = bindedEnvs as any;
-
-      try {
-        const pluginExecutionResult: PluginExectionResult | Promise<PluginExectionResult> = (pluginModule as Function)({
-          inputStr,
-          history: getHistory(),
-        });
-
-        if (isPromise(pluginExecutionResult)) {
-          asyncPluginWorks.push(
-            pluginWorkspace.getAsyncWork(
-              pluginBundleId,
-              pluginExecutionResult as Promise<any>
-            )
-          );
-        } else {
-          pluginExecutionResult.items
-            .filter((item: any) => !!item)
-            .forEach((item: any) => {
-              item.bundleId = pluginBundleId;
-              return item;
-            });
-
-          pluginExecutionResults.push(pluginExecutionResult);
-        }
-      } catch (err) {
-        log(
-          LogType.error,
-          `Plugin '${pluginBundleId}' raised error on execution: \n${err}`
-        );
-      }
-    }
-
-    pluginWorkspace.asyncWorks = asyncPluginWorks;
-
-    const asyncPluginResults = await Promise.allSettled(asyncPluginWorks);
-    pluginWorkspace.restoreArvisEnvs();
-
-    const successes =
-      asyncPluginResults
-        .filter((result) => result.status === 'fulfilled')
-        .map((item) => (item as any).value);
-
-    const unresolved = asyncPluginResults
-      .filter((result) => result.status === 'rejected' && result.reason.name === 'Unresolved')
-      .map((item) => (item as any).reason.asyncPluginPromise);
-
-    const errors: Error[] = asyncPluginResults
-      .filter((result) => result.status === 'rejected')
-      .map((item) => (item as any).reason)
-      .filter((error) => error.name !== 'CancelError' && error.name !== 'Unresolved');
-
-    const asyncPrintResult = _.flattenDeep(successes);
-    pluginExecutionResults.push(...asyncPrintResult);
-
-    if (errors.length !== 0) {
-      for (const error of errors) {
-        log(LogType.error, 'Async plugin runtime errors occur\n', error);
-      }
-    }
+  pluginExecutionHandler: (inputStr: string, pluginExecutionResults: PluginExectionResult[], errors?: Error[]): PluginExectionResult[] => {
+    errors && errors.forEach((error) => log(LogType.error, 'Async plugin runtime error occurs\n', error));
 
     pluginWorkspace.appendPluginItemAttr(inputStr, pluginExecutionResults);
 
@@ -284,9 +168,24 @@ export const pluginWorkspace: PluginWorkspace = {
 
     pluginWorkspace.debug(pluginExecutionResults);
 
-    return {
-      pluginExecutionResults,
-      unresolvedPlugins: unresolved,
-    };
+    return pluginExecutionResults;
+  },
+
+  search: async (inputStr: string): Promise<PluginExectionResult[]> => {
+    requestId = generateRequestId();
+    pluginExecutor.send({ id: requestId, event: 'run', query: inputStr });
+
+    return new Promise(async (resolve, _reject) => {
+      const retrieveHandler =
+        async ({ id, event, payload }: { id: number; event: string; payload: string }) => {
+          if (id === requestId && event === 'pluginExecution') {
+            const { pluginExecutionResults, errors }: { pluginExecutionResults: PluginExectionResult[], errors: Error[] } = JSON.parse(payload);
+            resolve(pluginWorkspace.pluginExecutionHandler(inputStr, pluginExecutionResults, errors));
+          }
+        };
+
+      pluginEventEmitter.removeAllListeners();
+      pluginEventEmitter.on('pluginExecution', retrieveHandler);
+    });
   },
 };
