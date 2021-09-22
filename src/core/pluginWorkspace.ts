@@ -97,6 +97,10 @@ export const pluginWorkspace: PluginWorkspace = {
   },
 
   reload: (pluginInfos: (PluginConfigFile & { envs?: Record<string, any> })[], bundleIds?: string[]): void => {
+    if (!pluginExecutor) {
+      throw new Error('plugin reload is called, but pluginExecutor is not initialized.');
+    }
+
     for (const pluginInfo of pluginInfos) {
       pluginInfo.envs = getEnvs({
         extensionType: 'plugin',

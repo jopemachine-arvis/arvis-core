@@ -35,7 +35,7 @@ const generateAsyncWork = (pluginBundleId, asyncPluginPromise, setTimer) => {
           unresolved = true;
           reject({
             name: 'Unresolved',
-            asyncPluginPromise: generateAsyncWork(pluginBundleId, asyncPluginPromise, false)
+            deferedPluginPromise: generateAsyncWork(pluginBundleId, asyncPluginPromise, false)
           });
         }
         ,
@@ -127,7 +127,7 @@ const run = async (query) => {
 
   const unresolved = asyncPluginResults
     .filter((result) => result.status === 'rejected' && result.reason.name === 'Unresolved')
-    .map(item => item.reason.asyncPluginPromise);
+    .map(item => item.reason.deferedPluginPromise);
 
   const errors = asyncPluginResults
     .filter((result) => result.status === 'rejected')
@@ -255,7 +255,7 @@ process.on('message', async ({ id, event, query, pluginInfos, bundleIds, timer }
         // If requestId equasl id, the request is latest request.
         requestId = id;
 
-        const { errors, pluginExecutionResults, unresolvedPlugins } = await run(id, query);
+        const { errors, pluginExecutionResults, unresolvedPlugins } = await run(query);
 
         process.send({
           id,
@@ -265,7 +265,7 @@ process.on('message', async ({ id, event, query, pluginInfos, bundleIds, timer }
             pluginExecutionResults,
           })
         });
-  
+
         handleDeferedPlugins(id, query, unresolvedPlugins);
       }
 
