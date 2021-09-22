@@ -1,6 +1,10 @@
 const fse = require('fs-extra');
 const pCancelable = require('./pCancelable');
 
+if (!fse.existsSync('./assets')) {
+  fse.mkdirSync('./assets');
+}
+
 const buildPluginExecutor = async () => {
   const pluginExecutor = await fse.readFile('./scripts/pluginExecutor.js', { encoding: 'utf-8' });
 
