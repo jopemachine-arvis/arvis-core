@@ -28,6 +28,8 @@ const buildScriptExecutor = async () => {
 
 // Build scripts to strings (json)
 (async () => {
-  await buildPluginExecutor();
-  await buildScriptExecutor();
+  await Promise.all([
+    buildPluginExecutor(),
+    buildScriptExecutor()
+  ]).catch(console.error);
 })();

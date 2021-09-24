@@ -54,6 +54,7 @@ export const startPluginExecutor = (): execa.ExecaChildProcess<string> => {
 
   pluginExecutor = execa('node', ['--eval', pluginExecutorProcess], {
     env,
+    all: true,
     stdio: ['ipc'],
     detached: true,
     extendEnv: true,
@@ -91,7 +92,7 @@ export const startPluginExecutor = (): execa.ExecaChildProcess<string> => {
   });
 
   pluginExecutor.send({ event: 'setTimer', timer: asyncPluginTimer });
-  pluginExecutor.stderr!.pipe(process.stderr);
+  pluginExecutor.all!.pipe(process.stdout);
   return pluginExecutor;
 };
 
