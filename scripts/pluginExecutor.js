@@ -2,10 +2,15 @@ const path = require('path');
 
 const arvisEnvs = process.env;
 
-let pluginModules = new Map();
 let asyncWorks = [];
 let asyncPluginTimer = 100;
 let requestId = 0;
+
+// Map<bundleId, pluginEntryFunction>
+let pluginModules = new Map();
+
+// Map<itemUid, asyncQuicklookPromise>
+let asyncQuicklookPromises = new Map();
 
 const cancelWorks = (asyncWorks) => {
   asyncWorks.forEach((request) => {
@@ -15,13 +20,6 @@ const cancelWorks = (asyncWorks) => {
 
 const restoreArvisEnvs = () => {
   process.env = arvisEnvs;
-};
-
-const sendMessage = (message, ...optionalParams) => {
-  process.send({
-    event: 'message',
-    payload: JSON.stringify({ message, params: optionalParams })
-  });
 };
 
 const generateAsyncWork = (pluginBundleId, asyncPluginPromise, setTimer) => {
@@ -72,9 +70,28 @@ const generateAsyncWork = (pluginBundleId, asyncPluginPromise, setTimer) => {
   return asyncWork;
 };
 
+const isPromise = (obj) => {
+  return !!obj && (typeof obj === 'object' || typeof obj === 'function') && typeof obj.then === 'function';
+}
+
 const getAsyncWork = (pluginBundleId, asyncPluginPromise) => {
   return generateAsyncWork(pluginBundleId, asyncPluginPromise, true);
 }
+
+const handleAsyncQuicklookItems = (items, defered) => {
+  let itemIdx = 0;
+  items.forEach((item) => {
+    if (item.quicklook && isPromise(item.quicklook.data)) {
+      item.quicklook.asyncQuicklookItemUid = defered ?
+        `defered@${item.bundleId}/${itemIdx++}` :
+        `@${item.bundleId}/${itemIdx++}`;
+
+      asyncQuicklookPromises.set(item.quicklook.asyncQuicklookItemUid, item.quicklook.data);
+    }
+  });
+
+  return items;
+};
 
 const run = async (query) => {
   cancelWorks(asyncWorks);
@@ -92,7 +109,7 @@ const run = async (query) => {
         inputStr: query,
       });
 
-      if (pluginExecutionResult.then) {
+      if (isPromise(pluginExecutionResult)) {
         asyncPluginWorks.push(
           getAsyncWork(
             pluginBundleId,
@@ -110,13 +127,15 @@ const run = async (query) => {
         pluginExecutionResults.push(pluginExecutionResult);
       }
     } catch (err) {
-      sendMessage(`Plugin '${pluginBundleId}' raised error on execution\n`, err);
+      console.log(`Plugin '${pluginBundleId}' raised error on execution\n`, err);
     }
   }
 
   asyncWorks = asyncPluginWorks;
 
   const asyncPluginResults = await Promise.allSettled(asyncWorks);
+
+  asyncQuicklookPromises.clear();
 
   restoreArvisEnvs();
 
@@ -134,6 +153,8 @@ const run = async (query) => {
     .map(item => item.reason)
     .filter((error) => error.name !== 'CancelError' && error.name !== 'Unresolved');
 
+  errors.forEach((error) => console.log('Async plugin runtime error occurs\n', error));
+
   const asyncPrintResult = successes.flat(Infinity);
   pluginExecutionResults.push(...asyncPrintResult);
 
@@ -141,10 +162,11 @@ const run = async (query) => {
     pluginExecutionResult.items = pluginExecutionResult.items.filter(
       (item) => !item.command || item.command.startsWith(query)
     );
+
+    handleAsyncQuicklookItems(pluginExecutionResult.items, false);
   }
 
   return {
-    errors,
     pluginExecutionResults,
     deferedPluginPromises: unresolved,
   };
@@ -171,7 +193,7 @@ const requireDynamically = (modulePath, envs) => {
       `);
     }
   } catch (err) {
-    sendMessage('Plugin module cache not deleted', err);
+    console.log(`Plugin module '${modulePath}' cache not deleted\n`, err);
   }
 
   process.env = { ...process.env, ...envs };
@@ -198,7 +220,7 @@ const reload = (pluginInfos, bundleIds) => {
       });
 
     } catch (err) {
-      sendMessage(`Plugin '${pluginInfo.bundleId}' raised error on require: \n`, err);
+      console.log(`Plugin '${pluginInfo.bundleId}' raised error on require: \n`, err);
     }
   }
 
@@ -215,7 +237,7 @@ const handleDeferedPlugins = (id, query, deferedPlugins) => {
   deferedPlugins.forEach((deferedPluginPromise) => {
     deferedPluginPromise
       .then((updatedItems) => {
-        deferedPluginResults.push(updatedItems);
+        deferedPluginResults.push(handleAsyncQuicklookItems(updatedItems, true));
         return null;
       })
       .catch((err) => {
@@ -226,6 +248,8 @@ const handleDeferedPlugins = (id, query, deferedPlugins) => {
       .finally(() => {
         progress += 1;
 
+        errors.forEach((error) => console.log('Defered plugin runtime error occurs\n', error));
+
         if (progress >= deferedPlugins.length) {
           if (id !== requestId) return;
 
@@ -233,17 +257,28 @@ const handleDeferedPlugins = (id, query, deferedPlugins) => {
             id,
             query,
             event: 'deferedPluginExecution',
-            payload: JSON.stringify({
-              errors,
-              deferedPluginResults,
-            })
+            payload: JSON.stringify(deferedPluginResults)
           });
         }
       });
   });
 };
 
-process.on('message', async ({ id, event, query, pluginInfos, bundleIds, timer }) => {
+const handleRenderAsyncQuicklook = (asyncQuicklookItemUid) => {
+  if (asyncQuicklookPromises.has(asyncQuicklookItemUid)) {
+    asyncQuicklookPromises.get(asyncQuicklookItemUid).then((content) => {
+      process.send({
+        event: 'renderAsyncQuicklookResponse',
+        payload: JSON.stringify({
+          content,
+          asyncQuicklookItemUid
+        })
+      });
+    }).catch(console.log);
+  }
+};
+
+process.on('message', async ({ id, event, query, pluginInfos, bundleIds, timer, asyncQuicklookItemUid }) => {
   switch (event) {
     case 'run':
       // If id equals 0, clear requestId
@@ -255,13 +290,12 @@ process.on('message', async ({ id, event, query, pluginInfos, bundleIds, timer }
         // If requestId equasl id, the request is latest request.
         requestId = id;
 
-        const { errors, pluginExecutionResults, deferedPluginPromises } = await run(query);
+        const { pluginExecutionResults, deferedPluginPromises } = await run(query);
 
         process.send({
           id,
           event: 'pluginExecution',
           payload: JSON.stringify({
-            errors,
             pluginExecutionResults,
             hasDeferedPluings: deferedPluginPromises.length > 0,
           })
@@ -280,8 +314,12 @@ process.on('message', async ({ id, event, query, pluginInfos, bundleIds, timer }
       asyncPluginTimer = timer;
       break;
 
+    case 'renderAsyncQuicklook':
+      handleRenderAsyncQuicklook(asyncQuicklookItemUid);
+      break;
+
     default:
-      sendMessage('Unsupported event type ', event);
+      console.log('Unsupported event type ', event);
       break;
   }
 });

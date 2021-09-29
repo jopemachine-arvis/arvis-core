@@ -2,6 +2,7 @@
 import { EventEmitter } from 'events';
 import execa from 'execa';
 import _ from 'lodash';
+import parseJson from 'parse-json';
 import { compareTwoStrings } from 'string-similarity';
 import { getEnvs, log, LogType } from '../config';
 import { getShellPathsEnv } from '../config/envHandler';
@@ -10,8 +11,6 @@ import { ActionFlowManager } from './actionFlowManager';
 import { getPluginList } from './pluginList';
 const pluginExecutorProcess = require('../../assets/pluginExecutor.json').pluginExecutor;
 
-let pluginExecutor: execa.ExecaChildProcess<string>;
-
 let requestId: number;
 
 let asyncPluginTimer = 100;
@@ -19,10 +18,6 @@ let asyncPluginTimer = 100;
 let executingAsyncPlugins = false;
 
 let executingDeferedPlugins = false;
-
-export const pluginEventEmitter = new EventEmitter();
-
-export const deferedPluginEventEmitter = new EventEmitter();
 
 let requestIdx = -1;
 const generateRequestId = (): number => {
@@ -38,70 +33,78 @@ export const setIsExecutingDeferedPlugins = (value: boolean) => {
   executingDeferedPlugins = value;
 };
 
-export const requestIsLatest = (id: number) => {
-  return requestId === id;
-};
-
-export const startPluginExecutor = (): execa.ExecaChildProcess<string> => {
-  const env = {
-    ...process.env,
-    pluginInstallPath,
-  };
-
-  if (process.platform !== 'win32') {
-    env['PATH'] = getShellPathsEnv();
+const throwErrorIfExecutorNotSet = () => {
+  if (!pluginWorkspace.pluginExecutor) {
+    throw new Error('pluginExecutor is not initialized!');
   }
-
-  pluginExecutor = execa('node', ['--eval', pluginExecutorProcess], {
-    env,
-    all: true,
-    stdio: ['ipc'],
-    detached: true,
-    extendEnv: true,
-    encoding: 'utf8',
-  });
-
-  pluginExecutor.on('exit', (exitCode) => {
-    throw new Error('PluginExecutor\'s ipc channel was closed!\nExit code: ' + exitCode);
-  });
-
-  pluginExecutor.on('error', (err) => {
-    log(LogType.error, 'PluginExecutor Error', err);
-  });
-
-  pluginExecutor.on('message', async ({ id, event, payload, query }: { id: number; event: string; payload: string; query: string }) => {
-    if (event === 'message') {
-      const { message, params } = JSON.parse(payload);
-      log(LogType.info, message, params);
-    }
-
-    if (event === 'pluginExecution') {
-      pluginEventEmitter.emit('pluginExecution', { id, event, payload });
-    }
-
-    if (event === 'deferedPluginExecution') {
-      if (id === requestId) {
-        const { deferedPluginResults, errors }: { deferedPluginResults: PluginExectionResult[], errors: Error[] } = JSON.parse(payload);
-        const deferedPluginsItems = pluginWorkspace.pluginExecutionHandler(query, deferedPluginResults, errors);
-
-        setIsExecutingDeferedPlugins(false);
-        errors.forEach((error) => log(LogType.error, 'Defered plugin runtime error occurs\n', error));
-        deferedPluginEventEmitter.emit('deferedPluginExecution', { id, event, payload: JSON.stringify(deferedPluginsItems) });
-      }
-    }
-  });
-
-  pluginExecutor.send({ event: 'setTimer', timer: asyncPluginTimer });
-  pluginExecutor.all!.pipe(process.stdout);
-  return pluginExecutor;
 };
 
 export const pluginWorkspace: PluginWorkspace = {
+  pluginExecutor: undefined,
+
   pluginModules: new Map(),
 
-  requestIsLatest,
+  pluginEventEmitter: new EventEmitter(),
 
-  deferedPluginEventEmitter,
+  deferedPluginEventEmitter: new EventEmitter(),
+
+  asyncQuicklookRenderEventEmitter: new EventEmitter(),
+
+  startPluginExecutor: (): execa.ExecaChildProcess<string> => {
+    const env = {
+      ...process.env,
+      pluginInstallPath,
+    };
+
+    if (process.platform !== 'win32') {
+      env['PATH'] = getShellPathsEnv();
+    }
+
+    pluginWorkspace.pluginExecutor = execa('node', ['--eval', pluginExecutorProcess], {
+      all: true,
+      env,
+      stdio: ['ipc'],
+      detached: true,
+      extendEnv: true,
+      encoding: 'utf8',
+    });
+
+    pluginWorkspace.pluginExecutor.on('exit', (exitCode) => {
+      throw new Error('PluginExecutor\'s ipc channel was closed!\nExit code: ' + exitCode);
+    });
+
+    pluginWorkspace.pluginExecutor.on('error', (err) => {
+      log(LogType.error, 'PluginExecutor Error', err);
+    });
+
+    pluginWorkspace.pluginExecutor.on('message', async ({ id, event, payload, query }: { id: number; event: string; payload: string; query: string }) => {
+      if (event === 'pluginExecution') {
+        pluginWorkspace.pluginEventEmitter.emit('pluginExecution', { id, event, payload });
+      }
+
+      if (event === 'renderAsyncQuicklookResponse') {
+        pluginWorkspace.asyncQuicklookRenderEventEmitter.emit('render', payload);
+      }
+
+      if (event === 'deferedPluginExecution') {
+        if (id === requestId) {
+          const deferedPluginResults: PluginExectionResult[] = parseJson(payload);
+          const deferedPluginsItems = pluginWorkspace.pluginExecutionHandler(query, deferedPluginResults);
+
+          setIsExecutingDeferedPlugins(false);
+          pluginWorkspace.deferedPluginEventEmitter.emit('render', { id, event, payload: JSON.stringify(deferedPluginsItems) });
+        }
+      }
+    });
+
+    pluginWorkspace.pluginExecutor.send({ event: 'setTimer', timer: asyncPluginTimer });
+    pluginWorkspace.pluginExecutor.all!.pipe(process.stdout);
+    return pluginWorkspace.pluginExecutor;
+  },
+
+  requestIsLatest: (id: number) => {
+    return requestId === id;
+  },
 
   isExecutingAsyncPlugins: () => executingAsyncPlugins,
 
@@ -109,13 +112,30 @@ export const pluginWorkspace: PluginWorkspace = {
 
   setAsyncPluginTimer: (timer: number): void => {
     asyncPluginTimer = timer;
-    pluginExecutor && pluginExecutor.send({ event: 'setTimer', timer });
+    pluginWorkspace.pluginExecutor && pluginWorkspace.pluginExecutor.send({ event: 'setTimer', timer });
+  },
+
+  requestAsyncQuicklookRender: (asyncQuicklookItemUid: string) => {
+    throwErrorIfExecutorNotSet();
+
+    return new Promise<string>((resolve) => {
+      pluginWorkspace.pluginExecutor!.send({
+        event: 'renderAsyncQuicklook',
+        asyncQuicklookItemUid,
+      });
+
+      pluginWorkspace.asyncQuicklookRenderEventEmitter.removeAllListeners();
+      pluginWorkspace.asyncQuicklookRenderEventEmitter.on('render', (payload: { content: string } & any) => {
+        const { content, asyncQuicklookItemUid: uid } = parseJson(payload);
+        if (uid === asyncQuicklookItemUid) {
+          resolve(content);
+        }
+      });
+    });
   },
 
   reload: (pluginInfos: (PluginConfigFile & { envs?: Record<string, any> })[], bundleIds?: string[]): void => {
-    if (!pluginExecutor) {
-      throw new Error('plugin reload is called, but pluginExecutor is not initialized.');
-    }
+    throwErrorIfExecutorNotSet();
 
     for (const pluginInfo of pluginInfos) {
       pluginInfo.envs = getEnvs({
@@ -127,7 +147,7 @@ export const pluginWorkspace: PluginWorkspace = {
       });
     }
 
-    pluginExecutor.send({
+    pluginWorkspace.pluginExecutor!.send({
       event: 'reload',
       bundleIds: JSON.stringify(bundleIds),
       pluginInfos: JSON.stringify(pluginInfos),
@@ -175,9 +195,7 @@ export const pluginWorkspace: PluginWorkspace = {
     }
   },
 
-  pluginExecutionHandler: (inputStr: string, pluginExecutionResults: PluginExectionResult[], errors?: Error[]): PluginExectionResult[] => {
-    errors && errors.forEach((error) => log(LogType.error, 'Async plugin runtime error occurs\n', error));
-
+  pluginExecutionHandler: (inputStr: string, pluginExecutionResults: PluginExectionResult[]): PluginExectionResult[] => {
     pluginWorkspace.appendPluginItemAttr(inputStr, pluginExecutionResults);
 
     for (const pluginExecutionResult of pluginExecutionResults) {
@@ -192,30 +210,30 @@ export const pluginWorkspace: PluginWorkspace = {
   },
 
   search: async (inputStr: string): Promise<PluginExectionResult[]> => {
+    if (!pluginWorkspace.pluginExecutor) return [];
+
     requestId = generateRequestId();
-    pluginExecutor.send({ id: requestId, event: 'run', query: inputStr });
+    pluginWorkspace.pluginExecutor.send({ id: requestId, event: 'run', query: inputStr });
 
     return new Promise(async (resolve, _reject) => {
       const retrieveHandler =
         async ({ id, event, payload }: { id: number; event: string; payload: string }) => {
           if (id === requestId && event === 'pluginExecution') {
             const {
-              errors,
               hasDeferedPluings,
               pluginExecutionResults,
             }: {
-              errors: Error[],
               hasDeferedPluings: boolean,
               pluginExecutionResults: PluginExectionResult[],
-            } = JSON.parse(payload);
+            } = parseJson(payload);
 
             setIsExecutingDeferedPlugins(hasDeferedPluings);
-            resolve(pluginWorkspace.pluginExecutionHandler(inputStr, pluginExecutionResults, errors));
+            resolve(pluginWorkspace.pluginExecutionHandler(inputStr, pluginExecutionResults));
           }
         };
 
-      pluginEventEmitter.removeAllListeners();
-      pluginEventEmitter.on('pluginExecution', retrieveHandler);
+      pluginWorkspace.pluginEventEmitter.removeAllListeners();
+      pluginWorkspace.pluginEventEmitter.on('pluginExecution', retrieveHandler);
     });
   },
 };

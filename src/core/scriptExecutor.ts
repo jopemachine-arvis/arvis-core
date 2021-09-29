@@ -29,6 +29,7 @@ export const startScriptExecutor = (modulePath: { execa: string }): execa.ExecaC
 
   scriptExecutor = execa('node', ['--eval', scriptExecutorProcess, modulePath.execa], {
     env,
+    all: true,
     stdio: ['ipc'],
     detached: true,
     extendEnv: true,
@@ -43,7 +44,7 @@ export const startScriptExecutor = (modulePath: { execa: string }): execa.ExecaC
     log(LogType.error, 'ScriptExecutor Error', err);
   });
 
-  scriptExecutor.stderr!.pipe(process.stderr);
+  scriptExecutor.all!.pipe(process.stdout);
 
   return scriptExecutor;
 };
