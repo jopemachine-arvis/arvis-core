@@ -237,7 +237,8 @@ const handleDeferedPlugins = (id, query, deferedPlugins) => {
   deferedPlugins.forEach((deferedPluginPromise) => {
     deferedPluginPromise
       .then((updatedItems) => {
-        deferedPluginResults.push(handleAsyncQuicklookItems(updatedItems, true));
+        handleAsyncQuicklookItems(updatedItems.items, true);
+        deferedPluginResults.push(updatedItems);
         return null;
       })
       .catch((err) => {
