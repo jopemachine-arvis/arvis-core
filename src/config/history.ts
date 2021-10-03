@@ -1,7 +1,8 @@
 import Conf from 'conf';
 import _ from 'lodash';
 
-import { log, LogType } from './logger';
+let history: Log[] | undefined;
+let maxLogCnt: number | undefined;
 
 const schema = {
   logs: {
@@ -28,21 +29,26 @@ const conf = new Conf({
 /**
  * @summary
  */
-const discardOldAndGetLogs = (): Log[] => {
-  let logs = conf.get('logs') as Log[];
-  const maxLogCnt = conf.get('maxCount') as number;
+const discardOldLogs = (): void => {
+  if (!history || !maxLogCnt) throw new Error('History API is not intialized!');
 
   // Considering the log to be pushed, add 1.
-  const sIdx = logs.length - maxLogCnt + 1;
-  if (sIdx > 0) logs = logs.slice(sIdx);
-  return logs;
+  const sIdx = history.length - maxLogCnt + 1;
+  if (sIdx > 0) history = history.slice(sIdx);
 };
 
 /**
- * @summary
+ * Initialize history object.
+ * If history is already initialized, return history object.
  */
 export const getHistory = (): Log[] => {
-  return conf.get('logs') as Log[];
+  if (history && maxLogCnt) {
+    return history;
+  }
+
+  history = conf.get('logs') as Log[];
+  maxLogCnt = conf.get('maxCount') as number;
+  return history;
 };
 
 /**
@@ -58,9 +64,7 @@ export const setMaxLogCnt = (count: number): void => {
 export const getLatestMatch = (str: string) => {
   if (str.trim() === '') return '';
 
-  const history = getHistory().reverse();
-
-  return _.find(history, historyLog =>
+  return _.find([...getHistory()].reverse(), historyLog =>
     historyLog.inputStr && historyLog.inputStr.startsWith(str)
   );
 };
@@ -70,18 +74,17 @@ export const getLatestMatch = (str: string) => {
  * @param inputStr
  */
 export const pushInputStrLog = (bundleId: string, inputStr: string | undefined): void => {
-  if (!inputStr || inputStr === '') return;
+  if (!inputStr) return;
+  if (!history || !maxLogCnt) throw new Error('History API is not intialized!');
 
-  const logs: Log[] = discardOldAndGetLogs();
+  discardOldLogs();
 
-  logs.push({
+  history!.push({
     bundleId,
     inputStr,
     type: 'query',
     timestamp: new Date().getTime(),
   });
-
-  conf.set('logs', logs);
 };
 
 /**
@@ -91,18 +94,16 @@ export const pushInputStrLog = (bundleId: string, inputStr: string | undefined):
 export const pushActionLog = (bundleId: string, action: Action): void => {
   const availableTypes: string[] = getActionTypesToLog();
   if (!availableTypes.includes(action.type)) return;
-  const logs: Log[] = discardOldAndGetLogs();
+  if (!history || !maxLogCnt) throw new Error('History API is not intialized!');
 
-  logs.push({
+  discardOldLogs();
+
+  history!.push({
     bundleId,
     action,
     type: 'action',
     timestamp: new Date().getTime(),
   });
-
-  conf.set('logs', logs);
-
-  log(LogType.silly, 'Current logs', logs);
 };
 
 /**
@@ -110,6 +111,15 @@ export const pushActionLog = (bundleId: string, action: Action): void => {
  */
 export const initHistory = (): void => {
   conf.set('logs', []);
+};
+
+/**
+ * This function should be called before Arvis quit for saving history as file
+ */
+export const writeHistory = () => {
+  if (history) {
+    conf.set('logs', history);
+  }
 };
 
 /**
