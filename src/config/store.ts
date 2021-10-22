@@ -1,9 +1,8 @@
-import fse from 'fs-extra';
 import _ from 'lodash';
 import { findTriggers, getBundleId, pluginWorkspace } from '../core';
 import { applyArgsInCommand } from '../core/argsHandler';
 import { fetchAllExtensionJsonPaths } from '../lib/fetchAllExtensionJsonPaths';
-import { zipDirectory } from '../utils';
+import { readJson5, zipDirectory } from '../utils';
 import { log, LogType } from './logger';
 import {
   getPluginConfigJsonPath,
@@ -177,7 +176,9 @@ export class Store {
             return filePath.endsWith('arvis-workflow.json');
           });
 
-        const readJsonsResult: PromiseSettledResult<any>[] = await Promise.allSettled(extensionInfoFiles.map((file) => fse.readJson(file)));
+        const readJsonsResult: PromiseSettledResult<any>[] = await Promise.allSettled(
+          extensionInfoFiles.map((file) => readJson5(file))
+        );
 
         let invalidCnt: number = 0;
         const workflowInfoArr: WorkflowConfigFile[] = readJsonsResult
@@ -245,7 +246,7 @@ export class Store {
             return filePath.endsWith('arvis-plugin.json');
           });
 
-        const readJsonsResult: PromiseSettledResult<any>[] = await Promise.allSettled(extensionInfoFiles.map((file) => fse.readJson(file)));
+        const readJsonsResult: PromiseSettledResult<any>[] = await Promise.allSettled(extensionInfoFiles.map((file) => readJson5(file)));
 
         let invalidCnt: number = 0;
         const pluginInfoArr: PluginConfigFile[] = readJsonsResult

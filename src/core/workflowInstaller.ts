@@ -12,7 +12,7 @@ import { log, LogType } from '../config';
 import { getWorkflowInstalledPath, tempPath } from '../config/path';
 import { Store } from '../config/store';
 import { getBundleId } from '../lib/getBundleId';
-import { sleep } from '../utils';
+import { readJson5, sleep } from '../utils';
 
 /**
  * @param installedPath
@@ -27,7 +27,7 @@ export const installByPath = async (installedPath: string): Promise<void | Error
   return new Promise(async (resolve, reject) => {
     let workflowConfig: WorkflowConfigFile;
     try {
-      workflowConfig = await fse.readJson(workflowConfFilePath);
+      workflowConfig = await readJson5(workflowConfFilePath) as WorkflowConfigFile;
     } catch (err) {
       reject(err);
       return;

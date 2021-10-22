@@ -11,7 +11,7 @@ import { applyUserConfigs, getUserConfigs, log, LogType } from '../config';
 import { getPluginInstalledPath, tempPath } from '../config/path';
 import { Store } from '../config/store';
 import { getBundleId } from '../lib/getBundleId';
-import { sleep } from '../utils';
+import { readJson5, sleep } from '../utils';
 
 /**
  * @param installedPath
@@ -23,7 +23,7 @@ export const installByPath = async (installedPath: string): Promise<void | Error
   return new Promise(async (resolve, reject) => {
     let pluginConfig: PluginConfigFile;
     try {
-      pluginConfig = await fse.readJson(pluginConfFilePath);
+      pluginConfig = await readJson5(pluginConfFilePath) as PluginConfigFile;
     } catch (err) {
       reject(err);
       return;

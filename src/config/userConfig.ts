@@ -1,4 +1,5 @@
 import fse from 'fs-extra';
+import { readJson5 } from '../utils';
 import { userConfigPath } from './path';
 
 /**
@@ -22,7 +23,7 @@ export const applyUserConfigs = (userConfig: any, extensionInfo: WorkflowConfigF
 /**
  */
 export const getUserConfigs = async (): Promise<any> => {
-  return fse.readJSON(userConfigPath);
+  return readJson5(userConfigPath);
 };
 
 /**

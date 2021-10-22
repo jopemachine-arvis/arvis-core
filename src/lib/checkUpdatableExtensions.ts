@@ -1,7 +1,7 @@
-import fse from 'fs-extra';
 import semver from 'semver';
 import { log, LogType } from '../config';
 import { fetchAllExtensionJsonPaths } from '../lib/fetchAllExtensionJsonPaths';
+import { readJson5 } from '../utils';
 
 /**
  * @summary
@@ -15,7 +15,7 @@ export const checkUpdatableExtensions = async (
   const files = await fetchAllExtensionJsonPaths(type);
 
   files.forEach((file) => {
-    readJsonWorks.push(fse.readJSON(file));
+    readJsonWorks.push(readJson5(file));
   });
 
   try {

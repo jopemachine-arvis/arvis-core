@@ -1,6 +1,7 @@
 import dotProp from 'dot-prop';
 import fse from 'fs-extra';
 import { getWorkflowConfigJsonPath } from '../config/path';
+import { readJson5 } from '../utils';
 
 /**
  * @param bundleId
@@ -13,7 +14,7 @@ export const updateWorkflowTrigger = async (
   value: string
 ): Promise<void> => {
   const workflowConfPath = getWorkflowConfigJsonPath(bundleId);
-  const workflowConfig = await fse.readJSON(workflowConfPath);
+  const workflowConfig = await readJson5(workflowConfPath) as WorkflowConfigFile;
   const action: any = dotProp.get(workflowConfig, actionPath);
 
   switch (action.type) {
