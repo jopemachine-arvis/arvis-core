@@ -433,7 +433,7 @@ export class ActionFlowManager {
     if (this.getTopTrigger().type === 'scriptFilter') {
       const vars = { ...(item as ScriptFilterItem).variables, ...this.globalVariables! };
       return applyExtensionVars(
-        await extractArgsFromScriptFilterItem(item, vars),
+        await extractArgsFromScriptFilterItem((item as ScriptFilterItem), vars),
         extensionVariables
       );
     }

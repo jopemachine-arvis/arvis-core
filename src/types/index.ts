@@ -28,5 +28,6 @@ import './scriptFilterItem';
 import './scriptFilterResult';
 import './trigger';
 import './workflowConfig';
+import './modItem';
 
 export default global;

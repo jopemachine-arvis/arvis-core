@@ -2,38 +2,23 @@ export {};
 
 declare global {
   export interface ScriptFilterItem {
-    readonly title: string;
-    readonly arg?: Record<string, any> | string;
-    readonly variables?: Record<string, any>;
-    readonly valid?: boolean;
-    readonly subtitle?: string;
-    readonly autocomplete?: string;
-    readonly text?: {
+    title: string;
+    arg?: Record<string, any> | string;
+    variables?: Record<string, any>;
+    valid?: boolean;
+    subtitle?: string;
+    autocomplete?: string;
+    text?: {
       readonly copy?: string;
       readonly largetype?: string;
     };
-    readonly quicklookurl?: string;
-    readonly mods?: {
-      readonly ctrl?: {
-        readonly title?: string;
-        readonly subtitle?: string;
-      };
-      readonly shift?: {
-        readonly title?: string;
-        readonly subtitle?: string;
-      };
-      readonly alt?: {
-        readonly title?: string;
-        readonly subtitle?: string;
-      };
-      readonly fn?: {
-        readonly title?: string;
-        readonly subtitle?: string;
-      };
-      readonly cmd?: {
-        readonly title?: string;
-        readonly subtitle?: string;
-      };
+    quicklookurl?: string;
+    mods?: {
+      readonly ctrl?: ModItem;
+      readonly shift?: ModItem;
+      readonly alt?: ModItem;
+      readonly fn?: ModItem;
+      readonly cmd?: ModItem;
     };
     icon?:
       | {

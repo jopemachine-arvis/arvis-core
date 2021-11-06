@@ -2,17 +2,17 @@ export {};
 
 declare global {
   export interface Command {
-    title: string;
-    subtitle?: string;
+    actions?: Action[];
+    argType?: 'required' | 'optional' | 'no';
+    bundleId?: string;
     command?: string;
     hotkey?: string;
-    bundleId?: string;
     modifiers?: string;
-    scriptFilter?: string | Record<string, any>;
     runningSubtext?: string;
+    scriptFilter?: string | Record<string, any>;
+    subtitle?: string;
+    title?: string;
+    type: 'keyword' | 'scriptFilter' | 'hotkey';
     withspace?: boolean;
-    readonly argType?: 'required' | 'optional' | 'no';
-    readonly type: 'keyword' | 'scriptFilter' | 'hotkey';
-    actions?: Action[];
   }
 }
