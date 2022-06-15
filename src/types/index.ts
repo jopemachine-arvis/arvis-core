@@ -19,6 +19,7 @@ import './actions/triggerAction';
 import './command';
 import './log';
 import './modifierInput';
+import './modItem';
 import './pluginConfig';
 import './pluginExectionResult';
 import './pluginItem';
@@ -28,6 +29,5 @@ import './scriptFilterItem';
 import './scriptFilterResult';
 import './trigger';
 import './workflowConfig';
-import './modItem';
 
 export default global;

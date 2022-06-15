@@ -1,18 +1,16 @@
 # arvis-core
-[![CodeFactor](https://www.codefactor.io/repository/github/jopemachine/arvis-core/badge)](https://www.codefactor.io/repository/github/jopemachine/arvis-core)
-[![Known Vulnerabilities](https://snyk.io/test/github/jopemachine/arvis-core/badge.svg)](https://github.com/jopemachine/arvis-core)
-[![CI](https://github.com/jopemachine/arvis-core/actions/workflows/main.yml/badge.svg)](https://github.com/jopemachine/arvis-core/actions)
+[![Known Vulnerabilities](https://snyk.io/test/github/jopemachine-arvis/arvis-core/badge.svg)](https://github.com/jopemachine-arvis/arvis-core)
+[![CI](https://github.com/jopemachine-arvis/arvis-core/actions/workflows/main.yml/badge.svg)](https://github.com/jopemachine-arvis/arvis-core/actions)
 [![NPM version](https://badge.fury.io/js/arvis-core.svg)](http://badge.fury.io/js/arvis-core)
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
 [![PR's Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](http://makeapullrequest.com)
-[![GitHub issues](https://img.shields.io/github/issues/jopemachine/arvis-core.svg)](https://GitHub.com/jopemachine/arvis-core/issues/)
+[![GitHub issues](https://img.shields.io/github/issues/jopemachine-arvis/arvis-core.svg)](https://GitHub.com/jopemachine-arvis/arvis-core/issues/)
 
-[Arvis](https://github.com/jopemachine/arvis) module.
+[Arvis](https://github.com/jopemachine-arvis/arvis) module.
 
 This library aims to handle logics separated from rendering specific logic.
 
 You can find more detailed documentation on above [page](https://github.com/jopemachine/arvis).
-
 
 ## Build and development
 
@@ -43,9 +41,8 @@ The storage path for all installed extension files is stored in the `data` path 
 
 ## Related
 
-- [arvis](https://github.com/jopemachine/arvis) - Arvis main repository
+- [arvis](https://github.com/jopemachine-arvis/arvis) - Arvis main repository
 
-- [arvis-extension-validator](https://github.com/jopemachine/arvis-extension-validator) - Arvis extension's JSON schema, cli and library to validate these.
+- [arvis-extension-validator](https://github.com/jopemachine-arvis/arvis-extension-validator) - Arvis extension's JSON schema, cli and library to validate these.
 
-- [alfred-to-arvis](https://github.com/jopemachine/alfred-to-arvis) - Help to convert alfred 4 workflow's info.plist to arvis-workflow.json
-
+- [alfred-to-arvis](https://github.com/jopemachine-arvis/alfred-to-arvis) - Help to convert alfred 4 workflow's info.plist to arvis-workflow.json
